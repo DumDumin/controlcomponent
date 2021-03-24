@@ -4,20 +4,30 @@ namespace ControlComponent
 {
     public class ControlComponent
     {
-        private ExecutionState exst = ExecutionState.STOPPED;
-        public ExecutionState EXST => exst;
+        private Execution execution;
+        private OperationMode operationMode;
+
+        public ExecutionState EXST => execution.EXST;
+
+        public ControlComponent()
+        {
+            execution = new Execution();
+        }
 
         public void Reset()
         {
-            exst = ExecutionState.IDLE;
+            execution.SetState(ExecutionState.IDLE);
         }
 
         public void Start()
         {
-            if(exst == ExecutionState.IDLE)
-            {
-                exst = ExecutionState.EXECUTE;
-            }
+
+            execution.SetState(ExecutionState.EXECUTE);
+        }
+
+        public void Suspend()
+        {
+            execution.SetState(ExecutionState.SUSPENDED);
         }
     }
 }

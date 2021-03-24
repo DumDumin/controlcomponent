@@ -15,3 +15,6 @@ dotnet sln add .\src\ControlComponent\ControlComponent.csproj
 dotnet sln add .\tests\ControlComponent.Tests\ControlComponent.Tests.csproj
 
 dotnet add reference ..\..\src\ControlComponent\
+
+# Packages
+dotnet add package DotNet.NLog.NetCore --version 5.0.0

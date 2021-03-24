@@ -40,5 +40,17 @@ namespace ControlComponent.Tests
             cc.Start();
             Assert.AreEqual(ExecutionState.EXECUTE, cc.EXST);
         }
+
+        [Test]
+        public void Given_ExecuteControlComponent_When_Suspend_Then_Suspended()
+        {
+            ControlComponent cc = new ControlComponent();
+            cc.Reset();
+            Assert.AreEqual(ExecutionState.IDLE, cc.EXST);
+            cc.Start();
+            Assert.AreEqual(ExecutionState.EXECUTE, cc.EXST);
+            cc.Suspend();
+            Assert.AreEqual(ExecutionState.SUSPENDED, cc.EXST);
+        }
     }
 }
