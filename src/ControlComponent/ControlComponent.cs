@@ -5,16 +5,25 @@ namespace ControlComponent
     public class ControlComponent
     {
         private Execution execution;
+        private Occupation occupation;
         private OperationMode operationMode;
 
         public ExecutionState EXST => execution.EXST;
 
         public ControlComponent()
         {
-            execution = new Execution();
+            operationMode = new OperationMode();
+            execution = new Execution(operationMode);
+            occupation = new Occupation();
         }
 
-        public void Reset()
+        public string OCCUPIER => occupation.OCCUPIER;
+        public void Occupy(string sender) => occupation.Occupy(sender);
+        public void Free(string sender) => occupation.Free(sender);
+        public bool IsOccupied() => occupation.IsOccupied();
+        public bool IsFree() => occupation.IsFree();
+
+        public async Task Reset()
         {
             execution.SetState(ExecutionState.IDLE);
         }
