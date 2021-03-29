@@ -7,6 +7,8 @@ namespace ControlComponent
 {
     public class OperationMode
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         Dictionary<ExecutionState, Func<CancellationToken, Task>> stateActions;
         public string OpModeName { get; }
         IExecution execution;
@@ -66,6 +68,7 @@ namespace ControlComponent
             while(!mainTokenSource.IsCancellationRequested)
             {
                 executionTokenSource = new CancellationTokenSource();
+                logger.Debug($"Invoke {execution.EXST} action");
                 await stateActions[execution.EXST].Invoke(executionTokenSource.Token);
             }
             execution.ExecutionStateChanged -= OnExecutionStateChanged;
@@ -192,10 +195,6 @@ namespace ControlComponent
             await Task.CompletedTask;
         }
 
-        protected virtual async Task Suspended(CancellationToken token)
-        {
-            await Task.Delay(Timeout.Infinite, token);
-        }
         // Unhold has to set EXST to EXECUTE after completion.
         protected virtual async Task Unsuspending(CancellationToken token)
         {
@@ -246,6 +245,10 @@ namespace ControlComponent
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
         }
         protected virtual async Task Stopped(CancellationToken token)
+        {
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
+        }
+        protected virtual async Task Suspended(CancellationToken token)
         {
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
         }

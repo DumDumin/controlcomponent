@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using NLog;
 using NUnit.Framework;
 
 namespace ControlComponent.Tests
@@ -9,6 +10,18 @@ namespace ControlComponent.Tests
         string SENDER = "SENDER";
         ControlComponent cc;
         Task runningOpMode;
+
+        
+        [OneTimeSetUp]
+        public void OneTimeSetUp(){
+            var config = new NLog.Config.LoggingConfiguration();
+            // Targets where to log to: Console
+            var logconsole = new NLog.Targets.ConsoleTarget("logconsole");   
+            // Rules for mapping loggers to targets            
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logconsole);     
+            // Apply config           
+            NLog.LogManager.Configuration = config;
+        }
 
         [SetUp]
         public void Setup()
@@ -38,9 +51,9 @@ namespace ControlComponent.Tests
             await Helper.WaitForState(cc, ExecutionState.IDLE);
             cc.Start(SENDER);
             await Helper.WaitForState(cc, ExecutionState.EXECUTE);
-            // Assert.AreEqual(ExecutionState.EXECUTE, cc.EXST);
             cc.Suspend(SENDER);
             await Helper.WaitForState(cc, ExecutionState.SUSPENDED);
+            
             Assert.AreEqual(ExecutionState.SUSPENDED, cc.EXST);
         }
     }
