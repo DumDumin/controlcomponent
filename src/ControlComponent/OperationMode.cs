@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace ControlComponent
 
         CancellationTokenSource executionTokenSource;
         CancellationTokenSource mainTokenSource;
+
+        IEnumerable<OrderOutput> outputs;
 
         public OperationMode(string name)
         {
@@ -59,25 +62,55 @@ namespace ControlComponent
             executionTokenSource.Cancel();
         }
 
-        public async Task Select(IExecution execution)
-        {
-            mainTokenSource = new CancellationTokenSource();
-            this.execution = execution;
-            execution.ExecutionStateChanged += OnExecutionStateChanged;
+        private List<Task> runningOutputs = new List<Task>();
 
-            while(!mainTokenSource.IsCancellationRequested)
-            {
-                executionTokenSource = new CancellationTokenSource();
-                logger.Debug($"Invoke {execution.EXST} action");
-                await stateActions[execution.EXST].Invoke(executionTokenSource.Token);
+        public async Task Select(IExecution execution, IEnumerable<OrderOutput> outputs)
+        {
+            try
+            { 
+                mainTokenSource = new CancellationTokenSource();
+                this.execution = execution;
+                this.outputs = outputs;
+
+                foreach (var output in outputs)
+                {
+                    runningOutputs.Add(output.SelectOperationMode(new OperationMode("TEST"), Enumerable.Empty<OrderOutput>()));
+                }
+
+                execution.ExecutionStateChanged += OnExecutionStateChanged;
+
+                while(!mainTokenSource.IsCancellationRequested)
+                {
+                    executionTokenSource = new CancellationTokenSource();
+                    logger.Debug($"Invoke {execution.EXST} action");
+                    await stateActions[execution.EXST].Invoke(executionTokenSource.Token);
+                }
+                execution.ExecutionStateChanged -= OnExecutionStateChanged;
             }
-            execution.ExecutionStateChanged -= OnExecutionStateChanged;
+            catch (System.Exception e)
+            {
+                logger.Error(e);
+            }
+        }
+
+        private async Task WaitForOutputsToDo(Action<OrderOutput> action, ExecutionState state)
+        {
+            List<Task> waitForOutputStates = new List<Task>();
+            foreach (var output in outputs)
+            {
+                // TODO might need the occupier if the cc of this opmode
+                action(output);
+                waitForOutputStates.Add(Helper.WaitForState(output, state));
+            }
+            await Task.WhenAll(waitForOutputStates);
+
+            execution.SetState(state);
+            await Task.CompletedTask;
         }
 
         protected virtual async Task Resetting(CancellationToken token)
         {
-            execution.SetState(ExecutionState.IDLE);
-            await Task.CompletedTask;
+            await WaitForOutputsToDo((OrderOutput output) => output.Reset(this.OpModeName) , ExecutionState.IDLE);
         }
 
         protected virtual async Task Starting(CancellationToken token)
@@ -86,16 +119,11 @@ namespace ControlComponent
             await Task.CompletedTask;
         }
 
-        // Stop has to set EXST to STOPPED after completion.
         protected virtual async Task Stopping(CancellationToken token)
         {
-            // foreach (var output in control.OrderOutputs)
-            // {
-            //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //         output.Value.Cc.Stop(control.ComponentName);
-            // }
-            execution.SetState(ExecutionState.STOPPED);
-            await Task.CompletedTask;
+            await WaitForOutputsToDo((OrderOutput output) => output.Stop(this.OpModeName) , ExecutionState.STOPPED);
+            // if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
+            //     output.Value.Cc.Stop(control.ComponentName);
         }
 
         // Reset has to set EXST to IDLE after completion.

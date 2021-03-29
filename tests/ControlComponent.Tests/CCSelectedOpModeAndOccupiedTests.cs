@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -11,14 +12,15 @@ namespace ControlComponent.Tests
         string OCCUPIER_A = "A";
         string OCCUPIER_B = "B";
         string SENDER = "SENDER";
+        string CC = "CC";
 
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent();
+            cc = new ControlComponent(CC);
             cc.Occupy(OCCUPIER_A);
             var newOpMode = new OperationMode("NEWOPMODE");
-            runningOpMode = cc.SelectOperationMode(newOpMode);
+            runningOpMode = cc.SelectOperationMode(newOpMode, Enumerable.Empty<OrderOutput>());
         }
 
         [TearDown]

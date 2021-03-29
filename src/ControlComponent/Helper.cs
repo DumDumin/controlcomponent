@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 
-namespace ControlComponent.Tests
+namespace ControlComponent
 {
     public static class Helper
     {
-        public static async Task WaitForState(IExecution cc, ExecutionState state)
+        public static async Task WaitForState(IExecutionState cc, ExecutionState state)
         {
             int counter = 0;
             while (cc.EXST != state)

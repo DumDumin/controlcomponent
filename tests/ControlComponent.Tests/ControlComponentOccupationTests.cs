@@ -9,11 +9,12 @@ namespace ControlComponent.Tests
 
         string OCCUPIER_A = "A";
         string OCCUPIER_B = "B";
+        string CC = "CC";
 
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent();
+            cc = new ControlComponent(CC);
         }
 
         [Test]

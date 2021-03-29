@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -8,19 +9,20 @@ namespace ControlComponent.Tests
     {
         string SENDER = "SENDER";
         string OCCUPIER = "OCCUPIER";
+        string CC = "CC";
         ControlComponent cc;
 
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent();
+            cc = new ControlComponent(CC);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
 
         [Test]
         public void Given_NewControlComponent_When_EXST_Then_Stopped()
         {
-            ControlComponent cc = new ControlComponent();
+            ControlComponent cc = new ControlComponent(CC);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
 
@@ -31,10 +33,16 @@ namespace ControlComponent.Tests
         }
 
         [Test]
-        public async Task Given_Stopped_When_SetOpMode_Then_NewOpMode()
+        public void Given_Stopped_When_ComponentName_Then_CC()
+        {
+            Assert.AreEqual(CC, cc.ComponentName);
+        }
+
+        [Test]
+        public async Task Given_Stopped_When_SelectOpMode_Then_NewOpMode()
         {
             var newOpMode = new OperationMode("NEWOPMODE");
-            Task runningOpMode = cc.SelectOperationMode(newOpMode);
+            Task runningOpMode = cc.SelectOperationMode(newOpMode, Enumerable.Empty<OrderOutput>());
             Assert.AreEqual(newOpMode.OpModeName, cc.OpModeName);
 
             await cc.DeselectOperationMode();
@@ -70,5 +78,8 @@ namespace ControlComponent.Tests
             e = Assert.Throws<InvalidOperationException>(() => cc.Clear(SENDER));
             Assert.AreEqual($"Cannot change to {ExecutionState.CLEARING}, if no operation mode is selected", e.Message);
         }
+
+        // [Test]
+        // public void Given_Stopped_When_
     }
 }

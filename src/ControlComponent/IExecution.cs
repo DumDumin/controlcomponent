@@ -2,9 +2,13 @@ using System;
 
 namespace ControlComponent
 {
-    public interface IExecution
+    public interface IExecutionState
     {
         ExecutionState EXST { get; }
+    }
+
+    public interface IExecution : IExecutionState
+    {
 
         event EventHandler ExecutionStateChanged;
 

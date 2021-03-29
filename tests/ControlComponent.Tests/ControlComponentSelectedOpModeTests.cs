@@ -1,4 +1,6 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -9,13 +11,14 @@ namespace ControlComponent.Tests
         string SENDER = "SENDER";
         ControlComponent cc;
         Task runningOpMode;
+        string CC = "CC";
 
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent();
+            cc = new ControlComponent(CC);
             var newOpMode = new OperationMode("NEWOPMODE");
-            runningOpMode = cc.SelectOperationMode(newOpMode);
+            runningOpMode = cc.SelectOperationMode(newOpMode, Enumerable.Empty<OrderOutput>());
         }
 
         [TearDown]

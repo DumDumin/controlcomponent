@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -43,9 +44,9 @@ namespace ControlComponent.Tests
         public async Task Given_Stopped_When_Reset_Then_Idle()
         {
             OperationMode operation = new OperationMode(OPMODENAME);
-            Execution execution = new Execution();
+            Execution execution = new Execution("Execution");
 
-            Task select = operation.Select(execution);
+            Task select = operation.Select(execution, Enumerable.Empty<OrderOutput>());
             execution.SetState(ExecutionState.RESETTING);
             await Helper.WaitForState(execution, ExecutionState.IDLE);
             Assert.AreEqual(ExecutionState.IDLE, execution.EXST);
@@ -58,10 +59,10 @@ namespace ControlComponent.Tests
         public async Task Given_Idle_When_Start_Then_Completed()
         {
             OperationMode operation = new OperationMode(OPMODENAME);
-            IExecution execution = new Execution();
+            IExecution execution = new Execution("Execution");
 
             
-            Task select = operation.Select(execution);
+            Task select = operation.Select(execution, Enumerable.Empty<OrderOutput>());
             execution.SetState(ExecutionState.RESETTING);
             await Helper.WaitForState(execution, ExecutionState.IDLE);
             execution.SetState(ExecutionState.STARTING);

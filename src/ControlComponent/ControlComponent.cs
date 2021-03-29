@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace ControlComponent
@@ -9,13 +11,15 @@ namespace ControlComponent
         private Occupation occupation;
         private OperationMode operationMode;
         public string OpModeName => operationMode != null ? operationMode.OpModeName : "NONE";
+        public string ComponentName { get; }
         Task runningOpMode;
 
         public ExecutionState EXST => execution.EXST;
 
-        public ControlComponent()
+        public ControlComponent(string name)
         {
-            execution = new Execution();
+            ComponentName = name;
+            execution = new Execution(ComponentName);
             occupation = new Occupation();
         }
 
@@ -94,12 +98,12 @@ namespace ControlComponent
             ChangeState(ExecutionState.CLEARING, sender);
         }
 
-        public async Task SelectOperationMode(OperationMode operationMode)
+        public async Task SelectOperationMode(OperationMode operationMode, IEnumerable<OrderOutput> outputs)
         {
             if (EXST == ExecutionState.STOPPED)
             {
                 this.operationMode = operationMode;
-                runningOpMode = this.operationMode.Select(this.execution);
+                runningOpMode = this.operationMode.Select(this.execution, outputs);
                 await runningOpMode;
             }
         }

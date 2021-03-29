@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 using NUnit.Framework;
@@ -10,6 +11,7 @@ namespace ControlComponent.Tests
         string SENDER = "SENDER";
         ControlComponent cc;
         Task runningOpMode;
+        string CC = "CC";
 
         
         [OneTimeSetUp]
@@ -26,9 +28,9 @@ namespace ControlComponent.Tests
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent();
+            cc = new ControlComponent(CC);
             var newOpMode = new OperationModeAsync("NEWOPMODE");
-            runningOpMode = cc.SelectOperationMode(newOpMode);
+            runningOpMode = cc.SelectOperationMode(newOpMode, Enumerable.Empty<OrderOutput>());
         }
 
         [TearDown]
@@ -53,7 +55,7 @@ namespace ControlComponent.Tests
             await Helper.WaitForState(cc, ExecutionState.EXECUTE);
             cc.Suspend(SENDER);
             await Helper.WaitForState(cc, ExecutionState.SUSPENDED);
-            
+
             Assert.AreEqual(ExecutionState.SUSPENDED, cc.EXST);
         }
     }
