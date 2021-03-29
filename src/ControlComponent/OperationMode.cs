@@ -84,7 +84,7 @@ namespace ControlComponent
         }
 
         // Stop has to set EXST to STOPPED after completion.
-        public virtual async Task Stopping(CancellationToken token)
+        protected virtual async Task Stopping(CancellationToken token)
         {
             // foreach (var output in control.OrderOutputs)
             // {
@@ -109,7 +109,7 @@ namespace ControlComponent
         // }
         // Abort has to set EXST to ABORTED after completion.
 
-        public virtual async Task Aborting(CancellationToken token)
+        protected virtual async Task Aborting(CancellationToken token)
         {
             // foreach (var output in control.OrderOutputs)
             // {
@@ -148,7 +148,7 @@ namespace ControlComponent
             await Task.CompletedTask;
         }
         // Hold has to set EXST to HELD after completion.
-        public virtual async Task Holding(CancellationToken token)
+        protected virtual async Task Holding(CancellationToken token)
         {
             // TOBI TODO stay in this state till all outputs are done with hold
             // foreach (var output in control.OrderOutputs)
@@ -160,7 +160,7 @@ namespace ControlComponent
             await Task.CompletedTask;
         }
         // Unhold has to set EXST to EXECUTE after completion.
-        public virtual async Task Unholding(CancellationToken token)
+        protected virtual async Task Unholding(CancellationToken token)
         {
             // foreach (var output in control.OrderOutputs)
             // {
@@ -192,12 +192,12 @@ namespace ControlComponent
             await Task.CompletedTask;
         }
 
-        public virtual async Task Suspended(CancellationToken token)
+        protected virtual async Task Suspended(CancellationToken token)
         {
             await Task.Delay(Timeout.Infinite, token);
         }
         // Unhold has to set EXST to EXECUTE after completion.
-        public virtual async Task Unsuspending(CancellationToken token)
+        protected virtual async Task Unsuspending(CancellationToken token)
         {
             // foreach (var output in control.OrderOutputs)
             // {
@@ -223,29 +223,29 @@ namespace ControlComponent
             await Task.CompletedTask;
         }
 
-        public virtual async Task Completing(CancellationToken token)
+        protected virtual async Task Completing(CancellationToken token)
         {
             execution.SetState(ExecutionState.COMPLETED);
             await Task.CompletedTask;
         }
 
-        public virtual async Task Held(CancellationToken token)
+        protected virtual async Task Held(CancellationToken token)
         {
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
         }
-        public virtual async Task Idle(CancellationToken token)
+        protected virtual async Task Idle(CancellationToken token)
         {
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});;
         }
-        public virtual async Task Completed(CancellationToken token)
+        protected virtual async Task Completed(CancellationToken token)
         {
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
         }
-        public virtual async Task Aborted(CancellationToken token)
+        protected virtual async Task Aborted(CancellationToken token)
         {
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
         }
-        public virtual async Task Stopped(CancellationToken token)
+        protected virtual async Task Stopped(CancellationToken token)
         {
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
         }

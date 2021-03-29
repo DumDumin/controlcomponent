@@ -18,3 +18,12 @@ dotnet add reference ..\..\src\ControlComponent\
 
 # Packages
 dotnet add package DotNet.NLog.NetCore --version 5.0.0
+dotnet add package Moq --version 4.16.1
+
+
+
+# TODO
+[assembly:InternalsVisibleTo("ControlComponent.Tests")]
+
+## Logs in Unit Tests by configure logger in code
+https://github.com/NLog/NLog/wiki/Configure-from-code

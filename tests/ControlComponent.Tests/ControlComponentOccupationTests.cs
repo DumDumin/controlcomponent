@@ -7,6 +7,9 @@ namespace ControlComponent.Tests
     {
         ControlComponent cc;
 
+        string OCCUPIER_A = "A";
+        string OCCUPIER_B = "B";
+
         [SetUp]
         public void Setup()
         {
