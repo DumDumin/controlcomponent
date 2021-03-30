@@ -16,21 +16,17 @@ namespace ControlComponent.Tests
         string OpModeOne = "OpModeOne";
         string OpModeTwo = "OpModeTwo";
 
-        private IDictionary<string, OrderOutput> creatOutputs()
-        {
-            var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            return new Dictionary<string, OrderOutput>() {
-                { OpModeOne, new OrderOutput("First", new ControlComponent("CC1", OpModes)) },
-                { OpModeTwo, new OrderOutput("Second", new ControlComponent("CC2", OpModes)) }
-            };
-        }
-
         [SetUp]
         public void Setup()
         {
             var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            cc = new ControlComponent(CC, OpModes);
-            runningOpMode = cc.SelectOperationMode(OpModeOne, creatOutputs());
+            var orderOutputs = new Collection<OrderOutput>() 
+            { 
+                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
+                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>()))
+            };
+            cc = new ControlComponent(CC, OpModes, orderOutputs);
+            runningOpMode = cc.SelectOperationMode(OpModeOne);
         }
 
         [TearDown]

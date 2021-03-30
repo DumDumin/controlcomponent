@@ -16,20 +16,16 @@ namespace ControlComponent.Tests
         string OpModeTwo = "OpModeTwo";
         ControlComponent cc;
 
-        private IDictionary<string, OrderOutput> creatOutputs()
-        {
-            var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            return new Dictionary<string, OrderOutput>() {
-                { OpModeOne, new OrderOutput("First", new ControlComponent("CC1", OpModes)) },
-                { OpModeTwo, new OrderOutput("Second", new ControlComponent("CC2", OpModes)) }
-            };
-        }
-
         [SetUp]
         public void Setup()
         {
             var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            cc = new ControlComponent(CC, OpModes);
+            var orderOutputs = new Collection<OrderOutput>() 
+            { 
+                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
+                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>()))
+            };
+            cc = new ControlComponent(CC, OpModes, orderOutputs);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
 
@@ -67,7 +63,7 @@ namespace ControlComponent.Tests
         public async Task Given_Stopped_When_SelectOpMode_Then_NewOpMode()
         {
             // var newOpMode = new OperationMode("NEWOPMODE");
-            Task runningOpMode = cc.SelectOperationMode(OpModeOne, creatOutputs());
+            Task runningOpMode = cc.SelectOperationMode(OpModeOne);
             Assert.AreEqual(OpModeOne, cc.OpModeName);
 
             await cc.DeselectOperationMode();

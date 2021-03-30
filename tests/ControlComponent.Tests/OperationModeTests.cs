@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +34,34 @@ namespace ControlComponent.Tests
             // execution.Setup(p => p.)
             tokenOwner = new CancellationTokenSource();
             outputs = new Dictionary<string, OrderOutput>();
+        }
+
+        [Test]
+        public void Given_NotNeededRoles_When_Select_Then_OK()
+        {
+            var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
+            Execution execution = new Execution("Execution");
+
+            Assert.ThrowsAsync<Exception>(() => operationMode.Select(execution, outputs));
+        }
+
+        [Test]
+        public void Given_NeededRoles_When_Select_Then_OK()
+        {
+            outputs = new Dictionary<string, OrderOutput>()
+            {
+                {"ROLE_ONE", new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<OperationMode>(), new Collection<OrderOutput>())) },
+                {"ROLE_TWO", new OrderOutput("ROLE_TWO", new ControlComponent("CC2", new Collection<OperationMode>(), new Collection<OrderOutput>())) },
+            };
+            var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
+            Execution execution = new Execution("Execution");
+
+            Assert.DoesNotThrowAsync(async () => {
+                Task select = operationMode.Select(execution, outputs);
+                await Task.Delay(5);
+                operationMode.Deselect();
+                await select;
+            });
         }
 
         [Test]

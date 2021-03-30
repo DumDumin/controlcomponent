@@ -22,15 +22,22 @@ namespace ControlComponent
         public string Role { get; }
         public ExecutionState EXST => controlComponent.EXST;
 
+        public string OpModeName => controlComponent.OpModeName;
+
         public OrderOutput(string role, ControlComponent cc)
         {
             Role = role;
             controlComponent = cc;
         }
 
-        public async Task SelectOperationMode(string operationMode, IDictionary<string, OrderOutput> outputs)
+        public async Task SelectOperationMode(string operationMode)
         {
-            await controlComponent.SelectOperationMode(operationMode, outputs);
+            await controlComponent.SelectOperationMode(operationMode);
+        }
+
+        public async Task DeselectOperationMode()
+        {
+            await controlComponent.DeselectOperationMode();
         }
 
         public void Reset(string sender)

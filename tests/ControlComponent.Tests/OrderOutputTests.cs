@@ -18,6 +18,7 @@ namespace ControlComponent.Tests
         string OpModeOne = "OpModeOne";
         string OpModeTwo = "OpModeTwo";
         ControlComponent cc;
+        Collection<OrderOutput> orderOutputs;
 
         [OneTimeSetUp]
         public void OneTimeSetUp(){
@@ -34,8 +35,14 @@ namespace ControlComponent.Tests
         [SetUp]
         public void Setup()
         {
+            var CascadeOpModes = new Collection<OperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
             var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            cc = new ControlComponent(CC, OpModes);
+            orderOutputs = new Collection<OrderOutput>() 
+            { 
+                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
+                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>()))
+            };
+            cc = new ControlComponent(CC, CascadeOpModes, orderOutputs);
         }
 
         // [TearDown]
@@ -44,14 +51,6 @@ namespace ControlComponent.Tests
         //     operationMode.OnTaskDone -= OnTaskDone;
         // }
 
-        private IDictionary<string, OrderOutput> creatOutputs()
-        {
-            var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            return new Dictionary<string, OrderOutput>() {
-                { OpModeOne, new OrderOutput("First", new ControlComponent("CC1", OpModes)) },
-                { OpModeTwo, new OrderOutput("Second", new ControlComponent("CC2", OpModes)) }
-            };
-        }
 
         [Test]
         public void Given_OrderOutput_When_Role_Then_Role()
@@ -68,32 +67,39 @@ namespace ControlComponent.Tests
         }
 
         [Test]
-        public async Task Given()
+        public void Given_OrderOutputs_When_Roles_Then_Roles()
         {
-            var opModeForOutput = creatOutputs();
-            var output = opModeForOutput.Values.ToList();
-            Task runningOpMode = cc.SelectOperationMode(OpModeOne, opModeForOutput);
+            Assert.AreEqual(new Collection<string>(){"ROLE_ONE", "ROLE_TWO"}, cc.Roles);
+        }
+
+        [Test]
+        public async Task Given_OrderOutputs_When_Reset_Then_Idle()
+        {
+            Task runningOpMode = cc.SelectOperationMode(OpModeOne);
 
             cc.Reset(SENDER);
             await Helper.WaitForState(cc, ExecutionState.IDLE);
 
-            Assert.AreEqual(ExecutionState.IDLE, output[0].EXST);
-            Assert.AreEqual(ExecutionState.IDLE, output[1].EXST);
+            Assert.AreEqual(ExecutionState.IDLE, orderOutputs[0].EXST);
+            Assert.AreEqual(ExecutionState.IDLE, orderOutputs[1].EXST);
 
 
             cc.Stop(SENDER);
-            await Helper.WaitForState(output[0], ExecutionState.STOPPED);
-            await Helper.WaitForState(output[1], ExecutionState.STOPPED);
+            await Helper.WaitForState(orderOutputs[0], ExecutionState.STOPPED);
+            await Helper.WaitForState(orderOutputs[1], ExecutionState.STOPPED);
             // Check that cc is still stopping, when the outputs get stopped
             Assert.AreEqual(ExecutionState.STOPPING, cc.EXST);
-            Assert.AreEqual(ExecutionState.STOPPED, output[0].EXST);
-            Assert.AreEqual(ExecutionState.STOPPED, output[1].EXST);
+            Assert.AreEqual(ExecutionState.STOPPED, orderOutputs[0].EXST);
+            Assert.AreEqual(ExecutionState.STOPPED, orderOutputs[1].EXST);
 
             await Helper.WaitForState(cc, ExecutionState.STOPPED);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
 
             await cc.DeselectOperationMode();
             await runningOpMode;
+
+            Assert.AreEqual("NONE", orderOutputs[0].OpModeName);
+            Assert.AreEqual("NONE", orderOutputs[1].OpModeName);
         }
     }
 }

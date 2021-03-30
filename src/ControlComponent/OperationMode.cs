@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace ControlComponent
 {
@@ -17,11 +18,13 @@ namespace ControlComponent
         CancellationTokenSource executionTokenSource;
         CancellationTokenSource mainTokenSource;
 
-        IEnumerable<OrderOutput> outputs;
+        protected IDictionary<string, OrderOutput> outputs;
+        Collection<string> neededRoles;
 
-        public OperationMode(string name)
+        public OperationMode(string name, Collection<string> neededRoles)
         {
             OpModeName = name;
+            this.neededRoles = neededRoles;
 
             stateActions = new Dictionary<ExecutionState, Func<CancellationToken, Task>>()
             {
@@ -50,6 +53,10 @@ namespace ControlComponent
             };
         }
 
+        public OperationMode(string name) : this(name, new Collection<string>())
+        {
+        }
+
         private void OnExecutionStateChanged(object sender, EventArgs e)
         {
             executionTokenSource.Cancel();
@@ -62,22 +69,27 @@ namespace ControlComponent
             executionTokenSource.Cancel();
         }
 
-        private List<Task> runningOutputs = new List<Task>();
+        private Dictionary<string, Task> runningOutputs = new Dictionary<string, Task>();
 
-        public async Task Select(IExecution execution, IDictionary<string, OrderOutput> opModeForOutput)
+        protected void SelectRole(string role, string operationMode)
+        {
+            runningOutputs.Add(role, outputs[role].SelectOperationMode(operationMode));
+        }
+
+        public async Task Select(IExecution execution, IDictionary<string, OrderOutput> orderOutputs)
         {
             try
             { 
                 mainTokenSource = new CancellationTokenSource();
                 this.execution = execution;
-                this.outputs = opModeForOutput.Values;
+                this.outputs = orderOutputs;
 
-                foreach (var outputKV in opModeForOutput)
+                foreach (var item in neededRoles)
                 {
-                    string opMode = outputKV.Key;
-                    OrderOutput output = outputKV.Value;
-                    // TODO remove order outputs from SelectOperationMode
-                    runningOutputs.Add(output.SelectOperationMode(opMode, new Dictionary<string, OrderOutput>()));
+                    if(!orderOutputs.Keys.Contains(item))
+                    {
+                        throw new Exception($"Role {item} is not available in known outputs = {string.Join(' ', orderOutputs.Keys)}");
+                    }
                 }
 
                 execution.ExecutionStateChanged += OnExecutionStateChanged;
@@ -93,13 +105,21 @@ namespace ControlComponent
             catch (System.Exception e)
             {
                 logger.Error(e);
+                throw e;
+            }
+            finally
+            {
+                foreach (var output in runningOutputs)
+                {
+                    await outputs[output.Key].DeselectOperationMode();
+                }
             }
         }
 
         private async Task WaitForOutputsToDo(Action<OrderOutput> action, ExecutionState state)
         {
             List<Task> waitForOutputStates = new List<Task>();
-            foreach (var output in outputs)
+            foreach (var output in outputs.Values.Where(o => o.OpModeName != "NONE"))
             {
                 // TODO might need the occupier if the cc of this opmode
                 action(output);

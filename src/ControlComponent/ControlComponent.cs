@@ -8,21 +8,28 @@ namespace ControlComponent
 {
     public class ControlComponent
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private Execution execution;
         private Occupation occupation;
         private OperationMode operationMode;
         private IDictionary<string, OperationMode> operationModes;
+        // TODO chnage string keys Enums
+        private IDictionary<string, OrderOutput> orderOutputs;
+
         public string OpModeName => operationMode != null ? operationMode.OpModeName : "NONE";
         public ICollection<string> OpModes => operationModes.Keys;
+        public ICollection<string> Roles => orderOutputs.Keys;
         public string ComponentName { get; }
         Task runningOpMode;
 
         public ExecutionState EXST => execution.EXST;
 
-        public ControlComponent(string name, ICollection<OperationMode> opModes)
+        public ControlComponent(string name, ICollection<OperationMode> opModes, ICollection<OrderOutput> orderOutputs)
         {
             ComponentName = name;
             operationModes = opModes.ToDictionary(o => o.OpModeName);
+            this.orderOutputs = orderOutputs.ToDictionary(o => o.Role);
             execution = new Execution(ComponentName);
             occupation = new Occupation();
         }
@@ -102,13 +109,21 @@ namespace ControlComponent
             ChangeState(ExecutionState.CLEARING, sender);
         }
 
-        public async Task SelectOperationMode(string operationMode, IDictionary<string, OrderOutput> outputs)
+        public async Task SelectOperationMode(string operationMode)
         {
-            if (EXST == ExecutionState.STOPPED)
+            try
+            { 
+                if (EXST == ExecutionState.STOPPED)
+                {
+                    this.operationMode = operationModes[operationMode];
+                    runningOpMode = this.operationMode.Select(this.execution, orderOutputs);
+                    await runningOpMode;
+                }
+            }
+            catch (System.Exception e)
             {
-                this.operationMode = operationModes[operationMode];
-                runningOpMode = this.operationMode.Select(this.execution, outputs);
-                await runningOpMode;
+                logger.Error(e);
+                throw;
             }
         }
 

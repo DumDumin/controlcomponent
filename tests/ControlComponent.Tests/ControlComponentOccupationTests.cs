@@ -16,7 +16,12 @@ namespace ControlComponent.Tests
         public void Setup()
         {
             var OpModes = new Collection<OperationMode>(){ new OperationMode("OpModeOne"), new OperationMode("OpModeTwo") };
-            cc = new ControlComponent(CC, OpModes);
+            var orderOutputs = new Collection<OrderOutput>() 
+            { 
+                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
+                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>()))
+            };
+            cc = new ControlComponent(CC, OpModes, orderOutputs);
         }
 
         [Test]

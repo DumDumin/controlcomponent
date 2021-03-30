@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -29,21 +30,17 @@ namespace ControlComponent.Tests
             NLog.LogManager.Configuration = config;
         }
 
-        private IDictionary<string, OrderOutput> creatOutputs()
-        {
-            var OpModes = new Collection<OperationMode>(){ new OperationModeAsync(OpModeOne), new OperationModeAsync(OpModeTwo) };
-            return new Dictionary<string, OrderOutput>() {
-                { OpModeOne, new OrderOutput("First", new ControlComponent("CC1", OpModes)) },
-                { OpModeTwo, new OrderOutput("Second", new ControlComponent("CC2", OpModes)) }
-            };
-        }
-
         [SetUp]
         public void Setup()
         {
             var OpModes = new Collection<OperationMode>(){ new OperationModeAsync(OpModeOne), new OperationModeAsync(OpModeTwo) };
-            cc = new ControlComponent(CC, OpModes);
-            runningOpMode = cc.SelectOperationMode(OpModeOne, creatOutputs());
+            var orderOutputs = new Collection<OrderOutput>() 
+            { 
+                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
+                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>()))
+            };
+            cc = new ControlComponent(CC, OpModes, orderOutputs);
+            runningOpMode = cc.SelectOperationMode(OpModeOne);
         }
 
         [TearDown]
