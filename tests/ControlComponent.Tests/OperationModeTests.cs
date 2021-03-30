@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace ControlComponent.Tests
     {
         string OPMODENAME = "DEFAULT";
         CancellationTokenSource tokenOwner;
-
+        IDictionary<string, OrderOutput> outputs;
 
         [OneTimeSetUp]
         public void OneTimeSetUp(){
@@ -30,6 +31,7 @@ namespace ControlComponent.Tests
             // var execution = new Mock<IExecution>();
             // execution.Setup(p => p.)
             tokenOwner = new CancellationTokenSource();
+            outputs = new Dictionary<string, OrderOutput>();
         }
 
         [Test]
@@ -46,7 +48,7 @@ namespace ControlComponent.Tests
             OperationMode operation = new OperationMode(OPMODENAME);
             Execution execution = new Execution("Execution");
 
-            Task select = operation.Select(execution, Enumerable.Empty<OrderOutput>());
+            Task select = operation.Select(execution, outputs);
             execution.SetState(ExecutionState.RESETTING);
             await Helper.WaitForState(execution, ExecutionState.IDLE);
             Assert.AreEqual(ExecutionState.IDLE, execution.EXST);
@@ -62,7 +64,7 @@ namespace ControlComponent.Tests
             IExecution execution = new Execution("Execution");
 
             
-            Task select = operation.Select(execution, Enumerable.Empty<OrderOutput>());
+            Task select = operation.Select(execution, outputs);
             execution.SetState(ExecutionState.RESETTING);
             await Helper.WaitForState(execution, ExecutionState.IDLE);
             execution.SetState(ExecutionState.STARTING);

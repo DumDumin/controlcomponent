@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -10,15 +11,18 @@ namespace ControlComponent
         private Execution execution;
         private Occupation occupation;
         private OperationMode operationMode;
+        private IDictionary<string, OperationMode> operationModes;
         public string OpModeName => operationMode != null ? operationMode.OpModeName : "NONE";
+        public ICollection<string> OpModes => operationModes.Keys;
         public string ComponentName { get; }
         Task runningOpMode;
 
         public ExecutionState EXST => execution.EXST;
 
-        public ControlComponent(string name)
+        public ControlComponent(string name, ICollection<OperationMode> opModes)
         {
             ComponentName = name;
+            operationModes = opModes.ToDictionary(o => o.OpModeName);
             execution = new Execution(ComponentName);
             occupation = new Occupation();
         }
@@ -54,7 +58,7 @@ namespace ControlComponent
             }
             else
             {
-                throw new InvalidOperationException($"Cannot change to {newState}, if no operation mode is selected");
+                throw new InvalidOperationException($"{ComponentName} cannot change to {newState}, if no operation mode is selected");
             }
         }
 
@@ -98,11 +102,11 @@ namespace ControlComponent
             ChangeState(ExecutionState.CLEARING, sender);
         }
 
-        public async Task SelectOperationMode(OperationMode operationMode, IEnumerable<OrderOutput> outputs)
+        public async Task SelectOperationMode(string operationMode, IDictionary<string, OrderOutput> outputs)
         {
             if (EXST == ExecutionState.STOPPED)
             {
-                this.operationMode = operationMode;
+                this.operationMode = operationModes[operationMode];
                 runningOpMode = this.operationMode.Select(this.execution, outputs);
                 await runningOpMode;
             }

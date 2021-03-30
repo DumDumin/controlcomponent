@@ -28,7 +28,7 @@ namespace ControlComponent
             controlComponent = cc;
         }
 
-        public async Task SelectOperationMode(OperationMode operationMode, IEnumerable<OrderOutput> outputs)
+        public async Task SelectOperationMode(string operationMode, IDictionary<string, OrderOutput> outputs)
         {
             await controlComponent.SelectOperationMode(operationMode, outputs);
         }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -10,19 +12,30 @@ namespace ControlComponent.Tests
         string SENDER = "SENDER";
         string OCCUPIER = "OCCUPIER";
         string CC = "CC";
+        string OpModeOne = "OpModeOne";
+        string OpModeTwo = "OpModeTwo";
         ControlComponent cc;
+
+        private IDictionary<string, OrderOutput> creatOutputs()
+        {
+            var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            return new Dictionary<string, OrderOutput>() {
+                { OpModeOne, new OrderOutput("First", new ControlComponent("CC1", OpModes)) },
+                { OpModeTwo, new OrderOutput("Second", new ControlComponent("CC2", OpModes)) }
+            };
+        }
 
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent(CC);
+            var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            cc = new ControlComponent(CC, OpModes);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
 
         [Test]
         public void Given_NewControlComponent_When_EXST_Then_Stopped()
         {
-            ControlComponent cc = new ControlComponent(CC);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
 
@@ -39,11 +52,23 @@ namespace ControlComponent.Tests
         }
 
         [Test]
+        public void Given_OpModes_When_ListOpModeNames_Then_ReturnOpModeNames()
+        {
+            Assert.AreEqual(new Collection<string>(){OpModeOne, OpModeTwo}, cc.OpModes);
+        }
+
+        // [Test]
+        // public void Given_OrderOuputs_When_ListRoles_Then_ReturnRoles()
+        // {
+        //     Assert.AreEqual(new List<string>(){"OrderOuputOne", "OrderOutput2"}, cc.Roles);
+        // }
+
+        [Test]
         public async Task Given_Stopped_When_SelectOpMode_Then_NewOpMode()
         {
-            var newOpMode = new OperationMode("NEWOPMODE");
-            Task runningOpMode = cc.SelectOperationMode(newOpMode, Enumerable.Empty<OrderOutput>());
-            Assert.AreEqual(newOpMode.OpModeName, cc.OpModeName);
+            // var newOpMode = new OperationMode("NEWOPMODE");
+            Task runningOpMode = cc.SelectOperationMode(OpModeOne, creatOutputs());
+            Assert.AreEqual(OpModeOne, cc.OpModeName);
 
             await cc.DeselectOperationMode();
             await runningOpMode;
@@ -60,23 +85,23 @@ namespace ControlComponent.Tests
         public void Given_Stopped_When_UserActions_Then_Throw()
         {
             InvalidOperationException e = Assert.Throws<InvalidOperationException>(() => cc.Reset(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.RESETTING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.RESETTING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Start(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.STARTING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.STARTING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Stop(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.STOPPING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.STOPPING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Suspend(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.SUSPENDING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.SUSPENDING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Unsuspend(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.UNSUSPENDING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.UNSUSPENDING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Hold(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.HOLDING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.HOLDING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Unhold(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.UNHOLDING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.UNHOLDING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Abort(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.ABORTING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.ABORTING}, if no operation mode is selected", e.Message);
             e = Assert.Throws<InvalidOperationException>(() => cc.Clear(SENDER));
-            Assert.AreEqual($"Cannot change to {ExecutionState.CLEARING}, if no operation mode is selected", e.Message);
+            Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.CLEARING}, if no operation mode is selected", e.Message);
         }
 
         // [Test]

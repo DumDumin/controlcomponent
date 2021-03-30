@@ -64,17 +64,20 @@ namespace ControlComponent
 
         private List<Task> runningOutputs = new List<Task>();
 
-        public async Task Select(IExecution execution, IEnumerable<OrderOutput> outputs)
+        public async Task Select(IExecution execution, IDictionary<string, OrderOutput> opModeForOutput)
         {
             try
             { 
                 mainTokenSource = new CancellationTokenSource();
                 this.execution = execution;
-                this.outputs = outputs;
+                this.outputs = opModeForOutput.Values;
 
-                foreach (var output in outputs)
+                foreach (var outputKV in opModeForOutput)
                 {
-                    runningOutputs.Add(output.SelectOperationMode(new OperationMode("TEST"), Enumerable.Empty<OrderOutput>()));
+                    string opMode = outputKV.Key;
+                    OrderOutput output = outputKV.Value;
+                    // TODO remove order outputs from SelectOperationMode
+                    runningOutputs.Add(output.SelectOperationMode(opMode, new Dictionary<string, OrderOutput>()));
                 }
 
                 execution.ExecutionStateChanged += OnExecutionStateChanged;

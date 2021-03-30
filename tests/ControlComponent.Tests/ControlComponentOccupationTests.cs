@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -14,7 +15,8 @@ namespace ControlComponent.Tests
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent(CC);
+            var OpModes = new Collection<OperationMode>(){ new OperationMode("OpModeOne"), new OperationMode("OpModeTwo") };
+            cc = new ControlComponent(CC, OpModes);
         }
 
         [Test]

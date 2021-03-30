@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -13,14 +15,25 @@ namespace ControlComponent.Tests
         string OCCUPIER_B = "B";
         string SENDER = "SENDER";
         string CC = "CC";
+        string OpModeOne = "OpModeOne";
+        string OpModeTwo = "OpModeTwo";
+
+        private IDictionary<string, OrderOutput> creatOutputs()
+        {
+            var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            return new Dictionary<string, OrderOutput>() {
+                { OpModeOne, new OrderOutput("First", new ControlComponent("CC1", OpModes)) },
+                { OpModeTwo, new OrderOutput("Second", new ControlComponent("CC2", OpModes)) }
+            };
+        }
 
         [SetUp]
         public void Setup()
         {
-            cc = new ControlComponent(CC);
+            var OpModes = new Collection<OperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            cc = new ControlComponent(CC, OpModes);
             cc.Occupy(OCCUPIER_A);
-            var newOpMode = new OperationMode("NEWOPMODE");
-            runningOpMode = cc.SelectOperationMode(newOpMode, Enumerable.Empty<OrderOutput>());
+            runningOpMode = cc.SelectOperationMode(OpModeOne, creatOutputs());
         }
 
         [TearDown]
