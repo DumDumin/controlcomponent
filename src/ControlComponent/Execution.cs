@@ -11,7 +11,7 @@ namespace ControlComponent
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         public ExecutionState EXST { get ; private set; } = ExecutionState.STOPPED;
 
-        public event EventHandler ExecutionStateChanged;
+        public event ExecutionStateEventHandler ExecutionStateChanged;
 
         private readonly Dictionary<ExecutionState, List<ExecutionState>> allowedTransitions;
 
@@ -55,7 +55,7 @@ namespace ControlComponent
             {
                 logger.Debug($"{name} changed state from {EXST} to {newState}");
                 EXST = newState;
-                ExecutionStateChanged?.Invoke(this, new EventArgs());
+                ExecutionStateChanged?.Invoke(this, new ExecutionStateEventArgs(EXST));
             }
             else
             {

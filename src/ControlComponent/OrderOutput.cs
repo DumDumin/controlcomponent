@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -24,10 +25,14 @@ namespace ControlComponent
 
         public string OpModeName => controlComponent.OpModeName;
 
+        public event ExecutionStateEventHandler ExecutionStateChanged;
+
         public OrderOutput(string role, ControlComponent cc)
         {
             Role = role;
             controlComponent = cc;
+
+            controlComponent.ExecutionStateChanged += (object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
         }
 
         public async Task SelectOperationMode(string operationMode)
@@ -45,10 +50,10 @@ namespace ControlComponent
             controlComponent.Reset(sender);
         }
 
-        // public void Start(string sender)
-        // {
-        //     ChangeState(ExecutionState.STARTING, sender);
-        // }
+        public void Start(string sender)
+        {
+            controlComponent.Start(sender);
+        }
 
         // public void Suspend(string sender)
         // {

@@ -17,6 +17,8 @@ namespace ControlComponent
         // TODO chnage string keys Enums
         private IDictionary<string, OrderOutput> orderOutputs;
 
+        public event ExecutionStateEventHandler ExecutionStateChanged;
+
         public string OpModeName => operationMode != null ? operationMode.OpModeName : "NONE";
         public ICollection<string> OpModes => operationModes.Keys;
         public ICollection<string> Roles => orderOutputs.Keys;
@@ -38,6 +40,8 @@ namespace ControlComponent
             this.orderOutputs = orderOutputs.ToDictionary(o => o.Role);
             execution = new Execution(ComponentName);
             occupation = new Occupation();
+
+            execution.ExecutionStateChanged += (object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(sender, e);
         }
 
         public string OCCUPIER => occupation.OCCUPIER;

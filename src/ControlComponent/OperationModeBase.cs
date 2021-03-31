@@ -120,35 +120,69 @@ namespace ControlComponent
             }
         }
 
-        private async Task WaitForOutputsToDo(Action<OrderOutput> action, ExecutionState state)
+        private async Task WaitForSelectedOutputsToDo(Action<OrderOutput> action, IEnumerable<ExecutionState> states, IEnumerable<OrderOutput> selectedOutputs)
         {
-            List<Task> waitForOutputStates = new List<Task>();
-            foreach (var output in outputs.Values.Where(o => o.OpModeName != "NONE"))
+            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            Task waitForStateChange = Task.Delay(100000, tokenSource.Token).ContinueWith(task => {});
+
+            // TODO do not only wait for actions, but check if outputs are already in the desired state
+            ExecutionStateEventHandler subscriber = (object sender, ExecutionStateEventArgs e) => {
+                logger.Debug($"Received {e.ExecutionState} while waiting for {states}");
+                if(states.Contains(e.ExecutionState))
+                {
+                    if(selectedOutputs.All(o => states.Contains(o.EXST)))
+                    {
+                        tokenSource.Cancel();
+                    }
+                }
+            };
+
+            logger.Debug("Subscribe");
+            foreach (var output in selectedOutputs)
             {
                 // TODO might need the occupier if the cc of this opmode
+                output.ExecutionStateChanged += subscriber;
                 action(output);
-                waitForOutputStates.Add(Helper.WaitForState(output, state));
             }
-            await Task.WhenAll(waitForOutputStates);
 
-            execution.SetState(state);
+            if(selectedOutputs.All(o => states.Contains(o.EXST)))
+            {
+                tokenSource.Cancel();
+            }
+
+            await waitForStateChange;
+            
+            foreach (var output in selectedOutputs)
+            {
+                output.ExecutionStateChanged -= subscriber;
+            }
+        }
+
+        private async Task WaitForOutputsToDo(Action<OrderOutput> action, IEnumerable<ExecutionState> states)
+        {
+            var selectedOutputs = outputs.Values.Where(o => o.OpModeName != "NONE");
+            if(selectedOutputs.Count() > 0)
+            {
+                await WaitForSelectedOutputsToDo(action, states, selectedOutputs);
+            }
+
+            execution.SetState(states.First());
             await Task.CompletedTask;
         }
 
         protected virtual async Task Resetting(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Reset(this.OpModeName) , ExecutionState.IDLE);
+            await WaitForOutputsToDo((OrderOutput output) => output.Reset(this.OpModeName) , new Collection<ExecutionState>(){ExecutionState.IDLE});
         }
 
         protected virtual async Task Starting(CancellationToken token)
         {
-            execution.SetState(ExecutionState.EXECUTE);
-            await Task.CompletedTask;
+            await WaitForOutputsToDo((OrderOutput output) => output.Start(this.OpModeName) , new Collection<ExecutionState>(){ExecutionState.EXECUTE});
         }
 
         protected virtual async Task Stopping(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Stop(this.OpModeName) , ExecutionState.STOPPED);
+            await WaitForOutputsToDo((OrderOutput output) => output.Stop(this.OpModeName) , new Collection<ExecutionState>(){ExecutionState.STOPPED});
             // if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
             //     output.Value.Cc.Stop(control.ComponentName);
         }
@@ -273,14 +307,12 @@ namespace ControlComponent
         */
         protected virtual async Task Execute(CancellationToken token)
         {
-            execution.SetState(ExecutionState.COMPLETING);
-            await Task.CompletedTask;
+            await WaitForOutputsToDo((OrderOutput output) => {}, new Collection<ExecutionState>(){ExecutionState.COMPLETING, ExecutionState.COMPLETED});
         }
 
         protected virtual async Task Completing(CancellationToken token)
         {
-            execution.SetState(ExecutionState.COMPLETED);
-            await Task.CompletedTask;
+            await WaitForOutputsToDo((OrderOutput output) => {} , new Collection<ExecutionState>(){ExecutionState.COMPLETED});
         }
 
         protected virtual async Task Held(CancellationToken token)

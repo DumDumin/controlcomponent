@@ -10,7 +10,7 @@ namespace ControlComponent
     public interface IExecution : IExecutionState
     {
 
-        event EventHandler ExecutionStateChanged;
+        event ExecutionStateEventHandler ExecutionStateChanged;
 
         void SetState(ExecutionState newState);
     }
