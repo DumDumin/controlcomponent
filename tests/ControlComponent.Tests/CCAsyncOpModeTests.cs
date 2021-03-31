@@ -36,10 +36,10 @@ namespace ControlComponent.Tests
             var OpModes = new Collection<IOperationMode>(){ new OperationModeAsync(OpModeOne), new OperationModeAsync(OpModeTwo) };
             var orderOutputs = new Collection<OrderOutput>() 
             { 
-                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
-                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>()))
+                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
+                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
             };
-            cc = new ControlComponent(CC, OpModes, orderOutputs);
+            cc = new ControlComponent(CC, OpModes, orderOutputs, new Collection<string>());
             runningOpMode = cc.SelectOperationMode(OpModeOne);
         }
 

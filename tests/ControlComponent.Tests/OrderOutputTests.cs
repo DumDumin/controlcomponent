@@ -39,10 +39,10 @@ namespace ControlComponent.Tests
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
             orderOutputs = new Collection<OrderOutput>() 
             { 
-                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
-                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>()))
+                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
             };
-            cc = new ControlComponent(CC, CascadeOpModes, orderOutputs);
+            cc = new ControlComponent(CC, CascadeOpModes, orderOutputs, new Collection<string>());
         }
 
         // [TearDown]
@@ -70,6 +70,36 @@ namespace ControlComponent.Tests
         public void Given_OrderOutputs_When_Roles_Then_Roles()
         {
             Assert.AreEqual(new Collection<string>(){"ROLE_ONE", "ROLE_TWO"}, cc.Roles);
+        }
+
+        [Test]
+        public void Given_NotAllNeededRoles_When_Create_Then_Throw()
+        {
+            var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            orderOutputs = new Collection<OrderOutput>() 
+            { 
+                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
+            };
+            Collection<string> neededRoles = new Collection<string>() { "ROLE_THREE" };
+
+            Assert.Throws<ArgumentException>(() => new ControlComponent(CC, CascadeOpModes, orderOutputs, neededRoles));
+        }
+
+        [Test]
+        public void Given_NeededRoles_When_Create_Then_DoNotThrow()
+        {
+            var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            orderOutputs = new Collection<OrderOutput>() 
+            { 
+                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
+            };
+            Collection<string> neededRoles = new Collection<string>() { "ROLE_ONE", "ROLE_TWO" };
+
+            Assert.DoesNotThrow(() => new ControlComponent(CC, CascadeOpModes, orderOutputs, neededRoles));
         }
 
         [Test]

@@ -25,8 +25,14 @@ namespace ControlComponent
 
         public ExecutionState EXST => execution.EXST;
 
-        public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<OrderOutput> orderOutputs)
+        public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<OrderOutput> orderOutputs, ICollection<string> neededRoles)
         {
+            var missingRoles = neededRoles.Except(orderOutputs.Select(o => o.Role));
+            if(missingRoles.Any())
+            {
+                throw new ArgumentException($"Missing roles {string.Join(' ', missingRoles)} for {name}");
+            }
+
             ComponentName = name;
             operationModes = opModes.ToDictionary(o => o.OpModeName);
             this.orderOutputs = orderOutputs.ToDictionary(o => o.Role);
