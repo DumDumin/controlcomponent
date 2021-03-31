@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 
-namespace ControlComponent
+namespace ControlComponent.Tests
 {
-    public class OperationMode : OperationModeBase
+    internal class OperationMode : OperationModeBase
     {
         public OperationMode(string name) : base(name)
         {

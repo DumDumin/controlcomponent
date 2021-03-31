@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 
 namespace ControlComponent
 {
-    public abstract class OperationModeBase
+    public abstract class OperationModeBase : IOperationMode
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

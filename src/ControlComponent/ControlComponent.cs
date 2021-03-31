@@ -12,8 +12,8 @@ namespace ControlComponent
 
         private Execution execution;
         private Occupation occupation;
-        private OperationMode operationMode;
-        private IDictionary<string, OperationMode> operationModes;
+        private IOperationMode operationMode;
+        private IDictionary<string, IOperationMode> operationModes;
         // TODO chnage string keys Enums
         private IDictionary<string, OrderOutput> orderOutputs;
 
@@ -25,7 +25,7 @@ namespace ControlComponent
 
         public ExecutionState EXST => execution.EXST;
 
-        public ControlComponent(string name, ICollection<OperationMode> opModes, ICollection<OrderOutput> orderOutputs)
+        public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<OrderOutput> orderOutputs)
         {
             ComponentName = name;
             operationModes = opModes.ToDictionary(o => o.OpModeName);

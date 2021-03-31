@@ -33,7 +33,7 @@ namespace ControlComponent.Tests
         [SetUp]
         public void Setup()
         {
-            var OpModes = new Collection<OperationMode>(){ new OperationModeAsync(OpModeOne), new OperationModeAsync(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationModeAsync(OpModeOne), new OperationModeAsync(OpModeTwo) };
             var orderOutputs = new Collection<OrderOutput>() 
             { 
                 new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),

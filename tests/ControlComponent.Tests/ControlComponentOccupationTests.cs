@@ -15,7 +15,7 @@ namespace ControlComponent.Tests
         [SetUp]
         public void Setup()
         {
-            var OpModes = new Collection<OperationMode>(){ new OperationMode("OpModeOne"), new OperationMode("OpModeTwo") };
+            var OpModes = new Collection<IOperationMode>(){ new OperationMode("OpModeOne"), new OperationMode("OpModeTwo") };
             var orderOutputs = new Collection<OrderOutput>() 
             { 
                 new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>())),
