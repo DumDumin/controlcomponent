@@ -2,7 +2,7 @@ using System;
 
 namespace ControlComponent
 {
-    public delegate void ExecutionStateEventHandler(object? sender, ExecutionStateEventArgs e);
+    public delegate void ExecutionStateEventHandler(object sender, ExecutionStateEventArgs e);
 
     public class ExecutionStateEventArgs : EventArgs
     {
