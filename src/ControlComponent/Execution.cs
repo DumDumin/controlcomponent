@@ -27,7 +27,7 @@ namespace ControlComponent
                 { ExecutionState.RESETTING      , new List<ExecutionState>() {ExecutionState.IDLE} },
                 { ExecutionState.IDLE           , new List<ExecutionState>() {ExecutionState.STARTING, ExecutionState.STOPPING, ExecutionState.ABORTING} },
                 { ExecutionState.STARTING       , new List<ExecutionState>() {ExecutionState.EXECUTE} },
-                { ExecutionState.EXECUTE        , new List<ExecutionState>() {ExecutionState.SUSPENDING, ExecutionState.HOLDING, ExecutionState.COMPLETING, ExecutionState.STOPPING} },
+                { ExecutionState.EXECUTE        , new List<ExecutionState>() {ExecutionState.SUSPENDING, ExecutionState.HOLDING, ExecutionState.COMPLETING, ExecutionState.STOPPING, ExecutionState.ABORTING} },
                 { ExecutionState.COMPLETING     , new List<ExecutionState>() {ExecutionState.COMPLETED} },
                 { ExecutionState.COMPLETED      , new List<ExecutionState>() {ExecutionState.ABORTING, ExecutionState.STOPPING} },
 

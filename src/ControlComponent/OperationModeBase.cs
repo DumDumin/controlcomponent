@@ -13,7 +13,7 @@ namespace ControlComponent
 
         Dictionary<ExecutionState, Func<CancellationToken, Task>> stateActions;
         public string OpModeName { get; }
-        IExecution execution;
+        protected IExecution execution;
 
         CancellationTokenSource executionTokenSource;
         CancellationTokenSource mainTokenSource;

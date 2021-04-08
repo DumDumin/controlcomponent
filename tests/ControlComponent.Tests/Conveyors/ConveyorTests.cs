@@ -44,7 +44,7 @@ namespace ControlComponent.Tests
             rightStop = new Mock<ILightBarrier>();
             motor = new Mock<IMotor>();
 
-            cc = new Conveyor("Conveyor", motor.Object, leftStop.Object, leftSlow.Object, rightSlow.Object, rightStop.Object);
+            cc = new Conveyor("Conveyor", new Collection<IOperationMode>(),  motor.Object, leftStop.Object, leftSlow.Object, rightSlow.Object, rightStop.Object);
         }
 
         [TearDown]
@@ -58,6 +58,7 @@ namespace ControlComponent.Tests
             await Helper.WaitForState(cc, ExecutionState.STOPPED);
             await cc.DeselectOperationMode();
             Assert.DoesNotThrowAsync(() => runningOpMode);
+            motor.VerifySet(m => m.Speed = 0);
         }
 
         [Test]
@@ -141,6 +142,40 @@ namespace ControlComponent.Tests
             await Helper.WaitForState(cc, ExecutionState.IDLE);
             cc.Start(SENDER);
             await Helper.WaitForState(cc, ExecutionState.EXECUTE);
+
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 1);
+            motor.VerifySet(m => m.Direction = -1);
+
+            leftSlow.Raise(l => l.Hit += null, EventArgs.Empty);
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 0.5f);
+            leftStop.Raise(l => l.Hit += null, EventArgs.Empty);
+
+            await Helper.WaitForState(cc, ExecutionState.COMPLETED);
+        }
+
+        [Test]
+        public async Task Given_Execute_When_Hold_Then_StopMotor()
+        {
+            //  ___ 
+            // |___| <-- backward take
+            runningOpMode = cc.SelectOperationMode("BTAKE");
+
+            cc.Reset(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.IDLE);
+            cc.Start(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.EXECUTE);
+
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 1);
+            motor.VerifySet(m => m.Direction = -1);
+
+            cc.Hold(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.HELD);
+            motor.VerifySet(m => m.Speed = 0);
+            // motor.VerifyNoOtherCalls();
+            cc.Unhold(SENDER);
 
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 1);

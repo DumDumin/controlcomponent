@@ -83,6 +83,10 @@ namespace ControlComponent
 
         protected override async Task Execute(CancellationToken token)
         {
+            // TODO to support complete hold / unhold functionality we must implement a little state machine here 
+            // OR
+            // detect state of process at entering this method
+
             // TODO use WORKST from opmode in cc
             // control.WORKST = ControlComponent.WORKST_READY;
 
@@ -111,7 +115,11 @@ namespace ControlComponent
             motor.Direction = 0;
             // control.WORKST = "DONE";
 
-            await base.Execute(token);
+            if(!token.IsCancellationRequested)
+            {
+                // move on as expected only, if task wasnt interrupted
+                await base.Execute(token);
+            }
         }
     }
 }

@@ -135,6 +135,7 @@ namespace ControlComponent.Tests
             Assert.AreEqual("NONE", orderOutputs[1].OpModeName);
         }
 
+        // TODO this tests seems to be not reliable
         [Test]
         public async Task Given_Idle_When_Start_Then_Completed()
         {
