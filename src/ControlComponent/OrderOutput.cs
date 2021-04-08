@@ -24,6 +24,7 @@ namespace ControlComponent
         public ExecutionState EXST => controlComponent.EXST;
 
         public string OpModeName => controlComponent.OpModeName;
+        public ICollection<string> OpModes => controlComponent.OpModes;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
 

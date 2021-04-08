@@ -53,6 +53,12 @@ namespace ControlComponent.Tests
 
 
         [Test]
+        public void Given_OpModes_When_ListOpModeNames_Then_ReturnOpModeNames()
+        {
+            Assert.AreEqual(new Collection<string>(){OpModeOne, OpModeTwo}, orderOutputs[0].OpModes);
+        }
+
+        [Test]
         public void Given_OrderOutput_When_Role_Then_Role()
         {
             OrderOutput orderOutput = new OrderOutput(ROLE, cc);
