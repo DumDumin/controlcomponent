@@ -17,9 +17,14 @@ dotnet sln add .\tests\ControlComponent.Tests\ControlComponent.Tests.csproj
 dotnet add reference ..\..\src\ControlComponent\
 
 # Packages
-dotnet add package DotNet.NLog.NetCore --version 5.0.0
+dotnet add package NLog --version 4.7.9
 dotnet add package Moq --version 4.16.1
 
+
+Changed TargetFramework to netstandard2.0 to enable unity3d support
+https://docs.unity3d.com/2019.3/Documentation/Manual/dotnetProfileSupport.html
+https://docs.microsoft.com/de-de/dotnet/standard/frameworks
+https://docs.microsoft.com/de-de/dotnet/standard/net-standard
 
 
 # TODO

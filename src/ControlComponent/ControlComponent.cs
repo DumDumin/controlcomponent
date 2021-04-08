@@ -32,7 +32,7 @@ namespace ControlComponent
             var missingRoles = neededRoles.Except(orderOutputs.Select(o => o.Role));
             if(missingRoles.Any())
             {
-                throw new ArgumentException($"Missing roles {string.Join(' ', missingRoles)} for {name}");
+                throw new ArgumentException($"Missing roles {string.Join(" ", missingRoles)} for {name}");
             }
 
             ComponentName = name;

@@ -90,7 +90,7 @@ namespace ControlComponent
                 {
                     if(!orderOutputs.Keys.Contains(item))
                     {
-                        throw new Exception($"Role {item} is not available in known outputs = {string.Join(' ', orderOutputs.Keys)}");
+                        throw new Exception($"Role {item} is not available in known outputs = {string.Join(" ", orderOutputs.Keys)}");
                     }
                 }
 
