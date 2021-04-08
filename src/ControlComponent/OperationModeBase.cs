@@ -13,12 +13,13 @@ namespace ControlComponent
 
         Dictionary<ExecutionState, Func<CancellationToken, Task>> stateActions;
         public string OpModeName { get; }
+        public string WORKST { get; }
         protected IExecution execution;
 
         CancellationTokenSource executionTokenSource;
         CancellationTokenSource mainTokenSource;
 
-        IDictionary<string, OrderOutput> outputs;
+        protected IDictionary<string, OrderOutput> outputs;
         public ReadOnlyCollection<string> neededRoles;
 
         public OperationModeBase(string name) : this(name, new Collection<string>())
@@ -28,6 +29,7 @@ namespace ControlComponent
         public OperationModeBase(string name, Collection<string> neededRoles)
         {
             OpModeName = name;
+            WORKST = "NONE";
             this.neededRoles = new ReadOnlyCollection<string>(neededRoles);
 
             stateActions = new Dictionary<ExecutionState, Func<CancellationToken, Task>>()

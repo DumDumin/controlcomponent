@@ -37,6 +37,13 @@ namespace ControlComponent.Tests
         }
 
         [Test]
+        public void Given_Stopped_When_WORKST_Then_None()
+        {
+            var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
+            Assert.AreEqual("NONE", operationMode.WORKST);
+        }
+
+        [Test]
         public void Given_NotNeededRoles_When_Select_Then_OK()
         {
             var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
