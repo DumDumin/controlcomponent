@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace ControlComponent
 {
     public interface IControlComponent : IExecutionState
@@ -20,5 +22,8 @@ namespace ControlComponent
         void Unhold(string sender);
         void Abort(string sender);
         void Clear(string sender);
+
+        Task SelectOperationMode(string operationMode);
+        Task DeselectOperationMode();
     }
 }
