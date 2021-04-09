@@ -4,13 +4,13 @@ namespace ControlComponent
 {
     public interface IExecutionState
     {
+        string ComponentName { get; }
         ExecutionState EXST { get; }
+        event ExecutionStateEventHandler ExecutionStateChanged;
     }
 
     public interface IExecution : IExecutionState
     {
-        string ComponentName { get; }
-        event ExecutionStateEventHandler ExecutionStateChanged;
         void SetState(ExecutionState newState);
     }
 }

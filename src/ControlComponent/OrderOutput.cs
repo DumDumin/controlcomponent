@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponent
 {
-    public class OrderOutput : IExecutionState
+    public class OrderOutput : IControlComponent
     {
         // TODO throw errors instead
         public enum OrderOutputError { OK, Completed, Stopped, NotExisting, NullRequested, NotExecuting, NotAccepted, Occupied };
@@ -29,6 +29,9 @@ namespace ControlComponent
         public event ExecutionStateEventHandler ExecutionStateChanged;
 
         public string OCCUPIER => controlComponent.OCCUPIER;
+
+        public string ComponentName => controlComponent.ComponentName;
+
         public void Occupy(string sender) => controlComponent.Occupy(sender);
         public void Free(string sender) => controlComponent.Free(sender);
         public bool IsOccupied() => controlComponent.IsOccupied();
