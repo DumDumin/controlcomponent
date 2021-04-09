@@ -9,5 +9,15 @@ namespace ControlComponent
         void Free(string sender);
         bool IsOccupied();
         bool IsFree();
+
+        void Reset(string sender);
+        void Start(string sender);
+        void Suspend(string sender);
+        void Unsuspend(string sender);
+        void Stop(string sender);
+        void Hold(string sender);
+        void Unhold(string sender);
+        void Abort(string sender);
+        void Clear(string sender);
     }
 }

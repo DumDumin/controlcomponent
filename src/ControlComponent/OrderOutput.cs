@@ -64,38 +64,36 @@ namespace ControlComponent
         {
             controlComponent.Start(sender);
         }
-
-        // public void Suspend(string sender)
-        // {
-        //     ChangeState(ExecutionState.SUSPENDING, sender);
-        // }
-
-        // public void Unsuspend(string sender)
-        // {
-        //     ChangeState(ExecutionState.UNSUSPENDING, sender);
-        // }
         public void Stop(string sender)
         {
             controlComponent.Stop(sender);
         }
 
-        // public void Hold(string sender)
-        // {
-        //     ChangeState(ExecutionState.HOLDING, sender);
-        // }
-        // public void Unhold(string sender)
-        // {
-        //     ChangeState(ExecutionState.UNHOLDING, sender);
-        // }
-        // public void Abort(string sender)
-        // {
-        //     ChangeState(ExecutionState.ABORTING, sender);
-        // }
-        // public void Clear(string sender)
-        // {
-        //     ChangeState(ExecutionState.CLEARING, sender);
-        // }
+        public void Suspend(string sender)
+        {
+            controlComponent.Suspend(sender);
+        }
 
+        public void Unsuspend(string sender)
+        {
+            controlComponent.Unsuspend(sender);
+        }
 
+        public void Hold(string sender)
+        {
+            controlComponent.Hold(sender);
+        }
+        public void Unhold(string sender)
+        {
+            controlComponent.Unhold(sender);
+        }
+        public void Abort(string sender)
+        {
+            controlComponent.Abort(sender);
+        }
+        public void Clear(string sender)
+        {
+            controlComponent.Clear(sender);
+        }
     }
 }
