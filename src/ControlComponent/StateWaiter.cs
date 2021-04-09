@@ -1,14 +1,18 @@
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-namespace ControlComponent.Tests
+
+[assembly:InternalsVisibleTo("ControlComponent.Tests")]
+namespace ControlComponent
 {
     internal class StateWaiter
     {
         CancellationTokenSource idle = new CancellationTokenSource();
         CancellationTokenSource execute = new CancellationTokenSource();
         CancellationTokenSource aborted = new CancellationTokenSource();
+        CancellationTokenSource stopped = new CancellationTokenSource();
         CancellationTokenSource completed = new CancellationTokenSource();
 
         public ExecutionStateEventHandler EventHandler { get; }
@@ -25,6 +29,8 @@ namespace ControlComponent.Tests
                         execute.Cancel(); break;
                     case ExecutionState.ABORTED:
                         aborted.Cancel(); break;
+                    case ExecutionState.STOPPED:
+                        stopped.Cancel(); break;
                     case ExecutionState.COMPLETED:
                         completed.Cancel(); break;
                     default:
@@ -35,7 +41,7 @@ namespace ControlComponent.Tests
 
         private void HandleTaskResult(Task task)
         {
-            if (task.IsCompletedSuccessfully)
+            if (!task.IsCanceled)
             {
                 throw new Exception("Timeout");
             }
@@ -52,6 +58,10 @@ namespace ControlComponent.Tests
         public async Task Completed()
         {
             await Task.Delay(1000, completed.Token).ContinueWith(HandleTaskResult);
+        }
+        public async Task Stopped()
+        {
+            await Task.Delay(1000, stopped.Token).ContinueWith(HandleTaskResult);
         }
         public async Task Aborted()
         {
