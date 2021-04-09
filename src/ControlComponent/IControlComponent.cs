@@ -7,6 +7,7 @@ namespace ControlComponent
         string OCCUPIER { get; }
         void Occupy(string sender);
         void Free(string sender);
+        void Prio(string sender);
         bool IsOccupied();
         bool IsFree();
 
