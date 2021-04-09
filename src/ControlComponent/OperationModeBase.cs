@@ -13,7 +13,7 @@ namespace ControlComponent
 
         Dictionary<ExecutionState, Func<CancellationToken, Task>> stateActions;
         public string OpModeName { get; }
-        public string WORKST { get; }
+        public string WORKST { get; protected set; }
         protected IExecution execution;
 
         CancellationTokenSource executionTokenSource;
@@ -142,7 +142,7 @@ namespace ControlComponent
             logger.Debug("Subscribe");
             foreach (var output in selectedOutputs)
             {
-                // TODO might need the occupier if the cc of this opmode
+                // TODO might need the occupier of the cc of this opmode
                 output.ExecutionStateChanged += subscriber;
                 action(output);
             }

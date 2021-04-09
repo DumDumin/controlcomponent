@@ -7,12 +7,12 @@ namespace ControlComponent
 {
     public class OrderOutput : IExecutionState
     {
-        //TODO throw errors instead
-        // public enum OrderOutputError { OK, Completed, Stopped, NotExisting, NullRequested, NotExecuting, NotAccepted, Occupied };
+        // TODO throw errors instead
+        public enum OrderOutputError { OK, Completed, Stopped, NotExisting, NullRequested, NotExecuting, NotAccepted, Occupied };
 
         // public ControlComponentUnity Cc;
 
-        // public OrderOutputError Error;
+        public OrderOutputError Error;
         // // Used to manage coroutines in ExecuteOpMode macro
         // public IEnumerator Coroutine;
 
@@ -27,6 +27,12 @@ namespace ControlComponent
         public ICollection<string> OpModes => controlComponent.OpModes;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
+
+        public string OCCUPIER => controlComponent.OCCUPIER;
+        public void Occupy(string sender) => controlComponent.Occupy(sender);
+        public void Free(string sender) => controlComponent.Free(sender);
+        public bool IsOccupied() => controlComponent.IsOccupied();
+        public bool IsFree() => controlComponent.IsFree();
 
         public OrderOutput(string role, ControlComponent cc)
         {
