@@ -15,11 +15,11 @@ namespace ControlComponent
 
         private readonly Dictionary<ExecutionState, List<ExecutionState>> allowedTransitions;
 
-        private string name;
+        public string ComponentName { get; }
 
         public Execution(string name)
         {
-            this.name = name;
+            ComponentName = name;
 
             allowedTransitions = new Dictionary<ExecutionState, List<ExecutionState>>()
             {
@@ -53,7 +53,7 @@ namespace ControlComponent
 
             if(allowedTransitions[EXST].Contains(newState))
             {
-                logger.Debug($"{name} changed state from {EXST} to {newState}");
+                logger.Debug($"{ComponentName} changed state from {EXST} to {newState}");
                 EXST = newState;
                 ExecutionStateChanged?.Invoke(this, new ExecutionStateEventArgs(EXST));
             }

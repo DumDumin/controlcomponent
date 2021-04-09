@@ -9,9 +9,8 @@ namespace ControlComponent
 
     public interface IExecution : IExecutionState
     {
-
+        string ComponentName { get; }
         event ExecutionStateEventHandler ExecutionStateChanged;
-
         void SetState(ExecutionState newState);
     }
 }
