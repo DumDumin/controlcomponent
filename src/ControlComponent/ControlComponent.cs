@@ -46,6 +46,7 @@ namespace ControlComponent
 
         public string OCCUPIER => occupation.OCCUPIER;
         public void Occupy(string sender) => occupation.Occupy(sender);
+        public void Prio(string sender) => occupation.Prio(sender);
         public void Free(string sender) => occupation.Free(sender);
         public bool IsOccupied() => occupation.IsOccupied();
         public bool IsFree() => occupation.IsFree();

@@ -32,4 +32,9 @@ internal class Occupation
         return !IsFree();
     }
 
+    public void Prio(string sender)
+    {
+        OCCUPIER = sender;
+    }
+
 }

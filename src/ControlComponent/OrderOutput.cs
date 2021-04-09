@@ -33,6 +33,7 @@ namespace ControlComponent
         public string ComponentName => controlComponent.ComponentName;
 
         public void Occupy(string sender) => controlComponent.Occupy(sender);
+        public void Prio(string sender) => controlComponent.Prio(sender);
         public void Free(string sender) => controlComponent.Free(sender);
         public bool IsOccupied() => controlComponent.IsOccupied();
         public bool IsFree() => controlComponent.IsFree();

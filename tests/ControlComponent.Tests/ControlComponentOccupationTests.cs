@@ -78,5 +78,17 @@ namespace ControlComponent.Tests
             Assert.AreEqual(true, cc.IsOccupied());
             Assert.AreEqual("A", cc.OCCUPIER);
         }
+
+        [Test]
+        public void Given_OccupiedByA_When_PrioByB_Then_OccupiedByB()
+        {
+            cc.Occupy("A");
+            Assert.AreEqual(true, cc.IsOccupied());
+            Assert.AreEqual("A", cc.OCCUPIER);
+
+            cc.Prio("B");
+            Assert.AreEqual(true, cc.IsOccupied());
+            Assert.AreEqual("B", cc.OCCUPIER);
+        }
     }
 }
