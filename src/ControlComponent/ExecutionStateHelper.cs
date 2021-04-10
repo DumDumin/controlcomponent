@@ -5,6 +5,17 @@ namespace ControlComponent
 
     public static class ExecutionStateHelper
     {
+        public static async Task ResetAndWaitForIdle(IControlComponent cc, string occupier)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            cc.Reset(occupier);
+            await waiter.Idle();
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
         public static async Task StopAndWaitForStopped(IControlComponent cc, string occupier, bool free)
         {
             // Bring control component to IDLE
