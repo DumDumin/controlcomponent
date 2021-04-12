@@ -148,6 +148,7 @@ namespace ControlComponent
             {
                 if (EXST == ExecutionState.STOPPED)
                 {
+                    logger.Debug($"{ComponentName} deselects {this.OpModeName}");
                     this.operationMode.Deselect();
                     await runningOpMode;
                     this.operationMode = null;

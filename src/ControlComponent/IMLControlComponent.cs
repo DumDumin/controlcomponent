@@ -48,12 +48,15 @@ namespace ControlComponent
         //ExecutionState EXST { get; }
 
         /* ML Specific: */
+
+        // TODO getter and setter modifier
+        // use set in another interface for the operation mode
         ExecutionState MLSC { get; set; }
         string MLMODEL { get; }
-        float[] MLOBSERVE { get; }
-        bool[][] MLENACT { get; }
+        float[] MLOBSERVE { get; set; }
+        bool[][] MLENACT { get; set; }
         float[] MLDECIDE { get; set; }
-        float MLREWARD { get; }
+        float MLREWARD { get; set; }
         string MLSTATS { get; set; }
     }
 }
