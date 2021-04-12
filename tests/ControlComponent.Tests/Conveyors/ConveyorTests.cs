@@ -66,6 +66,8 @@ namespace ControlComponent.Tests
         {
             //  ___ 
             // |___| --> forward pass
+            rightSlow.SetupGet(l => l.Occupied).Returns(true);
+            rightStop.SetupGet(l => l.Occupied).Returns(true);
             runningOpMode = cc.SelectOperationMode("FPASS");
 
             cc.Reset(SENDER);
@@ -77,8 +79,10 @@ namespace ControlComponent.Tests
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = 1);
 
+            rightSlow.SetupGet(l => l.Occupied).Returns(false);
             rightSlow.Raise(l => l.Hit += null, EventArgs.Empty);
             await Task.Delay(1);
+            rightStop.SetupGet(l => l.Occupied).Returns(false);
             rightStop.Raise(l => l.Hit += null, EventArgs.Empty);
 
             await Helper.WaitForState(cc, ExecutionState.COMPLETED);
@@ -89,6 +93,8 @@ namespace ControlComponent.Tests
         {
             //  ___ 
             // |___| --> forward take
+            rightSlow.SetupGet(l => l.Occupied).Returns(false);
+            rightStop.SetupGet(l => l.Occupied).Returns(false);
             runningOpMode = cc.SelectOperationMode("FTAKE");
 
             cc.Reset(SENDER);
@@ -100,9 +106,11 @@ namespace ControlComponent.Tests
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = 1);
 
+            rightSlow.SetupGet(l => l.Occupied).Returns(true);
             rightSlow.Raise(l => l.Hit += null, EventArgs.Empty);
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 0.5f);
+            rightStop.SetupGet(l => l.Occupied).Returns(true);
             rightStop.Raise(l => l.Hit += null, EventArgs.Empty);
 
             await Helper.WaitForState(cc, ExecutionState.COMPLETED);
@@ -111,6 +119,8 @@ namespace ControlComponent.Tests
         [Test]
         public async Task Given_Conveyor_When_SelectBPASS_Then_DoNotThrow()
         {
+            leftStop.SetupGet(l => l.Occupied).Returns(true);
+            leftSlow.SetupGet(l => l.Occupied).Returns(true);
             //  ___ 
             // |___| <-- backward pass
             runningOpMode = cc.SelectOperationMode("BPASS");
@@ -124,8 +134,10 @@ namespace ControlComponent.Tests
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = -1);
 
+            leftSlow.SetupGet(l => l.Occupied).Returns(false);
             leftSlow.Raise(l => l.Hit += null, EventArgs.Empty);
             await Task.Delay(1);
+            leftStop.SetupGet(l => l.Occupied).Returns(false);
             leftStop.Raise(l => l.Hit += null, EventArgs.Empty);
 
             await Helper.WaitForState(cc, ExecutionState.COMPLETED);
@@ -136,6 +148,8 @@ namespace ControlComponent.Tests
         {
             //  ___ 
             // |___| <-- backward take
+            leftStop.SetupGet(l => l.Occupied).Returns(false);
+            leftSlow.SetupGet(l => l.Occupied).Returns(false);
             runningOpMode = cc.SelectOperationMode("BTAKE");
 
             cc.Reset(SENDER);
@@ -147,12 +161,20 @@ namespace ControlComponent.Tests
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = -1);
 
+            leftSlow.SetupGet(l => l.Occupied).Returns(true);
             leftSlow.Raise(l => l.Hit += null, EventArgs.Empty);
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 0.5f);
+            leftStop.SetupGet(l => l.Occupied).Returns(true);
             leftStop.Raise(l => l.Hit += null, EventArgs.Empty);
 
             await Helper.WaitForState(cc, ExecutionState.COMPLETED);
+        }
+
+        [Test]
+        public async Task Given_ConveyorWithPalette()
+        {
+            
         }
 
         [Test]
@@ -188,5 +210,7 @@ namespace ControlComponent.Tests
 
             await Helper.WaitForState(cc, ExecutionState.COMPLETED);
         }
+
+
     }
 }

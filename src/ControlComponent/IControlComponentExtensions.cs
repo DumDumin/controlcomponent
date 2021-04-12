@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 namespace ControlComponent
 {
 
-    public static class ExecutionStateHelper
+    public static class IControlComponentExtensions
     {
-        public static async Task ResetAndWaitForIdle(IControlComponent cc, string occupier)
+        public static async Task ResetAndWaitForIdle(this IControlComponent cc, string occupier)
         {
             StateWaiter waiter = new StateWaiter();
             cc.ExecutionStateChanged += waiter.EventHandler;
@@ -16,7 +16,18 @@ namespace ControlComponent
             cc.ExecutionStateChanged -= waiter.EventHandler;
         }
 
-        public static async Task StopAndWaitForStopped(IControlComponent cc, string occupier, bool free)
+        public static async Task StartAndWaitForExecute(this IControlComponent cc, string occupier)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            cc.Start(occupier);
+            await waiter.Execute();
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task StopAndWaitForStopped(this IControlComponent cc, string occupier, bool free)
         {
             // Bring control component to IDLE
             if (cc.EXST != ExecutionState.STOPPED)
@@ -53,17 +64,17 @@ namespace ControlComponent
             }
 
             // TODO
-            // // Free component if desired or leave occupied by the environment
-            // if (free)
-            // {
-            //     if(cc.IsOccupied())
-            //         cc.Free(name);
-            // }
-            // else
-            // {
-            //     // Downgrade occupation from PRIO to OCCUPIED if necessary
-            //     cc.Occupy(name);
-            // }
+            // Free component if desired or leave occupied by the environment
+            if (free)
+            {
+                if(cc.IsOccupied())
+                    cc.Free(occupier);
+            }
+            else
+            {
+                // Downgrade occupation from PRIO to OCCUPIED if necessary
+                cc.Occupy(occupier);
+            }
         }
     }
 }

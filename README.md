@@ -32,3 +32,8 @@ https://docs.microsoft.com/de-de/dotnet/standard/net-standard
 
 ## Logs in Unit Tests by configure logger in code
 https://github.com/NLog/NLog/wiki/Configure-from-code
+
+# Usage
+1. If you override a operation mode state method (starting, suspending, etc...), you must consider the following:
+-   Leaving the method without calling any state change or calling the base method (which changes the state or waits until external state change) will result in a direct recall of that method, which will lead to a performance issue or even crash the application.
+=> Best practives: while loop with Delay and token to cancel OR one time run with state change at the end
