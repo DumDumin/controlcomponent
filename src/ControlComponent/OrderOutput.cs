@@ -18,7 +18,7 @@ namespace ControlComponent
 
         // TOBI create Reset method to auto assign cc
 
-        private ControlComponent controlComponent;
+        private IControlComponent controlComponent;
 
         public string Role { get; }
         public ExecutionState EXST => controlComponent.EXST;
@@ -38,7 +38,7 @@ namespace ControlComponent
         public bool IsOccupied() => controlComponent.IsOccupied();
         public bool IsFree() => controlComponent.IsFree();
 
-        public OrderOutput(string role, ControlComponent cc)
+        public OrderOutput(string role, IControlComponent cc)
         {
             Role = role;
             controlComponent = cc;

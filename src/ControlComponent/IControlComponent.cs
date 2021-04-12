@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ControlComponent
@@ -5,6 +6,7 @@ namespace ControlComponent
     public interface IControlComponent : IExecutionState
     {
         string OpModeName { get; }
+        ICollection<string> OpModes { get; }
 
         string OCCUPIER { get; }
         void Occupy(string sender);
