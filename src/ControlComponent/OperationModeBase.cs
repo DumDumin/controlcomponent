@@ -20,6 +20,7 @@ namespace ControlComponent
         CancellationTokenSource mainTokenSource;
 
         protected IDictionary<string, OrderOutput> outputs;
+        // protected IReadOnlyDictionary<string, OrderOutput> Outputs => outputs;
         public ReadOnlyCollection<string> neededRoles;
 
         public OperationModeBase(string name) : this(name, new Collection<string>())
@@ -162,31 +163,38 @@ namespace ControlComponent
 
         private async Task WaitForOutputsToDo(Action<OrderOutput> action, IEnumerable<ExecutionState> states)
         {
-            var selectedOutputs = outputs.Values.Where(o => o.OpModeName != "NONE");
-            if(selectedOutputs.Count() > 0)
+            try
             {
-                await WaitForSelectedOutputsToDo(action, states, selectedOutputs);
-            }
+                // TODO The ML application requires to allow outputs to have no value - can it be done without null values??
+                var selectedOutputs = outputs.Values.Where(o => o != null && o.OpModeName != "NONE");
+                if(selectedOutputs.Count() > 0)
+                {
+                    await WaitForSelectedOutputsToDo(action, states, selectedOutputs);
+                }
 
-            execution.SetState(states.First());
-            await Task.CompletedTask;
+                execution.SetState(states.First());
+                await Task.CompletedTask;
+            }
+            catch (System.Exception e)
+            {
+                logger.Error(e, $"Outputs = {string.Join(" ", this.outputs.Keys)}");
+                throw e;
+            }
         }
 
         protected virtual async Task Resetting(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Reset(this.OpModeName) , new Collection<ExecutionState>(){ExecutionState.IDLE});
+            await WaitForOutputsToDo((OrderOutput output) => output.Reset(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.IDLE});
         }
 
         protected virtual async Task Starting(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Start(this.OpModeName) , new Collection<ExecutionState>(){ExecutionState.EXECUTE});
+            await WaitForOutputsToDo((OrderOutput output) => output.Start(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.EXECUTE});
         }
 
         protected virtual async Task Stopping(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Stop(this.OpModeName) , new Collection<ExecutionState>(){ExecutionState.STOPPED});
-            // if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //     output.Value.Cc.Stop(control.ComponentName);
+            await WaitForOutputsToDo((OrderOutput output) => output.Stop(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.STOPPED});
         }
 
         // Reset has to set EXST to IDLE after completion.
@@ -214,9 +222,7 @@ namespace ControlComponent
             //     control.OrderOutputs.Values.All((OrderOutput o) => o.Cc.EXST == ExecutionState.ABORTED);
             //     await Task.Delay(25);
             // });
-
-            execution.SetState(ExecutionState.ABORTED);
-            await Task.CompletedTask;
+            await WaitForOutputsToDo((OrderOutput output) => output.Abort(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.ABORTED});
         }
 
         // Clear has to set EXST to STOPPED after completion.

@@ -63,9 +63,9 @@ namespace ControlComponent
         {
             await Task.Delay(1000, stopped.Token).ContinueWith(HandleTaskResult);
         }
-        public async Task Aborted()
+        public async Task Aborted(int delay = 1000)
         {
-            await Task.Delay(1000, aborted.Token).ContinueWith(HandleTaskResult);
+            await Task.Delay(delay, aborted.Token).ContinueWith(HandleTaskResult);
         }
     }
 }

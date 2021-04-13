@@ -31,19 +31,19 @@ namespace ControlComponent
             CancellationTokenSource linkedTokens = CancellationTokenSource.CreateLinkedTokenSource(source.Token, token);
             EventHandler ClearToken = (object sender, EventArgs e) =>
             {
-                logger.Debug("Position changed");
+                logger.Debug($"Position changed to {shiftPosition.Position}");
                 linkedTokens.Cancel();
             };
 
             shiftPosition.PositionChanged += ClearToken;
-            logger.Debug($"Wait for new Position {newPosition}");
+            logger.Debug($"Wait for new Position {newPosition}, now = {shiftPosition.Position}");
             // TODO calculate timeout by speed and distance
-            await Task.Delay(100, linkedTokens.Token).ContinueWith(task => { });
+            await Task.Delay(10000, linkedTokens.Token).ContinueWith(task => { });
             shiftPosition.PositionChanged -= ClearToken;
 
             if(newPosition != shiftPosition.Position)
             {
-                throw new Exception();
+                throw new Exception("No position was not reached in time");
             }
         }
 
@@ -67,12 +67,20 @@ namespace ControlComponent
                     {
                         await Move(token);
                     }
+                    else
+                    {
+                        logger.Warn($"Direction {direction} not allowed in this position");
+                    }
                 }
                 else if(shiftPosition.Position >= shiftPosition.Positions.Count - 1)
                 {
                     if(direction == -1)
                     {
                         await Move(token);
+                    }
+                    else
+                    {
+                        logger.Warn($"Direction {direction} not allowed in this position");
                     }
                 }
                 else {
@@ -86,8 +94,9 @@ namespace ControlComponent
                     await base.Execute(token);
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
+                logger.Error(e);
                 execution.SetState(ExecutionState.ABORTING);
                 await Task.CompletedTask;
             }

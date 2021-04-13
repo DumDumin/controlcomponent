@@ -56,27 +56,19 @@ namespace ControlComponent.Tests
         [TearDown]
         public async Task TearDown()
         {
+            cc.ExecutionStateChanged -= state.EventHandler;
             if(cc.OpModeName != "NONE")
             {
                 if(cc.EXST != ExecutionState.STOPPED)
                 {
-                    if(cc.EXST == ExecutionState.ABORTED)
-                    {
-                        cc.Clear(SENDER);
-                    }
-                    else 
-                    {
-                        cc.Stop(SENDER);
-                    }
+                    await cc.StopAndWaitForStopped(SENDER, true);
                 }
                 
-                await Helper.WaitForState(cc, ExecutionState.STOPPED);
                 await cc.DeselectOperationMode();
                 Assert.DoesNotThrowAsync(() => runningOpMode);
                 motor.VerifySet(m => m.Speed = 0);
             }
 
-            cc.ExecutionStateChanged -= state.EventHandler;
         }
 
 
@@ -127,7 +119,7 @@ namespace ControlComponent.Tests
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = 1);
 
-            await state.Aborted();
+            await state.Aborted(20000);
         }
 
         [Test]
@@ -189,7 +181,7 @@ namespace ControlComponent.Tests
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = -1);
 
-            await state.Aborted();
+            await state.Aborted(20000);
         }
 
         [Test]

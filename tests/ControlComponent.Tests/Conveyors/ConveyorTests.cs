@@ -13,6 +13,7 @@ namespace ControlComponent.Tests
     public class ConveyorTests
     {
         Conveyor cc;
+        StateWaiter state;
 
         Mock<ILightBarrier> leftStop;
         Mock<ILightBarrier> leftSlow;
@@ -44,12 +45,16 @@ namespace ControlComponent.Tests
             rightStop = new Mock<ILightBarrier>();
             motor = new Mock<IMotor>();
 
+            state = new StateWaiter();
             cc = new Conveyor("Conveyor", new Collection<IOperationMode>(),  motor.Object, leftStop.Object, leftSlow.Object, rightSlow.Object, rightStop.Object);
+
+            cc.ExecutionStateChanged += state.EventHandler;
         }
 
         [TearDown]
         public async Task TearDown()
         {
+            cc.ExecutionStateChanged -= state.EventHandler;
             if(cc.EXST != ExecutionState.STOPPED)
             {
                 cc.Stop(SENDER);
@@ -172,16 +177,12 @@ namespace ControlComponent.Tests
         }
 
         [Test]
-        public async Task Given_ConveyorWithPalette()
-        {
-            
-        }
-
-        [Test]
         public async Task Given_Execute_When_Hold_Then_StopMotor()
         {
             //  ___ 
             // |___| <-- backward take
+            leftStop.SetupGet(l => l.Occupied).Returns(false);
+            leftSlow.SetupGet(l => l.Occupied).Returns(false);
             runningOpMode = cc.SelectOperationMode("BTAKE");
 
             cc.Reset(SENDER);
@@ -203,12 +204,53 @@ namespace ControlComponent.Tests
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = -1);
 
+            leftSlow.SetupGet(l => l.Occupied).Returns(true);
             leftSlow.Raise(l => l.Hit += null, EventArgs.Empty);
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 0.5f);
+            leftStop.SetupGet(l => l.Occupied).Returns(true);
             leftStop.Raise(l => l.Hit += null, EventArgs.Empty);
 
-            await Helper.WaitForState(cc, ExecutionState.COMPLETED);
+            await state.Completed();
+        }
+
+        [Test]
+        public async Task Given_ExecuteAndFirstLightTriggered_When_Hold_Then_StopMotor()
+        {
+            //  ___ 
+            // |___| <-- backward take
+            leftStop.SetupGet(l => l.Occupied).Returns(false);
+            leftSlow.SetupGet(l => l.Occupied).Returns(false);
+            runningOpMode = cc.SelectOperationMode("BTAKE");
+
+            cc.Reset(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.IDLE);
+            cc.Start(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.EXECUTE);
+
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 1);
+            motor.VerifySet(m => m.Direction = -1);
+            leftSlow.SetupGet(l => l.Occupied).Returns(true);
+            leftSlow.Raise(l => l.Hit += null, EventArgs.Empty);
+            await Task.Delay(1);
+
+            cc.Hold(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.HELD);
+            motor.VerifySet(m => m.Speed = 0);
+            // motor.VerifyNoOtherCalls();
+            cc.Unhold(SENDER);
+
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 1);
+            motor.VerifySet(m => m.Direction = -1);
+
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 0.5f);
+            leftStop.SetupGet(l => l.Occupied).Returns(true);
+            leftStop.Raise(l => l.Hit += null, EventArgs.Empty);
+
+            await state.Completed();
         }
 
 

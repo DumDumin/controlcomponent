@@ -32,21 +32,31 @@ namespace ControlComponent
         {
         }
 
-        private async Task WaitForLightBarrier(ILightBarrier lightBarrier, CancellationToken token)
+        private async Task WaitForLightBarrier(ILightBarrier lightBarrier, CancellationToken token, bool occupied)
         {
             // The use of linkedTokenSource allows a second cancellation condition to leave this method
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationTokenSource linkedTokens = CancellationTokenSource.CreateLinkedTokenSource(source.Token, token);
             EventHandler ClearToken = (object sender, EventArgs e) =>
             {
-                logger.Debug("Lightbarrier triggered");
-                linkedTokens.Cancel();
+                if(lightBarrier.Occupied == occupied)
+                {
+                    logger.Debug($"Lightbarrier triggered correctly to {(occupied ? "occupied" : "free")}");
+                    linkedTokens.Cancel();
+                }
+                else
+                {
+                    logger.Debug($"Lightbarrier triggered wrongly to {(!occupied ? "occupied" : "free")}");
+                }
             };
 
-            lightBarrier.Hit += ClearToken;
-            logger.Debug("Wait for Lightbarrier");
-            await Task.Delay(Timeout.Infinite, linkedTokens.Token).ContinueWith(task => { });
-            lightBarrier.Hit -= ClearToken;
+            if(lightBarrier.Occupied != occupied)
+            {
+                lightBarrier.Hit += ClearToken;
+                logger.Debug($"Wait for Lightbarrier to get {(occupied ? "occupied" : "free")}");
+                await Task.Delay(Timeout.Infinite, linkedTokens.Token).ContinueWith(task => { });
+                lightBarrier.Hit -= ClearToken;
+            }
         }
 
         private ILightBarrier GetLightBarrierStop()
@@ -101,25 +111,40 @@ namespace ControlComponent
 
             // Check light barriers and control motorspeed
             // control.WORKST = "TakeIn";
-            await WaitForLightBarrier(slow, token);
-
-            // 3rd light barrier reached --> Start positioning
-            // control.WORKST = "Positioning";
-            motor.Speed = 0.5f;
-            await WaitForLightBarrier(stop, token);
-
-            // control.WORKST = "Stopping";
-            motor.Speed = 0;
-            // TODO read measured speed value instead
-            //yield return new WaitUntil(() => motor.Speed == 0);
-            motor.Direction = 0;
-            // control.WORKST = "DONE";
+            await WaitForLightBarrier(slow, token, take);
 
             if(!token.IsCancellationRequested)
             {
-                // move on as expected only, if task wasnt interrupted
-                await base.Execute(token);
+                // 3rd light barrier reached --> Start positioning
+                // control.WORKST = "Positioning";
+                motor.Speed = 0.5f;
+                await WaitForLightBarrier(stop, token, take);
+
+                // control.WORKST = "Stopping";
+                motor.Speed = 0;
+                // TODO read measured speed value instead
+                //yield return new WaitUntil(() => motor.Speed == 0);
+                motor.Direction = 0;
+                // control.WORKST = "DONE";
+                if(!token.IsCancellationRequested)
+                {
+                    // move on as expected only, if task wasnt interrupted
+                    await base.Execute(token);
+                }
             }
         }
+
+        protected override async Task Holding(CancellationToken token)
+        {
+            motor.Speed = 0;
+            await base.Holding(token);
+        }
+
+        // protected override async Task Completing(CancellationToken token)
+        // {
+        //     motor.Direction = 0;
+        //     motor.Speed = 0;
+        //     await base.Completing(token);
+        // }
     }
 }
