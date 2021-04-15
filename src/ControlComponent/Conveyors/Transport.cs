@@ -140,6 +140,18 @@ namespace ControlComponent
             await base.Holding(token);
         }
 
+         protected override async Task Stopping(CancellationToken token)
+        {
+            motor.Speed = 0;
+            await base.Stopping(token);
+        }
+
+        protected override async Task Aborting(CancellationToken token)
+        {
+            motor.Speed = 0;
+            await base.Aborting(token);
+        }
+
         // protected override async Task Completing(CancellationToken token)
         // {
         //     motor.Direction = 0;

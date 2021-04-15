@@ -116,9 +116,10 @@ namespace ControlComponent
             }
             finally
             {
-                foreach (var output in runningOutputs)
+                // TOBI TODO test that output opmodes are deselected
+                foreach (var output in outputs.Values.Where(o => o != null && o.OpModeName != "NONE"))
                 {
-                    await outputs[output.Key].DeselectOperationMode();
+                    await output.DeselectOperationMode();
                 }
             }
         }
@@ -197,55 +198,15 @@ namespace ControlComponent
             await WaitForOutputsToDo((OrderOutput output) => output.Stop(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.STOPPED});
         }
 
-        // Reset has to set EXST to IDLE after completion.
-        // public virtual Task Reset()
-        // {
-        //     foreach (var output in control.OrderOutputs)
-        //     {
-        //         if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-        //         // TOBI TODO how to wait for sub control components to reach idle ?? -> Update loop in MonoBehaviour
-        //             output.Value.Cc.Reset(control.ComponentName);
-        //     }
-        //     _WORKST = "BSTATE";
-        //     return Task.FromResult(ExecutionState.IDLE);
-        // }
-        // Abort has to set EXST to ABORTED after completion.
-
         protected virtual async Task Aborting(CancellationToken token)
         {
-            // foreach (var output in control.OrderOutputs)
-            // {
-            //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //         output.Value.Cc.Abort(control.ComponentName);
-            // }
-            // await Task.Run( async () => {
-            //     control.OrderOutputs.Values.All((OrderOutput o) => o.Cc.EXST == ExecutionState.ABORTED);
-            //     await Task.Delay(25);
-            // });
             await WaitForOutputsToDo((OrderOutput output) => output.Abort(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.ABORTED});
         }
 
         // Clear has to set EXST to STOPPED after completion.
         protected virtual async Task Clearing(CancellationToken token)
         {
-            // foreach (var output in control.OrderOutputs)
-            // {
-            //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //         output.Value.Cc.Clear(control.ComponentName);
-            // }
-
-            // Task clearing = Clearing(token);
-
-            // // Wait for OrderOutputs to be stopped
-            // await Task.Run( async () => {
-            //     control.OrderOutputs.Values.All((OrderOutput o) => o.Cc.EXST == ExecutionState.STOPPED);
-            //     await Task.Delay(25);
-            // });
-
-            // await clearing;
-
-            execution.SetState(ExecutionState.STOPPED);
-            await Task.CompletedTask;
+            await WaitForOutputsToDo((OrderOutput output) => output.Clear(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.STOPPED});
         }
         // Hold has to set EXST to HELD after completion.
         protected virtual async Task Holding(CancellationToken token)
