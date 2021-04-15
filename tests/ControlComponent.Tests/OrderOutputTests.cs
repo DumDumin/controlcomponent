@@ -51,6 +51,23 @@ namespace ControlComponent.Tests
         //     operationMode.OnTaskDone -= OnTaskDone;
         // }
 
+        [Test]
+        public void Given_EqualOrderOutput_When_Equals_Then_ReturnTrue()
+        {
+            var first = new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
+            var second = new OrderOutput("ROLE_TWO", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
+
+            Assert.AreEqual(first,second);
+        }
+        
+        [Test]
+        public void Given_NotEqualOrderOutput_When_Equals_Then_ReturnFalse()
+        {
+            var first = new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
+            var second = new OrderOutput("ROLE_TWO", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
+
+            Assert.AreNotEqual(first,second);
+        }
 
         [Test]
         public void Given_OpModes_When_ListOpModeNames_Then_ReturnOpModeNames()

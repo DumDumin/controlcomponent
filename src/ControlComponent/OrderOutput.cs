@@ -96,5 +96,18 @@ namespace ControlComponent
         {
             controlComponent.Clear(sender);
         }
+
+        public override bool Equals(Object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || ! this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else {
+                OrderOutput p = (OrderOutput) obj;
+                return (ComponentName == p.ComponentName);
+            }
+        }
     }
 }
