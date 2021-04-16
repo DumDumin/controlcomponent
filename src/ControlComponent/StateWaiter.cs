@@ -14,6 +14,8 @@ namespace ControlComponent
         CancellationTokenSource aborted = new CancellationTokenSource();
         CancellationTokenSource stopped = new CancellationTokenSource();
         CancellationTokenSource completed = new CancellationTokenSource();
+        CancellationTokenSource suspend = new CancellationTokenSource();
+        CancellationTokenSource held = new CancellationTokenSource();
 
         public ExecutionStateEventHandler EventHandler { get; }
 
@@ -33,6 +35,10 @@ namespace ControlComponent
                         stopped.Cancel(); break;
                     case ExecutionState.COMPLETED:
                         completed.Cancel(); break;
+                    case ExecutionState.SUSPENDED:
+                        suspend.Cancel(); break;
+                    case ExecutionState.HELD:
+                        held.Cancel(); break;
                     default:
                         break;
                 }
@@ -59,13 +65,21 @@ namespace ControlComponent
         {
             await Task.Delay(1000, completed.Token).ContinueWith(HandleTaskResult);
         }
-        public async Task Stopped()
+        public async Task Stopped(int delay = 1000)
         {
-            await Task.Delay(1000, stopped.Token).ContinueWith(HandleTaskResult);
+            await Task.Delay(delay, stopped.Token).ContinueWith(HandleTaskResult);
         }
         public async Task Aborted(int delay = 1000)
         {
             await Task.Delay(delay, aborted.Token).ContinueWith(HandleTaskResult);
+        }
+        public async Task Suspend(int delay = 1000)
+        {
+            await Task.Delay(delay, suspend.Token).ContinueWith(HandleTaskResult);
+        }
+        public async Task Held(int delay = 1000)
+        {
+            await Task.Delay(delay, held.Token).ContinueWith(HandleTaskResult);
         }
     }
 }

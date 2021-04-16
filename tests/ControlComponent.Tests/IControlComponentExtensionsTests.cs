@@ -49,6 +49,21 @@ namespace ControlComponent.Tests
         }
 
         [Test]
+        public async Task Given_Stopping_When_Stop_Then_Stopped()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.ResetAndWaitForIdle(SENDER);
+            cc.Stop(SENDER);
+            
+            // When
+            await cc.StopAndWaitForStopped(SENDER, false);
+
+            // Then
+            Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
+        }
+
+        [Test]
         public async Task Given_Idle_When_Start_Then_Execute()
         {
             // Given
@@ -103,6 +118,50 @@ namespace ControlComponent.Tests
             // Then
             Assert.AreEqual("NONE", cc.OCCUPIER);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
+        }
+
+        [Test]
+        public async Task Given_Idle_When_Abort_Then_Aborted()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.ResetAndWaitForIdle(SENDER);
+            
+            // When
+            await cc.AbortAndWaitForAborted(SENDER);
+
+            // Then
+            Assert.AreEqual(ExecutionState.ABORTED, cc.EXST);
+        }
+
+        [Test]
+        public async Task Given_Execute_When_SuspendAndWaitForSuspended_Then_Suspended()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.ResetAndWaitForIdle(SENDER);
+            await cc.StartAndWaitForExecute(SENDER);
+            
+            // When
+            await cc.SuspendAndWaitForSuspended(SENDER);
+
+            // Then
+            Assert.AreEqual(ExecutionState.SUSPENDED, cc.EXST);
+        }
+
+        [Test]
+        public async Task Given_Execute_When_HoldAndWaitForHeld_Then_Held()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.ResetAndWaitForIdle(SENDER);
+            await cc.StartAndWaitForExecute(SENDER);
+            
+            // When
+            await cc.HoldAndWaitForHeld(SENDER);
+
+            // Then
+            Assert.AreEqual(ExecutionState.HELD, cc.EXST);
         }
     }
 }

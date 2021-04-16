@@ -22,12 +22,7 @@ namespace ControlComponent.Tests
         private async Task DoTask(Func<CancellationToken, Task> action, CancellationToken token)
         {
             await WaitToFinish(token);
-
-            // If Execution finished normally call base method
-            if (!token.IsCancellationRequested)
-            {
-                await action(token);
-            }
+            await action(token);
         }
 
         protected override Task Resetting(CancellationToken token)

@@ -84,14 +84,14 @@ namespace ControlComponent
         public async Task Select(IExecution execution, IDictionary<string, OrderOutput> orderOutputs)
         {
             try
-            { 
+            {
                 mainTokenSource = new CancellationTokenSource();
                 this.execution = execution;
                 this.outputs = orderOutputs;
 
                 foreach (var item in neededRoles)
                 {
-                    if(!orderOutputs.Keys.Contains(item))
+                    if (!orderOutputs.Keys.Contains(item))
                     {
                         throw new Exception($"Role {item} is not available in known outputs = {string.Join(" ", orderOutputs.Keys)}");
                     }
@@ -101,7 +101,7 @@ namespace ControlComponent
 
                 execution.ExecutionStateChanged += OnExecutionStateChanged;
 
-                while(!mainTokenSource.IsCancellationRequested)
+                while (!mainTokenSource.IsCancellationRequested)
                 {
                     executionTokenSource = new CancellationTokenSource();
                     logger.Debug($"Invoke {execution.EXST} action");
@@ -124,56 +124,18 @@ namespace ControlComponent
             }
         }
 
-        private async Task WaitForSelectedOutputsToDo(Action<OrderOutput> action, IEnumerable<ExecutionState> states, IEnumerable<OrderOutput> selectedOutputs)
-        {
-            CancellationTokenSource tokenSource = new CancellationTokenSource();
-            Task waitForStateChange = Task.Delay(100000, tokenSource.Token).ContinueWith(task => {});
-
-            // TODO do not only wait for actions, but check if outputs are already in the desired state
-            ExecutionStateEventHandler subscriber = (object sender, ExecutionStateEventArgs e) => {
-                logger.Debug($"Received {e.ExecutionState} while waiting for {states}");
-                if(states.Contains(e.ExecutionState))
-                {
-                    if(selectedOutputs.All(o => states.Contains(o.EXST)))
-                    {
-                        tokenSource.Cancel();
-                    }
-                }
-            };
-
-            logger.Debug("Subscribe");
-            foreach (var output in selectedOutputs)
-            {
-                // TODO might need the occupier of the cc of this opmode
-                output.ExecutionStateChanged += subscriber;
-                action(output);
-            }
-
-            if(selectedOutputs.All(o => states.Contains(o.EXST)))
-            {
-                tokenSource.Cancel();
-            }
-
-            await waitForStateChange;
-            
-            foreach (var output in selectedOutputs)
-            {
-                output.ExecutionStateChanged -= subscriber;
-            }
-        }
-
-        private async Task WaitForOutputsToDo(Action<OrderOutput> action, IEnumerable<ExecutionState> states)
+        private async Task WaitForOutputsToDo(Func<OrderOutput, Task> action, ExecutionState nextState)
         {
             try
             {
                 // TODO The ML application requires to allow outputs to have no value - can it be done without null values??
                 var selectedOutputs = outputs.Values.Where(o => o != null && o.OpModeName != "NONE");
-                if(selectedOutputs.Count() > 0)
+                if (selectedOutputs.Count() > 0)
                 {
-                    await WaitForSelectedOutputsToDo(action, states, selectedOutputs);
+                    await Task.WhenAll(selectedOutputs.Select(o => action(o)));
                 }
 
-                execution.SetState(states.First());
+                execution.SetState(nextState);
                 await Task.CompletedTask;
             }
             catch (System.Exception e)
@@ -185,28 +147,43 @@ namespace ControlComponent
 
         protected virtual async Task Resetting(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Reset(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.IDLE});
+            if (!token.IsCancellationRequested)
+            {
+                await WaitForOutputsToDo((OrderOutput output) => output.ResetAndWaitForIdle(this.execution.ComponentName), ExecutionState.IDLE);
+            }
         }
 
         protected virtual async Task Starting(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Start(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.EXECUTE});
+            if (!token.IsCancellationRequested)
+            {
+                await WaitForOutputsToDo((OrderOutput output) => output.StartAndWaitForExecute(this.execution.ComponentName), ExecutionState.EXECUTE);
+            }
         }
 
         protected virtual async Task Stopping(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Stop(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.STOPPED});
+            if (!token.IsCancellationRequested)
+            {
+                await WaitForOutputsToDo((OrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false), ExecutionState.STOPPED);
+            }
         }
 
         protected virtual async Task Aborting(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Abort(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.ABORTED});
+            if (!token.IsCancellationRequested)
+            {
+                await WaitForOutputsToDo((OrderOutput output) => output.AbortAndWaitForAborted(this.execution.ComponentName), ExecutionState.ABORTED);
+            }
         }
 
         // Clear has to set EXST to STOPPED after completion.
         protected virtual async Task Clearing(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => output.Clear(this.execution.ComponentName) , new Collection<ExecutionState>(){ExecutionState.STOPPED});
+            if (!token.IsCancellationRequested)
+            {
+                await WaitForOutputsToDo((OrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false), ExecutionState.STOPPED);
+            }
         }
         // Hold has to set EXST to HELD after completion.
         protected virtual async Task Holding(CancellationToken token)
@@ -217,8 +194,11 @@ namespace ControlComponent
             //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
             //         output.Value.Cc.Hold(control.ComponentName);
             // }
-            execution.SetState(ExecutionState.HELD);
-            await Task.CompletedTask;
+            if (!token.IsCancellationRequested)
+            {
+                execution.SetState(ExecutionState.HELD);
+                await Task.CompletedTask;
+            }
         }
         // Unhold has to set EXST to EXECUTE after completion.
         protected virtual async Task Unholding(CancellationToken token)
@@ -228,8 +208,11 @@ namespace ControlComponent
             //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
             //         output.Value.Cc.Unhold(control.ComponentName);
             // }
-            execution.SetState(ExecutionState.EXECUTE);
-            await Task.CompletedTask;
+            if (!token.IsCancellationRequested)
+            {
+                execution.SetState(ExecutionState.EXECUTE);
+                await Task.CompletedTask;
+            }
         }
 
         protected virtual async Task Suspending(CancellationToken token)
@@ -248,9 +231,11 @@ namespace ControlComponent
             // });
 
             // await suspending;
-
-            execution.SetState(ExecutionState.SUSPENDED);
-            await Task.CompletedTask;
+            if (!token.IsCancellationRequested)
+            {
+                execution.SetState(ExecutionState.SUSPENDED);
+                await Task.CompletedTask;
+            }
         }
 
         // Unhold has to set EXST to EXECUTE after completion.
@@ -261,8 +246,11 @@ namespace ControlComponent
             //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
             //         output.Value.Cc.Unsuspend(control.ComponentName);
             // }
-            execution.SetState(ExecutionState.EXECUTE);
-            await Task.CompletedTask;
+            if (!token.IsCancellationRequested)
+            {
+                execution.SetState(ExecutionState.EXECUTE);
+                await Task.CompletedTask;
+            }
         }
 
         /*
@@ -276,37 +264,47 @@ namespace ControlComponent
         */
         protected virtual async Task Execute(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => {}, new Collection<ExecutionState>(){ExecutionState.COMPLETING, ExecutionState.COMPLETED});
+            // await WaitForOutputsToDo((OrderOutput output) => {}, new Collection<ExecutionState>(){ExecutionState.COMPLETING, ExecutionState.COMPLETED});
+            if (!token.IsCancellationRequested)
+            {
+                execution.SetState(ExecutionState.COMPLETING);
+                await Task.CompletedTask;
+            }
         }
 
         protected virtual async Task Completing(CancellationToken token)
         {
-            await WaitForOutputsToDo((OrderOutput output) => {} , new Collection<ExecutionState>(){ExecutionState.COMPLETED});
+            if (!token.IsCancellationRequested)
+            {
+                // await WaitForOutputsToDo((OrderOutput output) => {} , new Collection<ExecutionState>(){ExecutionState.COMPLETED});
+                execution.SetState(ExecutionState.COMPLETED);
+                await Task.CompletedTask;
+            }
         }
 
         protected virtual async Task Held(CancellationToken token)
         {
-            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
         protected virtual async Task Idle(CancellationToken token)
         {
-            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});;
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { }); ;
         }
         protected virtual async Task Completed(CancellationToken token)
         {
-            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
         protected virtual async Task Aborted(CancellationToken token)
         {
-            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
         protected virtual async Task Stopped(CancellationToken token)
         {
-            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
         protected virtual async Task Suspended(CancellationToken token)
         {
-            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => {});
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
     }
 }

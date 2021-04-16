@@ -41,7 +41,7 @@ namespace ControlComponent
 
                 { ExecutionState.ABORTING       , new List<ExecutionState>() {ExecutionState.ABORTED} },
                 { ExecutionState.ABORTED        , new List<ExecutionState>() {ExecutionState.CLEARING} },
-                { ExecutionState.CLEARING       , new List<ExecutionState>() {ExecutionState.STOPPED} },
+                { ExecutionState.CLEARING       , new List<ExecutionState>() {ExecutionState.STOPPED, ExecutionState.ABORTING} },
                 { ExecutionState.STOPPING       , new List<ExecutionState>() {ExecutionState.STOPPED, ExecutionState.ABORTING} },
             };
         }

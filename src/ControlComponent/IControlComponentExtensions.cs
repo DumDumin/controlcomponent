@@ -27,7 +27,40 @@ namespace ControlComponent
             cc.ExecutionStateChanged -= waiter.EventHandler;
         }
 
-        public static async Task StopAndWaitForStopped(this IControlComponent cc, string occupier, bool free)
+        public static async Task SuspendAndWaitForSuspended(this IControlComponent cc, string occupier)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            cc.Suspend(occupier);
+            await waiter.Suspend();
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task HoldAndWaitForHeld(this IControlComponent cc, string occupier)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            cc.Hold(occupier);
+            await waiter.Held();
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task AbortAndWaitForAborted(this IControlComponent cc, string occupier)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            cc.Abort(occupier);
+            await waiter.Aborted();
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task StopAndWaitForStopped(this IControlComponent cc, string occupier, bool free, int delay = 1000)
         {
             // Bring control component to IDLE
             if (cc.EXST != ExecutionState.STOPPED)
@@ -42,22 +75,26 @@ namespace ControlComponent
                 {
                     await waiter.Aborted();
                     cc.Clear(occupier);
-                    await waiter.Stopped();
+                    await waiter.Stopped(delay);
                 }
                 else if (cc.EXST == ExecutionState.ABORTED)
                 {
                     cc.Clear(occupier);
-                    await waiter.Stopped();
+                    await waiter.Stopped(delay);
                 }
                 else if (cc.EXST == ExecutionState.CLEARING)
                 {
-                    await waiter.Stopped();
+                    await waiter.Stopped(delay);
+                }
+                else if (cc.EXST == ExecutionState.STOPPING)
+                {
+                    await waiter.Stopped(delay);
                 }
                 else
                 {
                     // All other states are allowed to exit via stop
                     cc.Stop(occupier);
-                    await waiter.Stopped();
+                    await waiter.Stopped(delay);
                 }
 
                 cc.ExecutionStateChanged -= waiter.EventHandler;
