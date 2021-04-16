@@ -104,6 +104,23 @@ namespace ControlComponent.Tests
         }
 
         [Test]
+        public async Task Given_PositionZero_When_SelectDSHIFTAndStop_Then_Stopped()
+        {
+            shiftPositionMock.SetupGet(m => m.Position).Returns(0);
+
+            runningOpMode = cc.SelectOperationMode("DSHIFT");
+
+            await cc.ResetAndWaitForIdle(SENDER);
+            await cc.StartAndWaitForExecute(SENDER);
+
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 1);
+            motor.VerifySet(m => m.Direction = 1);
+
+            await cc.StopAndWaitForStopped(SENDER, false);
+        }
+
+        [Test]
         public async Task Given_PositionZeroNoPositionSensor_When_SelectDSHIFT_Then_Aborted()
         {
             shiftPositionMock.SetupGet(m => m.Position).Returns(0);
