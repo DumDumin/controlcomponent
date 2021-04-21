@@ -25,6 +25,7 @@ dotnet add reference ..\..\src\ControlComponent\
 dotnet add package NLog --version 4.7.9
 dotnet add package Moq --version 4.16.1
 dotnet add package coverlet.collector --version 3.0.3
+dotnet tool install -g dotnet-reportgenerator-globaltool
 
 cd ../..
 dotnet sln add .\src\ControlComponent\ControlComponent.csproj
