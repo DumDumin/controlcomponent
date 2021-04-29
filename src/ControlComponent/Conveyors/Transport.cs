@@ -41,19 +41,19 @@ namespace ControlComponent
             {
                 if(lightBarrier.Occupied == occupied)
                 {
-                    logger.Debug($"Lightbarrier triggered correctly to {(occupied ? "occupied" : "free")}");
+                    logger.Debug($"Lightbarrier {lightBarrier.Id} triggered correctly to {(occupied ? "occupied" : "free")}");
                     linkedTokens.Cancel();
                 }
                 else
                 {
-                    logger.Debug($"Lightbarrier triggered wrongly to {(!occupied ? "occupied" : "free")}");
+                    logger.Debug($"Lightbarrier {lightBarrier.Id} triggered wrongly to {(!occupied ? "occupied" : "free")}");
                 }
             };
 
             if(lightBarrier.Occupied != occupied)
             {
                 lightBarrier.Hit += ClearToken;
-                logger.Debug($"Wait for Lightbarrier to get {(occupied ? "occupied" : "free")}");
+                logger.Debug($"Wait for Lightbarrier {lightBarrier.Id} to get {(occupied ? "occupied" : "free")}");
                 await Task.Delay(Timeout.Infinite, linkedTokens.Token).ContinueWith(task => { });
                 lightBarrier.Hit -= ClearToken;
             }

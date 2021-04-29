@@ -41,8 +41,15 @@ namespace ControlComponent
             execution = new Execution(ComponentName);
             occupation = new Occupation();
 
-            execution.ExecutionStateChanged += (object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(sender, e);
+            execution.ExecutionStateChanged += HandleExecutionChanged;
         }
+
+        ~ControlComponent()
+        {
+            execution.ExecutionStateChanged -= HandleExecutionChanged;
+        }
+
+        private void HandleExecutionChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(sender, e);
 
         public string OCCUPIER => occupation.OCCUPIER;
         public void Occupy(string sender) => occupation.Occupy(sender);

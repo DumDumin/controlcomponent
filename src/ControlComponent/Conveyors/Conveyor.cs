@@ -17,10 +17,10 @@ namespace ControlComponent
         public ILightBarrier RightSlow { get; }
         public ILightBarrier RightStop { get; }
 
-        public Conveyor(string name, ICollection<IOperationMode> opModes, IMotor motor, ILightBarrier leftStop, ILightBarrier leftSlow, ILightBarrier rightSlow, ILightBarrier rightStop)
+        public Conveyor(string name, ICollection<IOperationMode> additionalOpModes, IMotor motor, ILightBarrier leftStop, ILightBarrier leftSlow, ILightBarrier rightSlow, ILightBarrier rightStop)
             : base(
                 name, 
-                opModes.Concat(createOperationModes(motor, leftStop, leftSlow, rightSlow, rightStop)).ToList(),
+                additionalOpModes.Concat(createOperationModes(motor, leftStop, leftSlow, rightSlow, rightStop)).ToList(),
                 new Collection<OrderOutput>(),
                 new Collection<string>()
             )
@@ -31,6 +31,10 @@ namespace ControlComponent
             RightSlow = rightSlow;
             RightStop = rightStop;
         }
+
+        public Conveyor(string name, IMotor motor, ILightBarrier leftStop, ILightBarrier leftSlow, ILightBarrier rightSlow, ILightBarrier rightStop)
+            : this(name, new Collection<IOperationMode>(), motor, leftStop, leftSlow, rightSlow, rightStop)
+        {}
 
         private static ICollection<IOperationMode> createOperationModes(IMotor motor, ILightBarrier leftStop, ILightBarrier leftSlow, ILightBarrier rightSlow, ILightBarrier rightStop)
         {
