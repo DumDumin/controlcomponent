@@ -29,7 +29,7 @@ namespace ControlComponent
                 { ExecutionState.STARTING       , new List<ExecutionState>() {ExecutionState.EXECUTE, ExecutionState.STOPPING, ExecutionState.ABORTING} },
                 { ExecutionState.EXECUTE        , new List<ExecutionState>() {ExecutionState.SUSPENDING, ExecutionState.HOLDING, ExecutionState.COMPLETING, ExecutionState.STOPPING, ExecutionState.ABORTING} },
                 { ExecutionState.COMPLETING     , new List<ExecutionState>() {ExecutionState.COMPLETED, ExecutionState.STOPPING, ExecutionState.ABORTING} },
-                { ExecutionState.COMPLETED      , new List<ExecutionState>() {ExecutionState.ABORTING, ExecutionState.STOPPING} },
+                { ExecutionState.COMPLETED      , new List<ExecutionState>() {ExecutionState.ABORTING, ExecutionState.STOPPING, ExecutionState.RESETTING} },
 
                 { ExecutionState.HOLDING        , new List<ExecutionState>() {ExecutionState.HELD, ExecutionState.STOPPING, ExecutionState.ABORTING} },
                 { ExecutionState.HELD           , new List<ExecutionState>() {ExecutionState.UNHOLDING, ExecutionState.STOPPING, ExecutionState.ABORTING} },

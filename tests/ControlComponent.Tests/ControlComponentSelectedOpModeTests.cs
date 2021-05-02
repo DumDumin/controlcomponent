@@ -73,6 +73,18 @@ namespace ControlComponent.Tests
             Assert.ThrowsAsync<InvalidOperationException>(() => cc.DeselectOperationMode());
         }
 
+        [Test]
+        public async Task Given_Completed_When_Reset_Then_Resetting()
+        {
+            cc.Reset(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.IDLE);
+            Assert.AreEqual(ExecutionState.IDLE, cc.EXST);
+            cc.Start(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.COMPLETED);
+
+            cc.Reset(SENDER);
+            Assert.AreEqual(ExecutionState.RESETTING, cc.EXST);
+        }
 
         [Test]
         public void Given_Stopped_When_NotAllowedOperations_Then_Throw()
