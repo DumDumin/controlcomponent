@@ -49,7 +49,7 @@ namespace ControlComponent
             execution.ExecutionStateChanged -= HandleExecutionChanged;
         }
 
-        private void HandleExecutionChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(sender, e);
+        private void HandleExecutionChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this, e);
 
         public string OCCUPIER => occupation.OCCUPIER;
         public void Occupy(string sender) => occupation.Occupy(sender);

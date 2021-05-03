@@ -47,48 +47,48 @@ namespace ControlComponent.Tests
         [Test]
         public void Given_OccupiedByA_When_FreeByA_Then_IsFree()
         {
-            cc.Occupy("A");
+            cc.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, cc.IsOccupied());
-            Assert.AreEqual("A", cc.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, cc.OCCUPIER);
 
-            cc.Free("A");
+            cc.Free(OCCUPIER_A);
             Assert.AreEqual(true, cc.IsFree());
         }
 
         [Test]
         public void Given_OccupiedByA_When_FreeByB_Then_OccupiedByA()
         {
-            cc.Occupy("A");
+            cc.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, cc.IsOccupied());
-            Assert.AreEqual("A", cc.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, cc.OCCUPIER);
 
-            cc.Free("B");
+            cc.Free(OCCUPIER_B);
             Assert.AreEqual(true, cc.IsOccupied());
-            Assert.AreEqual("A", cc.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, cc.OCCUPIER);
         }
 
         [Test]
         public void Given_OccupiedByA_When_OccupyByB_Then_OccupiedByA()
         {
-            cc.Occupy("A");
+            cc.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, cc.IsOccupied());
-            Assert.AreEqual("A", cc.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, cc.OCCUPIER);
 
-            cc.Occupy("B");
+            cc.Occupy(OCCUPIER_B);
             Assert.AreEqual(true, cc.IsOccupied());
-            Assert.AreEqual("A", cc.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, cc.OCCUPIER);
         }
 
         [Test]
         public void Given_OccupiedByA_When_PrioByB_Then_OccupiedByB()
         {
-            cc.Occupy("A");
+            cc.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, cc.IsOccupied());
-            Assert.AreEqual("A", cc.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, cc.OCCUPIER);
 
-            cc.Prio("B");
+            cc.Prio(OCCUPIER_B);
             Assert.AreEqual(true, cc.IsOccupied());
-            Assert.AreEqual("B", cc.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_B, cc.OCCUPIER);
         }
     }
 }

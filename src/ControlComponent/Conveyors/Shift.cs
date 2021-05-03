@@ -38,7 +38,7 @@ namespace ControlComponent
             shiftPosition.PositionChanged += ClearToken;
             logger.Debug($"Wait for new Position {newPosition}, now = {shiftPosition.Position}");
             // TODO calculate timeout by speed and distance
-            await Task.Delay(10000, linkedTokens.Token).ContinueWith(task => { });
+            await Task.Delay(17500, linkedTokens.Token).ContinueWith(task => { });
             shiftPosition.PositionChanged -= ClearToken;
 
             return newPosition == shiftPosition.Position;

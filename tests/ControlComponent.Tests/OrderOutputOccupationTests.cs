@@ -42,48 +42,48 @@ namespace ControlComponent.Tests
         [Test]
         public void Given_OccupiedByA_When_FreeByA_Then_IsFree()
         {
-            orderOutput.Occupy("A");
+            orderOutput.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, orderOutput.IsOccupied());
-            Assert.AreEqual("A", orderOutput.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, orderOutput.OCCUPIER);
 
-            orderOutput.Free("A");
+            orderOutput.Free(OCCUPIER_A);
             Assert.AreEqual(true, orderOutput.IsFree());
         }
 
         [Test]
         public void Given_OccupiedByA_When_FreeByB_Then_OccupiedByA()
         {
-            orderOutput.Occupy("A");
+            orderOutput.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, orderOutput.IsOccupied());
-            Assert.AreEqual("A", orderOutput.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, orderOutput.OCCUPIER);
 
-            orderOutput.Free("B");
+            orderOutput.Free(OCCUPIER_B);
             Assert.AreEqual(true, orderOutput.IsOccupied());
-            Assert.AreEqual("A", orderOutput.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, orderOutput.OCCUPIER);
         }
 
         [Test]
         public void Given_OccupiedByA_When_OccupyByB_Then_OccupiedByA()
         {
-            orderOutput.Occupy("A");
+            orderOutput.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, orderOutput.IsOccupied());
-            Assert.AreEqual("A", orderOutput.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, orderOutput.OCCUPIER);
 
-            orderOutput.Occupy("B");
+            orderOutput.Occupy(OCCUPIER_B);
             Assert.AreEqual(true, orderOutput.IsOccupied());
-            Assert.AreEqual("A", orderOutput.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, orderOutput.OCCUPIER);
         }
 
         [Test]
         public void Given_OccupiedByA_When_PrioByB_Then_OccupiedByB()
         {
-            orderOutput.Occupy("A");
+            orderOutput.Occupy(OCCUPIER_A);
             Assert.AreEqual(true, orderOutput.IsOccupied());
-            Assert.AreEqual("A", orderOutput.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_A, orderOutput.OCCUPIER);
 
-            orderOutput.Prio("B");
+            orderOutput.Prio(OCCUPIER_B);
             Assert.AreEqual(true, orderOutput.IsOccupied());
-            Assert.AreEqual("B", orderOutput.OCCUPIER);
+            Assert.AreEqual(OCCUPIER_B, orderOutput.OCCUPIER);
         }
     }
 }

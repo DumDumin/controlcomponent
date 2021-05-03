@@ -10,7 +10,6 @@ namespace ControlComponent.Tests
     public class ControlComponentNoSelectedOpModeTests
     {
         string SENDER = "SENDER";
-        string OCCUPIER = "OCCUPIER";
         string CC = "CC";
         string OpModeOne = "OpModeOne";
         string OpModeTwo = "OpModeTwo";

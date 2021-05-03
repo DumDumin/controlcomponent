@@ -109,5 +109,10 @@ namespace ControlComponent
                 return (ComponentName == p.ComponentName);
             }
         }
+
+        public override int GetHashCode()
+        {
+            return ComponentName.GetHashCode();
+        }
     }
 }
