@@ -129,19 +129,23 @@ namespace ControlComponent
 
         public async Task SelectOperationMode(string operationMode)
         {
-            try
-            { 
+            // TODO it is also possible to Deselect here and then Select new opmode
+            if(this.operationMode != null)
+            {
+                throw new InvalidOperationException("There is already an operation mode selected");
+            }
+            else
+            {
                 if (EXST == ExecutionState.STOPPED)
                 {
                     this.operationMode = operationModes[operationMode];
                     runningOpMode = this.operationMode.Select(this.execution, orderOutputs);
                     await runningOpMode;
                 }
-            }
-            catch (System.Exception e)
-            {
-                logger.Error(e);
-                throw;
+                else
+                {
+                    throw new InvalidOperationException($"Operation mode can not be selected in {EXST} state.");
+                }
             }
         }
 

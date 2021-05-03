@@ -101,5 +101,11 @@ namespace ControlComponent.Tests
 
             Assert.Throws<ExecutionException>(() => cc.Unhold(SENDER));
         }
+
+        [Test]
+        public void Given_RunningOpMode_When_SelectOpMode_Then_Throw()
+        {
+            Assert.ThrowsAsync<InvalidOperationException>(() => cc.SelectOperationMode(OpModeTwo));
+        }
     }
 }
