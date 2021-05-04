@@ -127,9 +127,10 @@ namespace ControlComponent
             ChangeState(ExecutionState.CLEARING, sender);
         }
 
+        // TODO add Async to the name of this method and add a new method, which does not return a task (same for deselect)
         public async Task SelectOperationMode(string operationMode)
         {
-            // TODO it is also possible to Deselect here and then Select new opmode
+            // TODO it is also possible to Deselect here and then Select new opmode?
             if(this.operationMode != null)
             {
                 throw new InvalidOperationException("There is already an operation mode selected");

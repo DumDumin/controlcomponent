@@ -32,32 +32,6 @@ namespace ControlComponent
         {
         }
 
-        private async Task WaitForLightBarrier(ILightBarrier lightBarrier, CancellationToken token, bool occupied)
-        {
-            // The use of linkedTokenSource allows a second cancellation condition to leave this method
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationTokenSource linkedTokens = CancellationTokenSource.CreateLinkedTokenSource(source.Token, token);
-            EventHandler ClearToken = (object sender, EventArgs e) =>
-            {
-                if(lightBarrier.Occupied == occupied)
-                {
-                    logger.Debug($"Lightbarrier {lightBarrier.Id} triggered correctly to {(occupied ? "occupied" : "free")}");
-                    linkedTokens.Cancel();
-                }
-                else
-                {
-                    logger.Debug($"Lightbarrier {lightBarrier.Id} triggered wrongly to {(!occupied ? "occupied" : "free")}");
-                }
-            };
-
-            if(lightBarrier.Occupied != occupied)
-            {
-                lightBarrier.Hit += ClearToken;
-                logger.Debug($"Wait for Lightbarrier {lightBarrier.Id} to get {(occupied ? "occupied" : "free")}");
-                await Task.Delay(Timeout.Infinite, linkedTokens.Token).ContinueWith(task => { });
-                lightBarrier.Hit -= ClearToken;
-            }
-        }
 
         private ILightBarrier GetLightBarrierStop()
         {
@@ -111,14 +85,14 @@ namespace ControlComponent
 
             // Check light barriers and control motorspeed
             // control.WORKST = "TakeIn";
-            await WaitForLightBarrier(slow, token, take);
+            await slow.WaitForLightBarrier(token, take);
 
             if(!token.IsCancellationRequested)
             {
                 // 3rd light barrier reached --> Start positioning
                 // control.WORKST = "Positioning";
                 motor.Speed = 0.5f;
-                await WaitForLightBarrier(stop, token, take);
+                await stop.WaitForLightBarrier(token, take);
 
                 // control.WORKST = "Stopping";
                 motor.Speed = 0;
