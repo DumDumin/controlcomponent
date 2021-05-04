@@ -24,6 +24,23 @@ namespace ControlComponent
         {
         }
 
+        private async Task WaitForSlowZone(CancellationToken token)
+        {
+            // The use of linkedTokenSource allows a second cancellation condition to leave this method
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationTokenSource linkedTokens = CancellationTokenSource.CreateLinkedTokenSource(source.Token, token);
+            EventHandler ClearToken = (object sender, EventArgs e) =>
+            {
+                logger.Debug($"Slow zone reached");
+                linkedTokens.Cancel();
+            };
+
+            shiftPosition.SlowZoneReached += ClearToken;
+            logger.Debug($"Wait for slow zone");
+            // TODO calculate timeout by speed and distance
+            await Task.Delay(Timeout.Infinite, linkedTokens.Token).ContinueWith(task => { });
+            shiftPosition.SlowZoneReached -= ClearToken;
+        }
         private async Task<bool> WaitForNewPosition(int newPosition, CancellationToken token)
         {
             // The use of linkedTokenSource allows a second cancellation condition to leave this method
@@ -38,7 +55,7 @@ namespace ControlComponent
             shiftPosition.PositionChanged += ClearToken;
             logger.Debug($"Wait for new Position {newPosition}, now = {shiftPosition.Position}");
             // TODO calculate timeout by speed and distance
-            await Task.Delay(17500, linkedTokens.Token).ContinueWith(task => { });
+            await Task.Delay(Timeout.Infinite, linkedTokens.Token).ContinueWith(task => { });
             shiftPosition.PositionChanged -= ClearToken;
 
             return newPosition == shiftPosition.Position;
@@ -48,6 +65,9 @@ namespace ControlComponent
         {
             motor.Direction = direction;
             motor.Speed = 1;
+            await WaitForSlowZone(token);
+            // TODO this could be an action to be called immediately in the callback
+            motor.Speed = 0.5f;
             bool targetReached = await WaitForNewPosition(shiftPosition.Position + direction, token);
             // Target reached
             motor.Speed = 0;
@@ -90,6 +110,8 @@ namespace ControlComponent
 
             if (!token.IsCancellationRequested)
             {
+                // TODO TOBI in the new implementation there shouldnt be any need for this check
+                // We need to detect errors without a timeout?
                 if (moveFailed)
                 {
                     logger.Error("No position was not reached in time");

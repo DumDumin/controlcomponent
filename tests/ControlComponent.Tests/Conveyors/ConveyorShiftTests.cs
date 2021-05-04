@@ -97,6 +97,11 @@ namespace ControlComponent.Tests
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = 1);
+
+            shiftPositionMock.Raise(s => s.SlowZoneReached += null, EventArgs.Empty);
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 0.5f);
+
             shiftPositionMock.SetupGet(m => m.Position).Returns(1);
             shiftPositionMock.Raise(s => s.PositionChanged += null, EventArgs.Empty);
 
@@ -120,24 +125,24 @@ namespace ControlComponent.Tests
             await cc.StopAndWaitForStopped(SENDER, false);
         }
 
-        [Test]
-        public async Task Given_PositionZeroNoPositionSensor_When_SelectDSHIFT_Then_Aborted()
-        {
-            shiftPositionMock.SetupGet(m => m.Position).Returns(0);
+        // [Test]
+        // public async Task Given_PositionZeroNoPositionSensor_When_SelectDSHIFT_Then_Aborted()
+        // {
+        //     shiftPositionMock.SetupGet(m => m.Position).Returns(0);
 
-            runningOpMode = cc.SelectOperationMode("DSHIFT");
+        //     runningOpMode = cc.SelectOperationMode("DSHIFT");
 
-            cc.Reset(SENDER);
-            await state.Idle();
-            cc.Start(SENDER);
-            await state.Execute();
+        //     cc.Reset(SENDER);
+        //     await state.Idle();
+        //     cc.Start(SENDER);
+        //     await state.Execute();
 
-            await Task.Delay(1);
-            motor.VerifySet(m => m.Speed = 1);
-            motor.VerifySet(m => m.Direction = 1);
+        //     await Task.Delay(1);
+        //     motor.VerifySet(m => m.Speed = 1);
+        //     motor.VerifySet(m => m.Direction = 1);
 
-            await state.Aborted(20000);
-        }
+        //     await state.Aborted(20000);
+        // }
 
         [Test]
         public async Task Given_PositionZero_When_SelectUSHIFT_Then_DoNotUseMotor()
@@ -175,31 +180,36 @@ namespace ControlComponent.Tests
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = -1);
+
+            shiftPositionMock.Raise(s => s.SlowZoneReached += null, EventArgs.Empty);
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 0.5f);
+
             shiftPositionMock.SetupGet(m => m.Position).Returns(1);
             shiftPositionMock.Raise(s => s.PositionChanged += null, EventArgs.Empty);
 
             await state.Completed();
         }
 
-        [Test]
-        public async Task Given_PositionLastNoPositionSensor_When_SelectUSHIFT_Then_Aborted()
-        {
-            shiftPositionMock.SetupGet(m => m.Position).Returns(2);
-            shiftPositionMock.SetupGet(m => m.Positions).Returns(new List<float>(){0,1,2});
+        // [Test]
+        // public async Task Given_PositionLastNoPositionSensor_When_SelectUSHIFT_Then_Aborted()
+        // {
+        //     shiftPositionMock.SetupGet(m => m.Position).Returns(2);
+        //     shiftPositionMock.SetupGet(m => m.Positions).Returns(new List<float>(){0,1,2});
 
-            runningOpMode = cc.SelectOperationMode("USHIFT");
+        //     runningOpMode = cc.SelectOperationMode("USHIFT");
 
-            cc.Reset(SENDER);
-            await state.Idle();
-            cc.Start(SENDER);
-            await state.Execute();
+        //     cc.Reset(SENDER);
+        //     await state.Idle();
+        //     cc.Start(SENDER);
+        //     await state.Execute();
 
-            await Task.Delay(1);
-            motor.VerifySet(m => m.Speed = 1);
-            motor.VerifySet(m => m.Direction = -1);
+        //     await Task.Delay(1);
+        //     motor.VerifySet(m => m.Speed = 1);
+        //     motor.VerifySet(m => m.Direction = -1);
 
-            await state.Aborted(20000);
-        }
+        //     await state.Aborted(20000);
+        // }
 
         [Test]
         public async Task Given_PositionLast_When_SelectDSHIFT_Then_DoNotUseMotor()
@@ -237,6 +247,11 @@ namespace ControlComponent.Tests
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = -1);
+
+            shiftPositionMock.Raise(s => s.SlowZoneReached += null, EventArgs.Empty);
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 0.5f);
+
             shiftPositionMock.SetupGet(m => m.Position).Returns(0);
             shiftPositionMock.Raise(s => s.PositionChanged += null, EventArgs.Empty);
 
@@ -258,6 +273,11 @@ namespace ControlComponent.Tests
             await Task.Delay(1);
             motor.VerifySet(m => m.Speed = 1);
             motor.VerifySet(m => m.Direction = 1);
+
+            shiftPositionMock.Raise(s => s.SlowZoneReached += null, EventArgs.Empty);
+            await Task.Delay(1);
+            motor.VerifySet(m => m.Speed = 0.5f);
+
             shiftPositionMock.SetupGet(m => m.Position).Returns(2);
             shiftPositionMock.Raise(s => s.PositionChanged += null, EventArgs.Empty);
 
