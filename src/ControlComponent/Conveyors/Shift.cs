@@ -65,10 +65,13 @@ namespace ControlComponent
         {
             motor.Direction = direction;
             motor.Speed = 1;
+
+            Task<bool> waitForPosition = WaitForNewPosition(shiftPosition.Position + direction, token);
             await WaitForSlowZone(token);
             // TODO this could be an action to be called immediately in the callback
             motor.Speed = 0.5f;
-            bool targetReached = await WaitForNewPosition(shiftPosition.Position + direction, token);
+            bool targetReached = await waitForPosition;
+
             // Target reached
             motor.Speed = 0;
             return targetReached;
