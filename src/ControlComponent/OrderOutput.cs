@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponent
 {
+    // TOBI TODO add IOrderOutput
     public class OrderOutput : IControlComponent
     {
         // TODO throw errors instead

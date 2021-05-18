@@ -1,0 +1,13 @@
+@startuml
+title Component Diagram
+component ControlComponents.Core
+component ControlComponents.Conveyor
+component PTS
+component UnityEngine
+
+PTS --> ControlComponents.Conveyor
+PTS --> ControlComponents.Core
+PTS --> UnityEngine
+
+ControlComponents.Conveyor --> ControlComponents.Core
+@enduml

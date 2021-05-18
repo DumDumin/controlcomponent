@@ -1,0 +1,93 @@
+@startuml
+title ControlComponents.Core
+
+together {
+    interface ControlComponents.Core.IControlComponent
+    class ControlComponents.Core.ControlComponent
+}
+together {
+    interface ControlComponents.Core.IOrderOutput
+    class ControlComponents.Core.OrderOutput
+}
+
+together {
+    interface ControlComponents.Core.IOperationMode
+    abstract ControlComponents.Core.OperationModeBase
+}
+
+together {
+    class ControlComponents.Conveyor.Conveyor
+    class ControlComponents.Conveyor.ConveyorShift
+}
+
+together {
+    class ControlComponents.Conveyor.Transport
+    class ControlComponents.Conveyor.Shift
+}
+
+namespace ControlComponents.Core {
+    interface IOperationMode
+    abstract OperationModeBase
+    interface IControlComponent
+    class ControlComponent
+    interface IOrderOutput
+    class OrderOutput
+
+    IControlComponent <|.. ControlComponent
+    IOperationMode <|.. OperationModeBase
+    IControlComponent <|.. IOrderOutput
+    IOrderOutput <|.. OrderOutput
+
+    ControlComponent o--> "0..*" IOrderOutput
+    ControlComponent o--> "1..*" IOperationMode
+    OperationModeBase o--> "0..*" IOrderOutput
+    OrderOutput o--> "1" IControlComponent
+
+}
+
+namespace ControlComponents.Conveyor{
+    class Conveyor
+    class ConveyorShift
+    class Transport
+    class Shift
+    interface ILightBarrier
+    interface IMotor
+
+    ControlComponents.Core.OperationModeBase <|-- Transport
+    ControlComponents.Core.OperationModeBase <|-- Shift
+    ControlComponents.Core.ControlComponent <|-- Conveyor
+    Conveyor <|-- ConveyorShift
+
+    Conveyor o--> "4" Transport
+    ConveyorShift o--> "2" Shift
+    Transport o--> "4" ILightBarrier
+    Transport o--> "1" IMotor
+    Shift o--> "1" IMotor
+    Shift o--> "6" ILightBarrier
+}
+
+
+newpage
+title Simulation Integration
+namespace PTS {
+    abstract ControlComponentUnity
+    class ConveyorUnity
+
+    ControlComponentUnity o--> "1" ControlComponents.Core.IControlComponent
+    ControlComponentUnity <|.. ConveyorUnity
+    ControlComponents.Core.IControlComponent <|.. ControlComponentUnity
+
+    UnityEngine.MonoBehavior <|-- ControlComponentUnity
+    UnityEngine.MonoBehavior <|-- BeltMotor
+    UnityEngine.MonoBehavior <|-- LightBarrier
+
+    ControlComponents.Conveyor.ILightBarrier <|.. LightBarrier
+    ControlComponents.Conveyor.IMotor <|.. BeltMotor
+    ControlComponents.Conveyor.Conveyor <|.. ConveyorUnity
+
+
+    ' only for formatting
+    ' UnityEngine.MonoBehavior -[hidden]> ControlComponents.Core.IControlComponent
+}
+
+@enduml
