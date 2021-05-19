@@ -47,7 +47,7 @@ dotnet test --collect:"XPlat Code Coverage"
 
 Run the following command (with the correct result id) to create a "coveragereport" folder with an index.html file to present the coverage results:
 ```
-reportgenerator -reports:.\tests\ControlComponent.Tests\TestResults\efa01ed4-c5e1-4bf4-bda1-d18ec296017c\coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html
+reportgenerator -reports:.\tests\ControlComponent.Core.Tests\TestResults\efa01ed4-c5e1-4bf4-bda1-d18ec296017c\coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html
 ```
 
 Open the index.html file in your browser to access the results.
