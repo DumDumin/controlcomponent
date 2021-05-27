@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-
+using ControlComponents.Core;
 
 /// <summary>
 /// Field-based asynchronous interface for communication between <see cref="MLOperationMode"/>
@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 /// TODO MLREWINC: Not necessary --> always use set?
 /// </remarks>
 
-namespace ControlComponents.Core
+namespace ControlComponents.ML
 {
     public interface IMLControlComponent : IControlComponent
     {
