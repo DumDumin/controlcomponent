@@ -26,7 +26,7 @@ namespace ControlComponents.ML
     /// Additional task (=operation mode) specific rewards can be applied by setting
     /// <c>MLREWARD += value;</c>
     /// </remarks>
-    public abstract class MLOperationMode : OperationModeBase// , IMLOperationMode
+    public abstract class MLOperationMode : OperationModeWaitOutputs// , IMLOperationMode
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

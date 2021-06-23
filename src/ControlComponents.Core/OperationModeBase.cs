@@ -36,28 +36,28 @@ namespace ControlComponents.Core
 
             stateActions = new Dictionary<ExecutionState, Func<CancellationToken, Task>>()
             {
-                { ExecutionState.RESETTING  , Resetting },
-                { ExecutionState.IDLE       , Idle },
-                { ExecutionState.STARTING   , Starting },
-                { ExecutionState.EXECUTE    , Execute },
-                { ExecutionState.COMPLETING , Completing },
-                { ExecutionState.COMPLETED  , Completed },
+                { ExecutionState.RESETTING  , Resetting_ },
+                { ExecutionState.IDLE       , Idle_ },
+                { ExecutionState.STARTING   , Starting_ },
+                { ExecutionState.EXECUTE    , Execute_ },
+                { ExecutionState.COMPLETING , Completing_ },
+                { ExecutionState.COMPLETED  , Completed_ },
 
-                { ExecutionState.HOLDING    , Holding },
-                { ExecutionState.HELD       , Held },
-                { ExecutionState.UNHOLDING  , Unholding },
+                { ExecutionState.HOLDING    , Holding_ },
+                { ExecutionState.HELD       , Held_ },
+                { ExecutionState.UNHOLDING  , Unholding_ },
 
-                { ExecutionState.SUSPENDING    , Suspending },
-                { ExecutionState.SUSPENDED     , Suspended },
-                { ExecutionState.UNSUSPENDING  , Unsuspending },
+                { ExecutionState.SUSPENDING    , Suspending_ },
+                { ExecutionState.SUSPENDED     , Suspended_ },
+                { ExecutionState.UNSUSPENDING  , Unsuspending_ },
 
-                { ExecutionState.STOPPING       , Stopping},
-                { ExecutionState.STOPPED       , Stopped},
+                { ExecutionState.STOPPING       , Stopping_},
+                { ExecutionState.STOPPED       , Stopped_},
 
-                { ExecutionState.ABORTED        , Aborted },
-                { ExecutionState.ABORTING       , Aborting },
+                { ExecutionState.ABORTED        , Aborted_ },
+                { ExecutionState.ABORTING       , Aborting_ },
 
-                { ExecutionState.CLEARING        , Clearing },
+                { ExecutionState.CLEARING        , Clearing_ },
             };
         }
 
@@ -125,7 +125,7 @@ namespace ControlComponents.Core
             }
         }
 
-        private async Task WaitForOutputsToDo(Func<OrderOutput, Task> action, ExecutionState nextState)
+        protected async Task WaitForOutputs(Func<OrderOutput, Task> action)
         {
             try
             {
@@ -135,8 +135,6 @@ namespace ControlComponents.Core
                 {
                     await Task.WhenAll(selectedOutputs.Select(o => action(o)));
                 }
-
-                execution.SetState(nextState);
                 await Task.CompletedTask;
             }
             catch (System.Exception e)
@@ -146,48 +144,89 @@ namespace ControlComponents.Core
             }
         }
 
-        protected virtual async Task Resetting(CancellationToken token)
+        protected virtual Task Resetting(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Starting(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Stopping(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Aborting(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Clearing(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Holding(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Unholding(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Suspending(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Unsuspending(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Execute(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Completing(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Held(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Idle(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Completed(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Aborted(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Stopped(CancellationToken token) { return Task.CompletedTask; }
+        protected virtual Task Suspended(CancellationToken token) { return Task.CompletedTask; }
+
+
+        private async Task Resetting_(CancellationToken token)
         {
+            await Resetting(token);
             if (!token.IsCancellationRequested)
             {
-                await WaitForOutputsToDo((OrderOutput output) => output.ResetAndWaitForIdle(this.execution.ComponentName), ExecutionState.IDLE);
+                execution.SetState(ExecutionState.IDLE);
             }
         }
 
-        protected virtual async Task Starting(CancellationToken token)
+        // private async Task Resetting_(CancellationToken token)
+        // {
+        //     bool wait = await Resetting(token);
+        //     if (!token.IsCancellationRequested)
+        //     {
+        //         if(wait)
+        //         {
+        //             await WaitForOutputs((OrderOutput output) => output.ResetAndWaitForIdle(this.execution.ComponentName));
+        //         }
+        //         execution.SetState(ExecutionState.IDLE);
+        //     }
+        // }
+
+        private async Task Starting_(CancellationToken token)
         {
+            await Starting(token);
             if (!token.IsCancellationRequested)
             {
-                await WaitForOutputsToDo((OrderOutput output) => output.StartAndWaitForExecute(this.execution.ComponentName), ExecutionState.EXECUTE);
+                
+                execution.SetState(ExecutionState.EXECUTE);
             }
         }
 
-        protected virtual async Task Stopping(CancellationToken token)
+        private async Task Stopping_(CancellationToken token)
         {
+            await Stopping(token);
             if (!token.IsCancellationRequested)
             {
-                await WaitForOutputsToDo((OrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false), ExecutionState.STOPPED);
+                
+                execution.SetState(ExecutionState.STOPPED);
             }
         }
 
-        protected virtual async Task Aborting(CancellationToken token)
+        private async Task Aborting_(CancellationToken token)
         {
+            await Aborting(token);
             if (!token.IsCancellationRequested)
             {
-                await WaitForOutputsToDo((OrderOutput output) => output.AbortAndWaitForAborted(this.execution.ComponentName), ExecutionState.ABORTED);
+                
+                execution.SetState(ExecutionState.ABORTED);
             }
         }
 
         // Clear has to set EXST to STOPPED after completion.
-        protected virtual async Task Clearing(CancellationToken token)
+        private async Task Clearing_(CancellationToken token)
         {
+            await Clearing(token);
             if (!token.IsCancellationRequested)
             {
-                await WaitForOutputsToDo((OrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false), ExecutionState.STOPPED);
+
+                execution.SetState(ExecutionState.STOPPED);
             }
         }
         // Hold has to set EXST to HELD after completion.
-        protected virtual async Task Holding(CancellationToken token)
+        private async Task Holding_(CancellationToken token)
         {
             // TOBI TODO stay in this state till all outputs are done with hold
             // foreach (var output in control.OrderOutputs)
@@ -195,6 +234,7 @@ namespace ControlComponents.Core
             //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
             //         output.Value.Cc.Hold(control.ComponentName);
             // }
+            await Holding(token);
             if (!token.IsCancellationRequested)
             {
                 execution.SetState(ExecutionState.HELD);
@@ -202,13 +242,14 @@ namespace ControlComponents.Core
             }
         }
         // Unhold has to set EXST to EXECUTE after completion.
-        protected virtual async Task Unholding(CancellationToken token)
+        private async Task Unholding_(CancellationToken token)
         {
             // foreach (var output in control.OrderOutputs)
             // {
             //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
             //         output.Value.Cc.Unhold(control.ComponentName);
             // }
+            await Unholding(token);
             if (!token.IsCancellationRequested)
             {
                 execution.SetState(ExecutionState.EXECUTE);
@@ -216,7 +257,7 @@ namespace ControlComponents.Core
             }
         }
 
-        protected virtual async Task Suspending(CancellationToken token)
+        private async Task Suspending_(CancellationToken token)
         {
             // foreach (var output in control.OrderOutputs)
             // {
@@ -232,6 +273,7 @@ namespace ControlComponents.Core
             // });
 
             // await suspending;
+            await Suspending(token);
             if (!token.IsCancellationRequested)
             {
                 execution.SetState(ExecutionState.SUSPENDED);
@@ -240,13 +282,14 @@ namespace ControlComponents.Core
         }
 
         // Unhold has to set EXST to EXECUTE after completion.
-        protected virtual async Task Unsuspending(CancellationToken token)
+        private async Task Unsuspending_(CancellationToken token)
         {
             // foreach (var output in control.OrderOutputs)
             // {
             //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
             //         output.Value.Cc.Unsuspend(control.ComponentName);
             // }
+            await Unsuspending(token);
             if (!token.IsCancellationRequested)
             {
                 execution.SetState(ExecutionState.EXECUTE);
@@ -263,9 +306,10 @@ namespace ControlComponents.Core
         * </code>
         * //TODO maybe its better to use this as a coroutine ?
         */
-        protected virtual async Task Execute(CancellationToken token)
+        private async Task Execute_(CancellationToken token)
         {
-            // await WaitForOutputsToDo((OrderOutput output) => {}, new Collection<ExecutionState>(){ExecutionState.COMPLETING, ExecutionState.COMPLETED});
+            
+            await Execute(token);
             if (!token.IsCancellationRequested)
             {
                 execution.SetState(ExecutionState.COMPLETING);
@@ -273,8 +317,9 @@ namespace ControlComponents.Core
             }
         }
 
-        protected virtual async Task Completing(CancellationToken token)
+        private async Task Completing_(CancellationToken token)
         {
+            await Completing(token);
             if (!token.IsCancellationRequested)
             {
                 // await WaitForOutputsToDo((OrderOutput output) => {} , new Collection<ExecutionState>(){ExecutionState.COMPLETED});
@@ -283,28 +328,34 @@ namespace ControlComponents.Core
             }
         }
 
-        protected virtual async Task Held(CancellationToken token)
+        private async Task Held_(CancellationToken token)
         {
+            await Held(token);
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
-        protected virtual async Task Idle(CancellationToken token)
+        private async Task Idle_(CancellationToken token)
         {
+            await Idle(token);
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { }); ;
         }
-        protected virtual async Task Completed(CancellationToken token)
+        private async Task Completed_(CancellationToken token)
         {
+            await Completed(token);
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
-        protected virtual async Task Aborted(CancellationToken token)
+        private async Task Aborted_(CancellationToken token)
         {
+            await Aborted(token);
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
-        protected virtual async Task Stopped(CancellationToken token)
+        private async Task Stopped_(CancellationToken token)
         {
+            await Stopped(token);
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
-        protected virtual async Task Suspended(CancellationToken token)
+        private async Task Suspended_(CancellationToken token)
         {
+            await Suspended(token);
             await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
     }
