@@ -11,11 +11,7 @@ namespace ControlComponents.Core
         // TODO throw errors instead
         public enum OrderOutputError { OK, Completed, Stopped, NotExisting, NullRequested, NotExecuting, NotAccepted, Occupied };
 
-        // public ControlComponentUnity Cc;
-
         public OrderOutputError Error;
-        // // Used to manage coroutines in ExecuteOpMode macro
-        // public IEnumerator Coroutine;
 
         // TOBI create Reset method to auto assign cc
 
@@ -39,12 +35,17 @@ namespace ControlComponents.Core
         public bool IsOccupied() => controlComponent.IsOccupied();
         public bool IsFree() => controlComponent.IsFree();
 
+        private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e)
+        {
+            ExecutionStateChanged?.Invoke(this.Role, e);
+        }
+
         public OrderOutput(string role, IControlComponent cc)
         {
             Role = role;
             controlComponent = cc;
 
-            controlComponent.ExecutionStateChanged += (object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
+            controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
         }
 
         public async Task SelectOperationMode(string operationMode)
@@ -114,6 +115,13 @@ namespace ControlComponents.Core
         public override int GetHashCode()
         {
             return ComponentName.GetHashCode();
+        }
+
+        public void ChangeComponent(IControlComponent cc)
+        {
+            controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
+            controlComponent = cc;
+            controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
         }
     }
 }

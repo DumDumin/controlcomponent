@@ -189,5 +189,17 @@ namespace ControlComponents.Core.Tests
             await cc.DeselectOperationMode();
             await runningOpMode;
         }
+
+        [Test]
+        public void Given_Stopped_When_Change_CC_Then_Changed()
+        {
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            OrderOutput output = new OrderOutput("Test", c1);
+
+            output.ChangeComponent(c2);
+
+            Assert.AreEqual(c2.ComponentName, output.ComponentName);
+        }
     }
 }
