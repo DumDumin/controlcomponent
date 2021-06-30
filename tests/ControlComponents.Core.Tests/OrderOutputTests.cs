@@ -221,5 +221,33 @@ namespace ControlComponents.Core.Tests
             await output.DeselectOperationMode();
             await runningOpMode;
         }
+
+        [Test]
+        public void Given_SetOrderOutput_When_RequestSet_Then_IsSet()
+        {
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            OrderOutput output = new OrderOutput("Test", c1);
+
+            Assert.True(output.IsSet);
+        }
+
+        [Test]
+        public void Given_NotSetOrderOutput_When_RequestSet_Then_IsNotSet()
+        {
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            OrderOutput output = new OrderOutput("Test");
+
+            Assert.False(output.IsSet);
+        }
+
+        [Test]
+        public void Given_NotSetOrderOutput_When_ChangeComponent_Then_Changed()
+        {
+            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            OrderOutput output = new OrderOutput("Test");
+
+            bool success = output.ChangeComponent(c2);
+            Assert.True(success);
+        }
     }
 }

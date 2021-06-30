@@ -15,7 +15,7 @@ namespace ControlComponents.Core
         private IOperationMode operationMode;
         private IDictionary<string, IOperationMode> operationModes;
         // TODO change string keys Enums
-        private IDictionary<string, OrderOutput> orderOutputs;
+        protected IDictionary<string, OrderOutput> orderOutputs;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
 

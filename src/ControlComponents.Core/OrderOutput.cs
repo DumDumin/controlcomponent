@@ -29,6 +29,8 @@ namespace ControlComponents.Core
 
         public string ComponentName => controlComponent.ComponentName;
 
+        public bool IsSet { get; private set; }
+
         public void Occupy(string sender) => controlComponent.Occupy(sender);
         public void Prio(string sender) => controlComponent.Prio(sender);
         public void Free(string sender) => controlComponent.Free(sender);
@@ -46,6 +48,12 @@ namespace ControlComponents.Core
             controlComponent = cc;
 
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+            IsSet = true;
+        }
+
+        public OrderOutput(string role)
+        {
+            Role = role;
         }
 
         public async Task SelectOperationMode(string operationMode)
@@ -102,12 +110,13 @@ namespace ControlComponents.Core
         public override bool Equals(Object obj)
         {
             //Check for null and compare run-time types.
-            if ((obj == null) || ! this.GetType().Equals(obj.GetType()))
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
             {
                 return false;
             }
-            else {
-                OrderOutput p = (OrderOutput) obj;
+            else
+            {
+                OrderOutput p = (OrderOutput)obj;
                 return (ComponentName == p.ComponentName);
             }
         }
@@ -119,7 +128,14 @@ namespace ControlComponents.Core
 
         public bool ChangeComponent(IControlComponent cc)
         {
-            if(controlComponent.EXST == ExecutionState.STOPPED)
+            if(!IsSet)
+            {
+                controlComponent = cc;
+                controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+                IsSet = true;
+                return true;
+            }
+            else if (controlComponent.EXST == ExecutionState.STOPPED)
             {
                 controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
                 controlComponent = cc;
