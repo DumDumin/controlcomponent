@@ -5,17 +5,21 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core
 {
-    // TOBI TODO add IOrderOutput
-    public class OrderOutput : IControlComponent
+    public class OrderOutput : OrderOutputTemplate<IControlComponent>
     {
-        // TODO throw errors instead
-        public enum OrderOutputError { OK, Completed, Stopped, NotExisting, NullRequested, NotExecuting, NotAccepted, Occupied };
+        public OrderOutput(string role) : base(role) { }
 
-        public OrderOutputError Error;
+        public OrderOutput(string role, IControlComponent cc) : base(role, cc) { }
+    }
+
+    // TOBI TODO add IOrderOutput
+    public class OrderOutputTemplate<T> : IOrderOutput where T : IControlComponent
+    {
+        public OrderOutputError Error { get; }
 
         // TOBI create Reset method to auto assign cc
 
-        private IControlComponent controlComponent;
+        protected T controlComponent { get; private set; }
 
         public string Role { get; }
         public ExecutionState EXST => controlComponent.EXST;
@@ -42,12 +46,12 @@ namespace ControlComponents.Core
             ExecutionStateChanged?.Invoke(this.Role, e);
         }
 
-        public OrderOutput(string role)
+        public OrderOutputTemplate(string role)
         {
             Role = role;
         }
 
-        public OrderOutput(string role, IControlComponent cc) : this(role)
+        public OrderOutputTemplate(string role, T cc) : this(role)
         {
             controlComponent = cc;
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
@@ -125,9 +129,9 @@ namespace ControlComponents.Core
             return ComponentName.GetHashCode();
         }
 
-        public bool ChangeComponent(IControlComponent cc)
+        public bool ChangeComponent(T cc)
         {
-            if(!IsSet)
+            if (!IsSet)
             {
                 controlComponent = cc;
                 controlComponent.ExecutionStateChanged += OnExecutionStateChanged;

@@ -7,7 +7,7 @@ namespace ControlComponents.Core
     {
         string OpModeName { get; }
 
-        Task Select(IExecution execution, IDictionary<string, OrderOutput> orderOutputs);
+        Task Select(IExecution execution, IDictionary<string, IOrderOutput> orderOutputs);
         void Deselect();
     }
 }

@@ -189,17 +189,17 @@ namespace ControlComponents.ML
                 // TODO check correct reset of OrderOutputs to OrderOutputError.OK
                 switch (output.Error)
                 {
-                    case OrderOutput.OrderOutputError.NotAccepted:
-                    case OrderOutput.OrderOutputError.NotExecuting:
-                    case OrderOutput.OrderOutputError.NotExisting:
-                    case OrderOutput.OrderOutputError.NullRequested:
+                    case OrderOutputError.NotAccepted:
+                    case OrderOutputError.NotExecuting:
+                    case OrderOutputError.NotExisting:
+                    case OrderOutputError.NullRequested:
                         cc.MLREWARD += ROrderRejected;
                         break;
-                    case OrderOutput.OrderOutputError.Occupied:
+                    case OrderOutputError.Occupied:
                         cc.MLREWARD += ROutputOccupied;
                         break;
-                    case OrderOutput.OrderOutputError.Stopped:
-                    case OrderOutput.OrderOutputError.Completed:
+                    case OrderOutputError.Stopped:
+                    case OrderOutputError.Completed:
                         cc.MLREWARD += ROrderCompleted;
                         break;
                 }
@@ -377,7 +377,7 @@ namespace ControlComponents.ML
                 if (branch >= 0 && branch < base.outputs.Count)
                 {
                     int decision = (int)Math.Round(cc.MLDECIDE[branch]);
-                    OrderOutput output = base.outputs.Values.ElementAt(branch);
+                    IOrderOutput output = base.outputs.Values.ElementAt(branch);
                     if (output != null && decision >= 0 && decision < output.OpModes.Count)
                     {
                         // TODO how to handle Task, which is returned here? "await cc.RunningOpMode" ??

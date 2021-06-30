@@ -20,7 +20,7 @@ namespace ControlComponents.Core
         CancellationTokenSource executionTokenSource;
         CancellationTokenSource mainTokenSource;
 
-        protected IDictionary<string, OrderOutput> outputs;
+        protected IDictionary<string, IOrderOutput> outputs;
         // protected IReadOnlyDictionary<string, OrderOutput> Outputs => outputs;
         public ReadOnlyCollection<string> neededRoles;
 
@@ -82,7 +82,7 @@ namespace ControlComponents.Core
 
         protected abstract void Selected();
 
-        public async Task Select(IExecution execution, IDictionary<string, OrderOutput> orderOutputs)
+        public async Task Select(IExecution execution, IDictionary<string, IOrderOutput> orderOutputs)
         {
             try
             {
@@ -125,7 +125,7 @@ namespace ControlComponents.Core
             }
         }
 
-        protected async Task WaitForOutputs(Func<OrderOutput, Task> action)
+        protected async Task WaitForOutputs(Func<IOrderOutput, Task> action)
         {
             try
             {

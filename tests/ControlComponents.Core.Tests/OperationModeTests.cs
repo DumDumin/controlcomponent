@@ -14,7 +14,7 @@ namespace ControlComponents.Core.Tests
     {
         string OPMODENAME = "DEFAULT";
         CancellationTokenSource tokenOwner;
-        IDictionary<string, OrderOutput> outputs;
+        IDictionary<string, IOrderOutput> outputs;
 
         [OneTimeSetUp]
         public void OneTimeSetUp(){
@@ -33,7 +33,7 @@ namespace ControlComponents.Core.Tests
             // var execution = new Mock<IExecution>();
             // execution.Setup(p => p.)
             tokenOwner = new CancellationTokenSource();
-            outputs = new Dictionary<string, OrderOutput>();
+            outputs = new Dictionary<string, IOrderOutput>();
         }
 
         [Test]
@@ -55,10 +55,10 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_NeededRoles_When_Select_Then_OK()
         {
-            outputs = new Dictionary<string, OrderOutput>()
+            outputs = new Dictionary<string, IOrderOutput>()
             {
-                {"ROLE_ONE", new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>())) },
-                {"ROLE_TWO", new OrderOutput("ROLE_TWO", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>())) },
+                {"ROLE_ONE", new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
+                {"ROLE_TWO", new OrderOutput("ROLE_TWO", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
             };
             var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
             Execution execution = new Execution("Execution");

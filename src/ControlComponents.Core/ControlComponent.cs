@@ -15,7 +15,7 @@ namespace ControlComponents.Core
         private IOperationMode operationMode;
         private IDictionary<string, IOperationMode> operationModes;
         // TODO change string keys Enums
-        protected IDictionary<string, OrderOutput> orderOutputs;
+        protected IDictionary<string, IOrderOutput> orderOutputs;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
 
@@ -35,7 +35,7 @@ namespace ControlComponents.Core
             occupation = new Occupation();
         }
 
-        public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<OrderOutput> orderOutputs, ICollection<string> neededRoles)
+        public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<IOrderOutput> orderOutputs, ICollection<string> neededRoles)
             : this(name)
         {
             var missingRoles = neededRoles.Except(orderOutputs.Select(o => o.Role));
@@ -48,7 +48,7 @@ namespace ControlComponents.Core
             this.orderOutputs = orderOutputs.ToDictionary(o => o.Role);
         }
 
-        public void AddOrderOutput(OrderOutput newOrderOutput)
+        public void AddOrderOutput(IOrderOutput newOrderOutput)
         {
             orderOutputs.Add(newOrderOutput.Role, newOrderOutput);
         }

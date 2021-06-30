@@ -18,7 +18,7 @@ namespace ControlComponents.Core.Tests
         string OpModeOne = "OpModeOne";
         string OpModeTwo = "OpModeTwo";
         ControlComponent cc;
-        Collection<OrderOutput> orderOutputs;
+        Collection<IOrderOutput> orderOutputs;
 
         [OneTimeSetUp]
         public void OneTimeSetUp(){
@@ -37,10 +37,10 @@ namespace ControlComponents.Core.Tests
         {
             var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            orderOutputs = new Collection<OrderOutput>() 
+            orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
-                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
+                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             cc = new ControlComponent(CC, CascadeOpModes, orderOutputs, new Collection<string>());
         }
@@ -54,8 +54,8 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_EqualOrderOutput_When_Equals_Then_ReturnTrue()
         {
-            var first = new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
-            var second = new OrderOutput("ROLE_TWO", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
+            var first = new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
+            var second = new OrderOutput("ROLE_TWO", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
 
             Assert.AreEqual(first,second);
         }
@@ -63,8 +63,8 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_NotEqualOrderOutput_When_Equals_Then_ReturnFalse()
         {
-            var first = new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
-            var second = new OrderOutput("ROLE_TWO", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>()));
+            var first = new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
+            var second = new OrderOutput("ROLE_TWO", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
 
             Assert.AreNotEqual(first,second);
         }
@@ -100,10 +100,10 @@ namespace ControlComponents.Core.Tests
         {
             var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            orderOutputs = new Collection<OrderOutput>() 
+            orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
-                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
+                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             Collection<string> neededRoles = new Collection<string>() { "ROLE_THREE" };
 
@@ -115,10 +115,10 @@ namespace ControlComponents.Core.Tests
         {
             var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            orderOutputs = new Collection<OrderOutput>() 
+            orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
-                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
+                new OrderOutput("ROLE_ONE", new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             Collection<string> neededRoles = new Collection<string>() { "ROLE_ONE", "ROLE_TWO" };
 
@@ -193,8 +193,8 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_Stopped_When_Change_CC_Then_Changed()
         {
-            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
-            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
+            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
             OrderOutput output = new OrderOutput("Test", c1);
 
             bool success = output.ChangeComponent(c2);
@@ -206,8 +206,8 @@ namespace ControlComponents.Core.Tests
         [Test]
         public async Task Given_Idle_When_Change_CC_Then_NotChanged()
         {
-            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) }, new Collection<OrderOutput>(), new Collection<string>());
-            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) }, new Collection<IOrderOutput>(), new Collection<string>());
+            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
             OrderOutput output = new OrderOutput("Test", c1);
             Task runningOpMode = output.SelectOperationMode(OpModeOne);
             await output.ResetAndWaitForIdle(SENDER);
@@ -225,7 +225,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_SetOrderOutput_When_RequestSet_Then_IsSet()
         {
-            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
             OrderOutput output = new OrderOutput("Test", c1);
 
             Assert.True(output.IsSet);
@@ -234,7 +234,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_NotSetOrderOutput_When_RequestSet_Then_IsNotSet()
         {
-            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
             OrderOutput output = new OrderOutput("Test");
 
             Assert.False(output.IsSet);
@@ -243,7 +243,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_NotSetOrderOutput_When_ChangeComponent_Then_Changed()
         {
-            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
             OrderOutput output = new OrderOutput("Test");
 
             bool success = output.ChangeComponent(c2);

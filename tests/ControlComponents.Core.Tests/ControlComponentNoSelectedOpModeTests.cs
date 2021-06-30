@@ -19,10 +19,10 @@ namespace ControlComponents.Core.Tests
         public void Setup()
         {
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
-            var orderOutputs = new Collection<OrderOutput>() 
+            var orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<OrderOutput>(), new Collection<string>())),
-                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<OrderOutput>(), new Collection<string>()))
+                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             cc = new ControlComponent(CC, OpModes, orderOutputs, new Collection<string>());
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);

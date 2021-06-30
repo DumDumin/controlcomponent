@@ -25,12 +25,12 @@ namespace ControlComponents.Core
 
         protected override async Task Resetting(CancellationToken token)
         {
-            await WaitForOutputs((OrderOutput output) => output.ResetAndWaitForIdle(this.execution.ComponentName));
+            await WaitForOutputs((IOrderOutput output) => output.ResetAndWaitForIdle(this.execution.ComponentName));
         }
 
         protected override async Task Stopping(CancellationToken token)
         {
-            await WaitForOutputs((OrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false));
+            await WaitForOutputs((IOrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false));
         }
 
         // protected override Task Execute(CancellationToken token)
@@ -40,17 +40,17 @@ namespace ControlComponents.Core
 
         protected override async Task Aborting(CancellationToken token)
         {
-            await WaitForOutputs((OrderOutput output) => output.AbortAndWaitForAborted(this.execution.ComponentName));
+            await WaitForOutputs((IOrderOutput output) => output.AbortAndWaitForAborted(this.execution.ComponentName));
         }
 
         protected override async Task Starting(CancellationToken token)
         {
-            await WaitForOutputs((OrderOutput output) => output.StartAndWaitForExecute(this.execution.ComponentName));
+            await WaitForOutputs((IOrderOutput output) => output.StartAndWaitForExecute(this.execution.ComponentName));
         }
         
         protected override async Task Clearing(CancellationToken token)
         {
-            await WaitForOutputs((OrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false));
+            await WaitForOutputs((IOrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false));
         }
     }
 }
