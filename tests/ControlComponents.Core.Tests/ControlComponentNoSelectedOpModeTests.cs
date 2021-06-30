@@ -29,6 +29,15 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
+        public void Given_Stopped_When_AddNewOpMode_Then_Added()
+        {
+            var newOpMode = new OperationMode("NewOpMode");
+            cc.AddOperationMode(newOpMode);
+
+            Assert.True(cc.OpModes.Contains(newOpMode.OpModeName));
+        }
+
+        [Test]
         public void Given_NewControlComponent_When_EXST_Then_Stopped()
         {
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
