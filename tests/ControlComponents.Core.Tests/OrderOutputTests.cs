@@ -197,9 +197,29 @@ namespace ControlComponents.Core.Tests
             ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
             OrderOutput output = new OrderOutput("Test", c1);
 
-            output.ChangeComponent(c2);
+            bool success = output.ChangeComponent(c2);
 
+            Assert.True(success);
             Assert.AreEqual(c2.ComponentName, output.ComponentName);
+        }
+
+        [Test]
+        public async Task Given_Idle_When_Change_CC_Then_NotChanged()
+        {
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) }, new Collection<OrderOutput>(), new Collection<string>());
+            ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<OrderOutput>(), new Collection<string>());
+            OrderOutput output = new OrderOutput("Test", c1);
+            Task runningOpMode = output.SelectOperationMode(OpModeOne);
+            await output.ResetAndWaitForIdle(SENDER);
+
+            bool success = output.ChangeComponent(c2);
+
+            Assert.False(success);
+            Assert.AreEqual(c1.ComponentName, output.ComponentName);
+
+            await output.StopAndWaitForStopped(SENDER, false);
+            await output.DeselectOperationMode();
+            await runningOpMode;
         }
     }
 }

@@ -117,11 +117,19 @@ namespace ControlComponents.Core
             return ComponentName.GetHashCode();
         }
 
-        public void ChangeComponent(IControlComponent cc)
+        public bool ChangeComponent(IControlComponent cc)
         {
-            controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
-            controlComponent = cc;
-            controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+            if(controlComponent.EXST == ExecutionState.STOPPED)
+            {
+                controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
+                controlComponent = cc;
+                controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
