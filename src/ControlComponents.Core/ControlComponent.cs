@@ -44,7 +44,7 @@ namespace ControlComponents.Core
             execution.ExecutionStateChanged += HandleExecutionChanged;
         }
 
-        internal void AddOperationMode(IOperationMode newOpMode)
+        public void AddOperationMode(IOperationMode newOpMode)
         {
             operationModes.Add(newOpMode.OpModeName, newOpMode);
         }
