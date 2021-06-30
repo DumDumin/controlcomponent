@@ -232,6 +232,7 @@ namespace ControlComponents.ML
         {
             while (!token.IsCancellationRequested)
             {
+                // TODO in SEMI-AUTO Betriebsart (operating mode) there is an acceptance input required to execute the decision
                 if (cc.MLSC == ExecutionState.UNSUSPENDING && cc.MLDECIDE != null)
                 {
                     logger.Warn("Received Decisions");
