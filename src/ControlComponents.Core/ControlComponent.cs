@@ -27,7 +27,16 @@ namespace ControlComponents.Core
 
         public ExecutionState EXST => execution.EXST;
 
+        public ControlComponent(string name)
+        {
+            ComponentName = name;
+            execution = new Execution(ComponentName);
+            execution.ExecutionStateChanged += HandleExecutionChanged;
+            occupation = new Occupation();
+        }
+
         public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<OrderOutput> orderOutputs, ICollection<string> neededRoles)
+            : this(name)
         {
             var missingRoles = neededRoles.Except(orderOutputs.Select(o => o.Role));
             if(missingRoles.Any())
@@ -35,13 +44,13 @@ namespace ControlComponents.Core
                 throw new ArgumentException($"Missing roles {string.Join(" ", missingRoles)} for {name}");
             }
 
-            ComponentName = name;
             operationModes = opModes.ToDictionary(o => o.OpModeName);
             this.orderOutputs = orderOutputs.ToDictionary(o => o.Role);
-            execution = new Execution(ComponentName);
-            occupation = new Occupation();
+        }
 
-            execution.ExecutionStateChanged += HandleExecutionChanged;
+        public void AddOrderOutput(OrderOutput newOrderOutput)
+        {
+            orderOutputs.Add(newOrderOutput.Role, newOrderOutput);
         }
 
         public void AddOperationMode(IOperationMode newOpMode)

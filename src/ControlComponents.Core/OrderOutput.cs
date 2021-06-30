@@ -42,19 +42,18 @@ namespace ControlComponents.Core
             ExecutionStateChanged?.Invoke(this.Role, e);
         }
 
-        public OrderOutput(string role, IControlComponent cc)
-        {
-            Role = role;
-            controlComponent = cc;
-
-            controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
-            IsSet = true;
-        }
-
         public OrderOutput(string role)
         {
             Role = role;
         }
+
+        public OrderOutput(string role, IControlComponent cc) : this(role)
+        {
+            controlComponent = cc;
+            controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+            IsSet = true;
+        }
+
 
         public async Task SelectOperationMode(string operationMode)
         {

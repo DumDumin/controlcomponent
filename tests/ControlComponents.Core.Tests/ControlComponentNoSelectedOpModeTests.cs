@@ -38,6 +38,15 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
+        public void Given_Stopped_When_AddNewOutput_Then_Added()
+        {
+            var newOrderOutput = new OrderOutput("OrderOutput");
+            cc.AddOrderOutput(newOrderOutput);
+
+            Assert.True(cc.Roles.Contains(newOrderOutput.Role));
+        }
+
+        [Test]
         public void Given_NewControlComponent_When_EXST_Then_Stopped()
         {
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
