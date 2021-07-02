@@ -38,6 +38,16 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
+        public void Given_Stopped_When_AddNewOpMode_Then_Added_2()
+        {
+            cc = new ControlComponent(CC);
+            var newOpMode = new OperationMode("NewOpMode");
+            cc.AddOperationMode(newOpMode);
+
+            Assert.True(cc.OpModes.Contains(newOpMode.OpModeName));
+        }
+
+        [Test]
         public void Given_Stopped_When_AddNewOutput_Then_Added()
         {
             var newOrderOutput = new OrderOutput("OrderOutput");

@@ -249,5 +249,23 @@ namespace ControlComponents.Core.Tests
             bool success = output.ChangeComponent(c2);
             Assert.True(success);
         }
+
+        [Test]
+        public void Given_NotSetOrderOutput_When_ChangeComponentNull_Then_Throw()
+        {
+            OrderOutput output = new OrderOutput("Test");
+            Assert.Throws(typeof(NullReferenceException), () => output.ChangeComponent(null));
+        }
+
+        [Test]
+        public void Given_SetOrderOutput_When_ClearComponent_Then_IsNotSet()
+        {
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
+            OrderOutput output = new OrderOutput("Test", c1);
+
+            output.ClearComponent();
+
+            Assert.False(output.IsSet);
+        }
     }
 }

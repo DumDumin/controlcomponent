@@ -12,7 +12,6 @@ namespace ControlComponents.Core
         public OrderOutput(string role, IControlComponent cc) : base(role, cc) { }
     }
 
-    // TOBI TODO add IOrderOutput
     public class OrderOutputTemplate<T> : IOrderOutput where T : IControlComponent
     {
         public OrderOutputError Error { get; }
@@ -148,6 +147,16 @@ namespace ControlComponents.Core
             else
             {
                 return false;
+            }
+        }
+
+        public void ClearComponent()
+        {
+            if (IsSet)
+            {
+                IsSet = false;
+                controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
+                // controlComponent = null;
             }
         }
     }

@@ -118,7 +118,7 @@ namespace ControlComponents.Core
             finally
             {
                 // TOBI TODO test that output opmodes are deselected
-                foreach (var output in outputs.Values.Where(o => o != null && o.OpModeName != "NONE"))
+                foreach (var output in outputs.Values.Where(o => o.IsSet && o.OpModeName != "NONE"))
                 {
                     await output.DeselectOperationMode();
                 }
@@ -130,7 +130,7 @@ namespace ControlComponents.Core
             try
             {
                 // TODO The ML application requires to allow outputs to have no value - can it be done without null values??
-                var selectedOutputs = outputs.Values.Where(o => o != null && o.OpModeName != "NONE");
+                var selectedOutputs = outputs.Values.Where(o => o.IsSet && o.OpModeName != "NONE");
                 if (selectedOutputs.Count() > 0)
                 {
                     await Task.WhenAll(selectedOutputs.Select(o => action(o)));

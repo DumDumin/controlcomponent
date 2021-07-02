@@ -27,17 +27,18 @@ namespace ControlComponents.Core
 
         public ExecutionState EXST => execution.EXST;
 
-        public ControlComponent(string name)
+        public ControlComponent(string name) 
+            : this(name, new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())
+        {
+        }
+
+        public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<IOrderOutput> orderOutputs, ICollection<string> neededRoles)
         {
             ComponentName = name;
             execution = new Execution(ComponentName);
             execution.ExecutionStateChanged += HandleExecutionChanged;
             occupation = new Occupation();
-        }
 
-        public ControlComponent(string name, ICollection<IOperationMode> opModes, ICollection<IOrderOutput> orderOutputs, ICollection<string> neededRoles)
-            : this(name)
-        {
             var missingRoles = neededRoles.Except(orderOutputs.Select(o => o.Role));
             if(missingRoles.Any())
             {
