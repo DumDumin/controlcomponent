@@ -7,5 +7,6 @@ namespace ControlComponents.Core
     {
         OrderOutputError Error {get;}
         string Role { get; }
+        bool IsSet { get; }
     }
 }
