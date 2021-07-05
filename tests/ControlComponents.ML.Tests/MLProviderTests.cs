@@ -32,10 +32,11 @@ namespace ControlComponents.ML.Tests
         [Test]
         public async Task Given_Provider_When_ExecuteProvider_Then_DecisionAvailable()
         {
-            MLControlComponent provider = new MLControlComponent("Provider");
+            var properties = new MLProperties(1, 1);
+            MLControlComponent provider = new MLControlComponent("Provider", properties);
             provider.AddOperationMode(new MLProviderOperationModeTest(provider));
 
-            Assert.AreEqual(null, provider.MLDECIDE);
+            Assert.AreEqual(new float[1], provider.MLDECIDE);
             var running = provider.SelectOperationMode("Inference");
 
             provider.MLOBSERVE = new float[1] { 1 };

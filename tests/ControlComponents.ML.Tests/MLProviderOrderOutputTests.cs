@@ -17,7 +17,8 @@ namespace ControlComponents.ML.Tests
         [Test]
         public async Task Given_ProviderOutput_When_Decide_Then_DecisionAvailable()
         {
-            MLControlComponent provider = new MLControlComponent("Provider");
+            var properties = new MLProperties(1, 1);
+            MLControlComponent provider = new MLControlComponent("Provider", properties);
             provider.AddOperationMode(new MLProviderOperationModeTest(provider));
 
             MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider);
