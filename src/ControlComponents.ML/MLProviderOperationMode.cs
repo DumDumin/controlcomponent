@@ -11,7 +11,7 @@ namespace ControlComponents.ML
     {
         private readonly IMLControlComponent cc;
 
-        protected abstract float[] Decide();
+        protected abstract Task<float[]> Decide();
 
         public MLProviderOperationMode(string name, IMLControlComponent cc) : base(name)
         {
@@ -27,7 +27,7 @@ namespace ControlComponents.ML
 
         protected override async Task Execute(CancellationToken token)
         {
-            cc.MLDECIDE = Decide();
+            cc.MLDECIDE = await Decide();
             await base.Execute(token);
         }
     }

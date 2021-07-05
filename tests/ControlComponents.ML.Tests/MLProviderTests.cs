@@ -14,9 +14,9 @@ namespace ControlComponents.ML.Tests
             this.cc = cc;
         }
 
-        protected override float[] Decide()
+        protected override Task<float[]> Decide()
         {
-            return cc.MLOBSERVE;
+            return Task.FromResult(cc.MLOBSERVE);
         }
     }
 
