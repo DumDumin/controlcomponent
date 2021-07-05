@@ -13,7 +13,7 @@ namespace ControlComponents.ML
 
         protected abstract Task<float[]> Decide();
 
-        public MLProviderOperationMode(string name, IMLControlComponent cc) : base(name)
+        public MLProviderOperationMode(IMLControlComponent cc) : base("Inference")
         {
             this.cc = cc;
         }

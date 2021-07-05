@@ -9,7 +9,7 @@ namespace ControlComponents.ML.Tests
     {
         private readonly IMLControlComponent cc;
 
-        public MLProviderOperationModeTest(string name, IMLControlComponent cc) : base(name, cc)
+        public MLProviderOperationModeTest(IMLControlComponent cc) : base(cc)
         {
             this.cc = cc;
         }
@@ -33,10 +33,10 @@ namespace ControlComponents.ML.Tests
         public async Task Given_Provider_When_ExecuteProvider_Then_DecisionAvailable()
         {
             MLControlComponent provider = new MLControlComponent("Provider");
-            provider.AddOperationMode(new MLProviderOperationModeTest("MLProvider", provider));
+            provider.AddOperationMode(new MLProviderOperationModeTest(provider));
 
             Assert.AreEqual(null, provider.MLDECIDE);
-            var running = provider.SelectOperationMode("MLProvider");
+            var running = provider.SelectOperationMode("Inference");
 
             provider.MLOBSERVE = new float[1] { 1 };
             await provider.ResetAndWaitForIdle(SENDER);
