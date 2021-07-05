@@ -16,7 +16,7 @@ namespace ControlComponents.Core.Tests
         public void Setup()
         {
             var OpModes = new Collection<IOperationMode>(){ new OperationMode("OpModeOne"), new OperationMode("OpModeTwo") };
-            orderOutput = new OrderOutput("First", new ControlComponent(CC, OpModes, new Collection<IOrderOutput>(), new Collection<string>()));
+            orderOutput = new OrderOutput("First", "Output", new ControlComponent(CC, OpModes, new Collection<IOrderOutput>(), new Collection<string>()));
         }
 
         [Test]

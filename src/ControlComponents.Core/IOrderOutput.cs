@@ -5,8 +5,9 @@ namespace ControlComponents.Core
 
     public interface IOrderOutput : IControlComponent
     {
-        OrderOutputError Error {get;}
+        OrderOutputError Error { get; }
         string Role { get; }
+        string Id { get; }
         bool IsSet { get; }
     }
 }

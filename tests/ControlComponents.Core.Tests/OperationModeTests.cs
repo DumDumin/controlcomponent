@@ -57,8 +57,8 @@ namespace ControlComponents.Core.Tests
         {
             outputs = new Dictionary<string, IOrderOutput>()
             {
-                {"ROLE_ONE", new OrderOutput("ROLE_ONE", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
-                {"ROLE_TWO", new OrderOutput("ROLE_TWO", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
+                {"ROLE_ONE", new OrderOutput("ROLE_ONE", "Output", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
+                {"ROLE_TWO", new OrderOutput("ROLE_TWO", "Output", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
             };
             var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
             Execution execution = new Execution("Execution");

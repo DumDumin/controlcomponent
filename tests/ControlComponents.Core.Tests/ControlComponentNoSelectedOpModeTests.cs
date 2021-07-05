@@ -21,8 +21,8 @@ namespace ControlComponents.Core.Tests
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
             var orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("First", new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
-                new OrderOutput("Second", new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
+                new OrderOutput("First", CC, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("Second", CC, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             cc = new ControlComponent(CC, OpModes, orderOutputs, new Collection<string>());
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
@@ -50,10 +50,26 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_Stopped_When_AddNewOutput_Then_Added()
         {
-            var newOrderOutput = new OrderOutput("OrderOutput");
+            var newOrderOutput = new OrderOutput("OrderOutput", CC);
             cc.AddOrderOutput(newOrderOutput);
 
             Assert.True(cc.Roles.Contains(newOrderOutput.Role));
+        }
+
+        [Test]
+        public void Given_NotEqualId_When_AddNewOrderOutput_Then_Throw()
+        {
+            var newOrderOutput = new OrderOutput("OrderOutput", "Output");
+            Assert.Throws(typeof(ArgumentException), () => cc.AddOrderOutput(newOrderOutput));
+        }
+
+        [Test]
+        public void Given_NotEqualOutputId_When_CreateCC_Then_Throw()
+        {
+            var newOrderOutput = new OrderOutput("OrderOutput", "Output");
+            Assert.Throws(
+                typeof(ArgumentException), 
+                () => new ControlComponent("CC", new Collection<IOperationMode>(), new Collection<IOrderOutput>(){newOrderOutput}, new Collection<string>()));
         }
 
         [Test]

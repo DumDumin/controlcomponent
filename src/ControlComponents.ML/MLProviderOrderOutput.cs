@@ -8,7 +8,7 @@ namespace PTS.ControlComponents
     {
         private readonly IMLControlComponent cc;
 
-        public MLProviderOrderOutput(string role, IMLControlComponent cc) : base(role, cc)
+        public MLProviderOrderOutput(string role, string id, IMLControlComponent cc) : base(role, id, cc)
         {
             this.cc = cc;
         }
@@ -18,9 +18,8 @@ namespace PTS.ControlComponents
             cc.MLOBSERVE = observations;
             // cc.MLENACT = actionMask;
 
-            // TODO Output needs OCCUPIER
-            await cc.ResetAndWaitForIdle("OCCUPIER");
-            await cc.StartAndWaitForExecute("OCCUPIER");
+            await cc.ResetAndWaitForIdle(Id);
+            await cc.StartAndWaitForExecute(Id);
             // TODO TIME
             await cc.WaitForCompleted(5000);
 

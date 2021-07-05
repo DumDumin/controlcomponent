@@ -7,9 +7,9 @@ namespace ControlComponents.Core
 {
     public class OrderOutput : OrderOutputTemplate<IControlComponent>
     {
-        public OrderOutput(string role) : base(role) { }
+        public OrderOutput(string role, string id) : base(role, id) { }
 
-        public OrderOutput(string role, IControlComponent cc) : base(role, cc) { }
+        public OrderOutput(string role, string id, IControlComponent cc) : base(role, id, cc) { }
     }
 
     public class OrderOutputTemplate<T> : IOrderOutput where T : IControlComponent
@@ -21,6 +21,7 @@ namespace ControlComponents.Core
         protected T controlComponent { get; private set; }
 
         public string Role { get; }
+        public string Id { get; }
         public ExecutionState EXST => controlComponent.EXST;
 
         public string OpModeName => controlComponent.OpModeName;
@@ -45,12 +46,13 @@ namespace ControlComponents.Core
             ExecutionStateChanged?.Invoke(this.Role, e);
         }
 
-        public OrderOutputTemplate(string role)
+        public OrderOutputTemplate(string role, string id)
         {
             Role = role;
+            Id = id;
         }
 
-        public OrderOutputTemplate(string role, T cc) : this(role)
+        public OrderOutputTemplate(string role, string id, T cc) : this(role, id)
         {
             controlComponent = cc;
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
