@@ -17,14 +17,14 @@ namespace PTS.ControlComponents
 
         public async Task EndEpisode(float reward)
         {
-            if(_running.Status == TaskStatus.Running)
+            if(_running.Status == TaskStatus.WaitingForActivation)
             {
                 cc.MLREWARD = reward;
                 await cc.StopAndWaitForStopped(Id, false);
             }
             else
             {
-                throw new InvalidOperationException("Cannot end episode if ml provider not runnuing");
+                throw new InvalidOperationException("Cannot end episode if ml provider not running");
             }
         }
 
