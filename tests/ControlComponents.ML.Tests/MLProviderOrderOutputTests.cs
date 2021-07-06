@@ -23,7 +23,7 @@ namespace ControlComponents.ML.Tests
 
             MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider);
 
-            await output.Decide(new float[1], new float[1]);
+            await output.Decide(new float[1], new float[1], 0);
 
 
             // Assert.AreEqual(null, provider.MLDECIDE);

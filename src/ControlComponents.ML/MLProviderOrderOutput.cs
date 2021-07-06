@@ -14,7 +14,7 @@ namespace PTS.ControlComponents
             this.cc = cc;
         }
 
-        public async Task<float[]> Decide(float[] observations, float[] actionMask)
+        public async Task<float[]> Decide(float[] observations, float[] actionMask, float reward)
         {
             if(cc.OpModeName == "NONE")
             {
@@ -23,6 +23,7 @@ namespace PTS.ControlComponents
                     throw _running.Exception;
             }
 
+            cc.MLREWARD = reward;
             cc.MLOBSERVE = observations;
             // cc.MLENACT = actionMask;
 

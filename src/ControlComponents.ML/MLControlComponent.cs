@@ -6,6 +6,7 @@ namespace ControlComponents.ML
     {
         public int ObservationSize;
         public int ActionSize;
+        // TODO add Model name? vs override MLModelName
 
         public MLProperties(int observationSize, int actionSize)
         {
