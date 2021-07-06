@@ -12,6 +12,7 @@ namespace ControlComponents.ML
         private readonly IMLControlComponent cc;
 
         protected abstract Task<float[]> Decide();
+        protected abstract Task EndEpisode();
 
         public MLProviderOperationMode(IMLControlComponent cc) : base("Inference")
         {
@@ -29,6 +30,12 @@ namespace ControlComponents.ML
         {
             cc.MLDECIDE = await Decide();
             await base.Execute(token);
+        }
+
+        protected override async Task Stopping(CancellationToken token)
+        {
+            await EndEpisode();
+            await base.Stopping(token);
         }
     }
 }

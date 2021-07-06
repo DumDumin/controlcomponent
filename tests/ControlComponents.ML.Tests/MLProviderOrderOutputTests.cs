@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using ControlComponents.Core;
 using NUnit.Framework;
@@ -31,6 +32,18 @@ namespace ControlComponents.ML.Tests
 
             // await provider.StopAndWaitForStopped(SENDER, false);
             // await provider.DeselectOperationMode();
+        }
+
+        [Test]
+        public void Given_NotRunningProvider_When_EndEpisode_Then_Thro()
+        {
+            var properties = new MLProperties(1, 1);
+            MLControlComponent provider = new MLControlComponent("Provider", properties);
+            provider.AddOperationMode(new MLProviderOperationModeTest(provider));
+
+            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider);
+
+            Assert.ThrowsAsync(typeof(InvalidOperationException), () => output.EndEpisode(1));
         }
     }
 }

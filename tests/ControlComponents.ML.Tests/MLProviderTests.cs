@@ -16,7 +16,14 @@ namespace ControlComponents.ML.Tests
 
         protected override Task<float[]> Decide()
         {
+            // Return Observations as actions
             return Task.FromResult(cc.MLOBSERVE);
+        }
+
+        protected override Task EndEpisode()
+        {
+            cc.MLREWARD = 1;
+            return Task.CompletedTask;
         }
     }
 
@@ -52,6 +59,8 @@ namespace ControlComponents.ML.Tests
             Assert.AreEqual(provider.MLOBSERVE, provider.MLDECIDE);
 
             await provider.StopAndWaitForStopped(SENDER, false);
+            Assert.AreEqual(1, provider.MLREWARD);
+
             await provider.DeselectOperationMode();
         }
     }
