@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using ControlComponents.Core;
+using Moq;
 using NUnit.Framework;
 using PTS.ControlComponents;
 
@@ -10,19 +11,22 @@ namespace ControlComponents.ML.Tests
     {
         string SENDER = "SENDER";
 
+        Mock<IControlComponentProvider> provider;
+
         [SetUp]
         public void Setup()
         {
+            provider = new Mock<IControlComponentProvider>();
         }
 
         [Test]
         public async Task Given_ProviderOutput_When_Decide_Then_DecisionAvailable()
         {
             var properties = new MLProperties(1, 1);
-            MLControlComponent provider = new MLControlComponent("Provider", properties);
-            provider.AddOperationMode(new MLProviderOperationModeTest(provider));
+            MLControlComponent mlprovider = new MLControlComponent("Provider", properties);
+            mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
 
-            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider);
+            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);
 
             await output.Decide(new float[1], new float[1], 0);
 
@@ -38,10 +42,10 @@ namespace ControlComponents.ML.Tests
         public async Task Given_RunningProvider_When_EndEpisode_Then_DoNotThrow()
         {
             var properties = new MLProperties(1, 1);
-            MLControlComponent provider = new MLControlComponent("Provider", properties);
-            provider.AddOperationMode(new MLProviderOperationModeTest(provider));
+            MLControlComponent mlprovider = new MLControlComponent("Provider", properties);
+            mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
 
-            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider);
+            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);
             await output.Decide(new float[1], new float[1], 0);
 
             Assert.DoesNotThrowAsync(() => output.EndEpisode(1));
@@ -51,10 +55,10 @@ namespace ControlComponents.ML.Tests
         public void Given_NotRunningProvider_When_EndEpisode_Then_Throw()
         {
             var properties = new MLProperties(1, 1);
-            MLControlComponent provider = new MLControlComponent("Provider", properties);
-            provider.AddOperationMode(new MLProviderOperationModeTest(provider));
+            MLControlComponent mlprovider = new MLControlComponent("Provider", properties);
+            mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
 
-            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider);
+            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);
 
             Assert.ThrowsAsync(typeof(InvalidOperationException), () => output.EndEpisode(1));
         }

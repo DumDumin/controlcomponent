@@ -55,10 +55,11 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_NeededRoles_When_Select_Then_OK()
         {
+            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
             outputs = new Dictionary<string, IOrderOutput>()
             {
-                {"ROLE_ONE", new OrderOutput("ROLE_ONE", "Output", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
-                {"ROLE_TWO", new OrderOutput("ROLE_TWO", "Output", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
+                {"ROLE_ONE", new OrderOutput("ROLE_ONE", "Output", provider.Object, new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
+                {"ROLE_TWO", new OrderOutput("ROLE_TWO", "Output", provider.Object, new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
             };
             var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
             Execution execution = new Execution("Execution");

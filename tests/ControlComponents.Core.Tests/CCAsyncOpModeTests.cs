@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Moq;
 using NLog;
 using NUnit.Framework;
 
@@ -33,11 +34,12 @@ namespace ControlComponents.Core.Tests
         [SetUp]
         public void Setup()
         {
+            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
             var OpModes = new Collection<IOperationMode>(){ new OperationModeAsync(OpModeOne), new OperationModeAsync(OpModeTwo) };
             var orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("First", CC, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
-                new OrderOutput("Second", CC, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
+                new OrderOutput("First", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("Second", CC, provider.Object, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             cc = new ControlComponent(CC, OpModes, orderOutputs, new Collection<string>());
             runningOpMode = cc.SelectOperationMode(OpModeOne);

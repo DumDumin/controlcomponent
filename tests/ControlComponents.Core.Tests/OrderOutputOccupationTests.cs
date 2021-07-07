@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
 
 namespace ControlComponents.Core.Tests
@@ -15,8 +16,9 @@ namespace ControlComponents.Core.Tests
         [SetUp]
         public void Setup()
         {
+            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
             var OpModes = new Collection<IOperationMode>(){ new OperationMode("OpModeOne"), new OperationMode("OpModeTwo") };
-            orderOutput = new OrderOutput("First", "Output", new ControlComponent(CC, OpModes, new Collection<IOrderOutput>(), new Collection<string>()));
+            orderOutput = new OrderOutput("First", "Output", provider.Object, new ControlComponent(CC, OpModes, new Collection<IOrderOutput>(), new Collection<string>()));
         }
 
         [Test]

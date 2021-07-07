@@ -20,6 +20,8 @@ namespace ControlComponents.Core.Tests
         ControlComponent cc;
         Collection<IOrderOutput> orderOutputs;
 
+        Mock<IControlComponentProvider> provider;
+
         [OneTimeSetUp]
         public void OneTimeSetUp(){
             var config = new NLog.Config.LoggingConfiguration();
@@ -35,12 +37,13 @@ namespace ControlComponents.Core.Tests
         [SetUp]
         public void Setup()
         {
+            provider = new Mock<IControlComponentProvider>();
             var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
             orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("ROLE_ONE", CC, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
-                new OrderOutput("ROLE_TWO", CC, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
+                new OrderOutput("ROLE_ONE", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", CC, provider.Object, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             cc = new ControlComponent(CC, CascadeOpModes, orderOutputs, new Collection<string>());
         }
@@ -54,8 +57,8 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_EqualOrderOutput_When_Equals_Then_ReturnTrue()
         {
-            var first = new OrderOutput("ROLE_ONE", "Output", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
-            var second = new OrderOutput("ROLE_TWO", "Output", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
+            var first = new OrderOutput("ROLE_ONE", "Output", provider.Object, new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
+            var second = new OrderOutput("ROLE_TWO", "Output", provider.Object, new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
 
             Assert.AreEqual(first,second);
         }
@@ -63,8 +66,8 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_NotEqualOrderOutput_When_Equals_Then_ReturnFalse()
         {
-            var first = new OrderOutput("ROLE_ONE", "Output", new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
-            var second = new OrderOutput("ROLE_TWO", "Output", new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
+            var first = new OrderOutput("ROLE_ONE", "Output", provider.Object, new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
+            var second = new OrderOutput("ROLE_TWO", "Output", provider.Object, new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
 
             Assert.AreNotEqual(first,second);
         }
@@ -78,14 +81,14 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_OrderOutput_When_Role_Then_Role()
         {
-            OrderOutput orderOutput = new OrderOutput(ROLE, "Output", cc);
+            OrderOutput orderOutput = new OrderOutput(ROLE, "Output", provider.Object, cc);
             Assert.AreEqual(ROLE, orderOutput.Role);
         }
 
         [Test]
         public void Given_OrderOutput_When_EXST_Then_Stopped()
         {
-            OrderOutput orderOutput = new OrderOutput(ROLE, "Output", cc);
+            OrderOutput orderOutput = new OrderOutput(ROLE, "Output", provider.Object, cc);
             Assert.AreEqual(ExecutionState.STOPPED, orderOutput.EXST);
         }
 
@@ -102,8 +105,8 @@ namespace ControlComponents.Core.Tests
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
             orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("ROLE_ONE", CC, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
-                new OrderOutput("ROLE_TWO", CC, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
+                new OrderOutput("ROLE_ONE", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", CC, provider.Object, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             Collection<string> neededRoles = new Collection<string>() { "ROLE_THREE" };
 
@@ -117,8 +120,8 @@ namespace ControlComponents.Core.Tests
             var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
             orderOutputs = new Collection<IOrderOutput>() 
             { 
-                new OrderOutput("ROLE_ONE", CC, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
-                new OrderOutput("ROLE_TWO", CC, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
+                new OrderOutput("ROLE_ONE", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
+                new OrderOutput("ROLE_TWO", CC, provider.Object, new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>()))
             };
             Collection<string> neededRoles = new Collection<string>() { "ROLE_ONE", "ROLE_TWO" };
 
@@ -195,7 +198,7 @@ namespace ControlComponents.Core.Tests
         {
             ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
             ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
-            OrderOutput output = new OrderOutput("Test", "Output", c1);
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object, c1);
 
             bool success = output.ChangeComponent(c2);
 
@@ -208,7 +211,7 @@ namespace ControlComponents.Core.Tests
         {
             ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) }, new Collection<IOrderOutput>(), new Collection<string>());
             ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
-            OrderOutput output = new OrderOutput("Test", "Output", c1);
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object, c1);
             Task runningOpMode = output.SelectOperationMode(OpModeOne);
             await output.ResetAndWaitForIdle(SENDER);
 
@@ -226,7 +229,7 @@ namespace ControlComponents.Core.Tests
         public void Given_SetOrderOutput_When_RequestSet_Then_IsSet()
         {
             ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
-            OrderOutput output = new OrderOutput("Test", "Output", c1);
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object, c1);
 
             Assert.True(output.IsSet);
         }
@@ -235,7 +238,7 @@ namespace ControlComponents.Core.Tests
         public void Given_NotSetOrderOutput_When_RequestSet_Then_IsNotSet()
         {
             ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
-            OrderOutput output = new OrderOutput("Test", "Output");
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object);
 
             Assert.False(output.IsSet);
         }
@@ -244,24 +247,17 @@ namespace ControlComponents.Core.Tests
         public void Given_NotSetOrderOutput_When_ChangeComponent_Then_Changed()
         {
             ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
-            OrderOutput output = new OrderOutput("Test", "Output");
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object);
 
             bool success = output.ChangeComponent(c2);
             Assert.True(success);
         }
 
         [Test]
-        public void Given_NotSetOrderOutput_When_ChangeComponentNull_Then_Throw()
-        {
-            OrderOutput output = new OrderOutput("Test", "Output");
-            Assert.Throws(typeof(NullReferenceException), () => output.ChangeComponent(null));
-        }
-
-        [Test]
         public void Given_SetOrderOutput_When_ClearComponent_Then_IsNotSet()
         {
             ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
-            OrderOutput output = new OrderOutput("Test", "Output", c1);
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object, c1);
 
             output.ClearComponent();
 
@@ -271,7 +267,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_Id_When_GetId_Then_Id()
         {
-            OrderOutput output = new OrderOutput("Test", "Output");
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object);
             Assert.AreEqual(output.Id, "Output");
         }
     }
