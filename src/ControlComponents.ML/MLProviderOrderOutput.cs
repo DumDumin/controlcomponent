@@ -10,7 +10,7 @@ namespace PTS.ControlComponents
         private readonly IMLControlComponent cc;
         private Task _running = Task.CompletedTask;
 
-        public MLProviderOrderOutput(string role, string id, IMLControlComponent cc) : base(role, id, cc)
+        public MLProviderOrderOutput(string role, string id, IControlComponentProvider provider, IMLControlComponent cc) : base(role, id, provider, cc)
         {
             this.cc = cc;
         }

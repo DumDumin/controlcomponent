@@ -7,13 +7,15 @@ namespace ControlComponents.Core
 {
     public class OrderOutput : OrderOutputTemplate<IControlComponent>
     {
-        public OrderOutput(string role, string id) : base(role, id) { }
+        public OrderOutput(string role, string id, IControlComponentProvider provider) : base(role, id, provider) { }
 
-        public OrderOutput(string role, string id, IControlComponent cc) : base(role, id, cc) { }
+        public OrderOutput(string role, string id, IControlComponentProvider provider, IControlComponent cc) : base(role, id, provider, cc) { }
     }
 
     public class OrderOutputTemplate<T> : IOrderOutput where T : IControlComponent
     {
+        private readonly IControlComponentProvider _provider;
+
         public OrderOutputError Error { get; }
 
         // TOBI create Reset method to auto assign cc
@@ -26,6 +28,7 @@ namespace ControlComponents.Core
 
         public string OpModeName => controlComponent.OpModeName;
         public ICollection<string> OpModes => controlComponent.OpModes;
+        public ICollection<string> Roles => controlComponent.Roles;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
 
@@ -46,13 +49,14 @@ namespace ControlComponents.Core
             ExecutionStateChanged?.Invoke(this.Role, e);
         }
 
-        public OrderOutputTemplate(string role, string id)
+        public OrderOutputTemplate(string role, string id, IControlComponentProvider provider)
         {
             Role = role;
             Id = id;
+            _provider = provider;
         }
 
-        public OrderOutputTemplate(string role, string id, T cc) : this(role, id)
+        public OrderOutputTemplate(string role, string id, IControlComponentProvider provider, T cc) : this(role, id, provider)
         {
             controlComponent = cc;
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
@@ -130,6 +134,12 @@ namespace ControlComponents.Core
             return ComponentName.GetHashCode();
         }
 
+        public bool ChangeComponent(string id)
+        {
+            T c = _provider.GetComponent<T>(id);
+            return this.ChangeComponent(c);
+        }
+
         public bool ChangeComponent(T cc)
         {
             if (!IsSet)
@@ -160,6 +170,12 @@ namespace ControlComponents.Core
                 controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
                 // controlComponent = null;
             }
+        }
+
+        // TODO seperate IControlComponent and IOrderOutput for this manner ?
+        public bool ChangeOutput(string role, string id)
+        {
+            return controlComponent.ChangeOutput(role, id);
         }
     }
 }

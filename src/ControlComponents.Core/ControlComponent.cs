@@ -197,5 +197,9 @@ namespace ControlComponents.Core
             }
         }
 
+        public bool ChangeOutput(string role, string id)
+        {
+            return orderOutputs[role].ChangeComponent(id);
+        }
     }
 }

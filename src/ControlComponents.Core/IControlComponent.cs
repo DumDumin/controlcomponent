@@ -7,6 +7,7 @@ namespace ControlComponents.Core
     {
         string OpModeName { get; }
         ICollection<string> OpModes { get; }
+        ICollection<string> Roles { get; }
 
         string OCCUPIER { get; }
         void Occupy(string sender);
@@ -27,5 +28,7 @@ namespace ControlComponents.Core
 
         Task SelectOperationMode(string operationMode);
         Task DeselectOperationMode();
+
+        bool ChangeOutput(string role, string id);
     }
 }

@@ -9,5 +9,7 @@ namespace ControlComponents.Core
         string Role { get; }
         string Id { get; }
         bool IsSet { get; }
+
+        bool ChangeComponent(string id);
     }
 }
