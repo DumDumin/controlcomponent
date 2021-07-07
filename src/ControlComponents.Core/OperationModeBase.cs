@@ -80,7 +80,8 @@ namespace ControlComponents.Core
             runningOutputs.Add(role, outputs[role].SelectOperationMode(operationMode));
         }
 
-        protected abstract void Selected();
+        protected virtual void Selected() {}
+        protected virtual Task Deselected() { return Task.CompletedTask; }
 
         public async Task Select(IExecution execution, IDictionary<string, IOrderOutput> orderOutputs)
         {
@@ -122,6 +123,8 @@ namespace ControlComponents.Core
                 {
                     await output.DeselectOperationMode();
                 }
+
+                await Deselected();
             }
         }
 

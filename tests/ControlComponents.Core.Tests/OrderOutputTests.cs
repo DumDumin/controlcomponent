@@ -270,5 +270,32 @@ namespace ControlComponents.Core.Tests
             OrderOutput output = new OrderOutput("Test", "Output", provider.Object);
             Assert.AreEqual(output.Id, "Output");
         }
+
+        [Test]
+        public void Given_OrderOutput_When_ChangeComponent_Then_Changed()
+        {
+            ControlComponent c1 = new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
+            ControlComponent c2 = new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
+            provider.Setup(p => p.GetComponent<IControlComponent>("CC2")).Returns(c2);
+
+            OrderOutput output = new OrderOutput("Test", "Output", provider.Object, c1);
+
+            Assert.AreEqual("CC1", output.ComponentName);
+            output.ChangeComponent("CC2");
+            Assert.AreEqual("CC2", output.ComponentName);
+        }
+
+        [Test]
+        public void Given_ControlComponent_When_ChangeOutput_Then_Changed()
+        {
+            ControlComponent c3 = new ControlComponent("CC3", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
+            provider.Setup(p => p.GetComponent<IControlComponent>("CC3")).Returns(c3);
+            var orderOutput = orderOutputs.First(o => o.Role == "ROLE_ONE");
+
+            Assert.AreEqual("CC1", orderOutput.ComponentName);
+            cc.ChangeOutput("ROLE_ONE", "CC3");
+            Assert.AreEqual("CC3", orderOutput.ComponentName);
+
+        }
     }
 }
