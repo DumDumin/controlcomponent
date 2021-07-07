@@ -28,6 +28,24 @@ namespace PTS.ControlComponents
             }
         }
 
+        // TODO use MLENACT like aktion mask
+        public static bool[][] ConvertToMLENACT(float[] actionMask)
+        {
+            // returns action mask => 1 is masked and should not be used
+            var action = new bool[1][];
+            action[0] = new bool[actionMask.Length];
+
+            for (int i = 0; i < actionMask.Length; i++)
+            {
+                // if it is masked => false
+                if (actionMask[i] == 1)
+                    action[0][i] = false;
+                else
+                    action[0][i] = true;
+            }
+            return action;
+        }
+
         // TODO seperate Inference from Training
         public async Task<float[]> Decide(float[] observations, float[] actionMask, float reward)
         {
@@ -40,7 +58,7 @@ namespace PTS.ControlComponents
 
             cc.MLREWARD = reward;
             cc.MLOBSERVE = observations;
-            // cc.MLENACT = actionMask;
+            cc.MLENACT = ConvertToMLENACT(actionMask);
 
             await cc.ResetAndWaitForIdle(Id);
             await cc.StartAndWaitForExecute(Id);
