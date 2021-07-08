@@ -58,5 +58,7 @@ namespace ControlComponents.ML
         float[] MLDECIDE { get; set; }
         float MLREWARD { get; set; }
         string MLSTATS { get; set; }
+
+        MLProperties MLProperties { get; }
     }
 }

@@ -2,19 +2,6 @@ using ControlComponents.Core;
 
 namespace ControlComponents.ML
 {
-    public struct MLProperties
-    {
-        public int ObservationSize;
-        public int ActionSize;
-        // TODO add Model name? vs override MLModelName
-
-        public MLProperties(int observationSize, int actionSize)
-        {
-            ObservationSize = observationSize;
-            ActionSize = actionSize;
-        }
-    }
-
     public class MLControlComponent : ControlComponent, IMLControlComponent
     {
         public MLControlComponent(string name, MLProperties properties) : base(name) {
@@ -22,6 +9,7 @@ namespace ControlComponents.ML
             MLDECIDE = new float[properties.ActionSize];
             MLENACT = new bool[1][];
             MLENACT[0] = new bool[properties.ActionSize];
+            MLProperties = properties;
         }
 
         public ExecutionState MLSC { get; set; }
@@ -34,5 +22,7 @@ namespace ControlComponents.ML
         public float[] MLDECIDE { get; set; }
         public float MLREWARD { get; set; }
         public string MLSTATS { get; set; }
+
+        public MLProperties MLProperties { get;  private set; }
     }
 }
