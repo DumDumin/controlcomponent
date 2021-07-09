@@ -85,6 +85,7 @@ namespace ControlComponents.Core
                 StateWaiter waiter = new StateWaiter();
                 cc.ExecutionStateChanged += waiter.EventHandler;
 
+                // TODO might not be good to automatically move from aborted to stopped
                 if (cc.EXST == ExecutionState.ABORTING)
                 {
                     await waiter.Aborted();

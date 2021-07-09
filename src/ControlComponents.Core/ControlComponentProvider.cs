@@ -11,6 +11,7 @@ namespace ControlComponents.Core
         int CountComponents<T>();
     }
 
+    // TODO there can be also providers to search the network and create network cc to access the real one (factory)
     public class ControlComponentProvider : Dictionary<string, IControlComponent>, IControlComponentProvider
     {
         public T GetComponent<T>(string id)

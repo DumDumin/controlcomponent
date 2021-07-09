@@ -21,6 +21,7 @@ namespace PTS.ControlComponents
             {
                 cc.MLREWARD = reward;
                 await cc.StopAndWaitForStopped(Id, false);
+                await cc.DeselectOperationMode();
             }
             else
             {
@@ -51,6 +52,7 @@ namespace PTS.ControlComponents
         {
             if(cc.OpModeName == "NONE")
             {
+                await _running;
                 _running = cc.SelectOperationMode("Inference");
                 if(_running.IsFaulted)
                     throw _running.Exception;

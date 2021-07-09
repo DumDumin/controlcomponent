@@ -73,6 +73,7 @@ namespace ControlComponents.Core
         {
             while(!token.IsCancellationRequested)
             {
+                // TODO might be too slow if network is involved => subscription
                 if(cc.EXST != base.execution.EXST)
                 {
                     base.execution.SetState(cc.EXST);
