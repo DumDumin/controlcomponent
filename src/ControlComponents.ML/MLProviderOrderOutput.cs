@@ -7,6 +7,7 @@ namespace PTS.ControlComponents
 {
     public class MLProviderOrderOutput : OrderOutput
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IMLControlComponent cc;
         private Task _running = Task.CompletedTask;
 
@@ -25,7 +26,7 @@ namespace PTS.ControlComponents
             }
             else
             {
-                throw new InvalidOperationException("Cannot end episode if ml provider not running");
+                logger.Warn("Cannot end episode if ml provider not running");
             }
         }
 

@@ -7,47 +7,47 @@ namespace ControlComponents.Core
     public class ConfigOperationMode : OperationModeBase
     {
         // This component includes the external deployed operation mode
-        private readonly IControlComponent cc;
+        private readonly IControlComponent _externalCC;
         Task externalOperationMode;
 
-        public ConfigOperationMode(string name, IControlComponent cc) : base(name)
+        public ConfigOperationMode(string name, IControlComponent externalCC) : base(name)
         {
-            this.cc = cc;
+            _externalCC = externalCC;
         }
 
         protected override void Selected()
         {
             // Check if all necessary outputs are available
-            if(!cc.Roles.All(role => this.outputs.Keys.Contains(role) && this.outputs[role].IsSet))
+            if(!_externalCC.Roles.All(role => this.outputs.Keys.Contains(role) && this.outputs[role].IsSet))
             {
                 base.execution.SetState(ExecutionState.ABORTING);
             }
             
             // configure all outputs to be outputs at external opmode as well
-            foreach (var role in cc.Roles)
+            foreach (var role in _externalCC.Roles)
             {
-                cc.ChangeOutput(role, this.outputs[role].ComponentName);
+                _externalCC.ChangeOutput(role, this.outputs[role].ComponentName);
             }
 
             // By selecting the ConfigOperationMode, simply the same OperationMode is selected on the external cc
-            externalOperationMode = cc.SelectOperationMode(OpModeName);
+            externalOperationMode = _externalCC.SelectOperationMode(OpModeName);
         }
 
         protected override async Task Deselected()
         {
-            await cc.DeselectOperationMode();
+            await _externalCC.DeselectOperationMode();
             await externalOperationMode;
         }
 
         protected override async Task Resetting(CancellationToken token)
         {
-            await cc.ResetAndWaitForIdle(base.execution.ComponentName);
+            await _externalCC.ResetAndWaitForIdle(base.execution.ComponentName);
             await base.Resetting(token);
         }
 
         protected override async Task Starting(CancellationToken token)
         {
-            await cc.StartAndWaitForExecute(base.execution.ComponentName);
+            await _externalCC.StartAndWaitForExecute(base.execution.ComponentName);
             await base.Starting(token);
         }
 
@@ -65,7 +65,7 @@ namespace ControlComponents.Core
 
         protected override async Task Stopping(CancellationToken token)
         {
-            await cc.StopAndWaitForStopped(base.execution.ComponentName, false);
+            await _externalCC.StopAndWaitForStopped(base.execution.ComponentName, false);
             await base.Stopping(token);
         }
 
@@ -74,9 +74,9 @@ namespace ControlComponents.Core
             while(!token.IsCancellationRequested)
             {
                 // TODO might be too slow if network is involved => subscription
-                if(cc.EXST != base.execution.EXST)
+                if(_externalCC.EXST != base.execution.EXST)
                 {
-                    base.execution.SetState(cc.EXST);
+                    base.execution.SetState(_externalCC.EXST);
                 }
                 else
                 {
