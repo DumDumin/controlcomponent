@@ -21,6 +21,7 @@ namespace ControlComponents.Core
         public event ExecutionStateEventHandler ExecutionStateChanged;
         public event OccupationEventHandler OccupierChanged;
         public event OperationModeEventHandler OperationModeChanged;
+        public event ExecutionModeEventHandler ExecutionModeChanged;
 
         public string OpModeName => operationMode != null ? operationMode.OpModeName : "NONE";
         public ICollection<string> OpModes => operationModes.Keys;
@@ -29,6 +30,7 @@ namespace ControlComponents.Core
         Task runningOpMode;
 
         public ExecutionState EXST => execution.EXST;
+        public ExecutionMode EXMODE => execution.EXMODE;
 
         public ControlComponent(string name) 
             : this(name, new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())
@@ -39,7 +41,8 @@ namespace ControlComponents.Core
         {
             ComponentName = name;
             execution = new Execution(ComponentName);
-            execution.ExecutionStateChanged += HandleExecutionChanged;
+            execution.ExecutionStateChanged += HandleExecutionStateChanged;
+            execution.ExecutionModeChanged += HandleExecutionModeChanged;
             occupation = new Occupation();
             occupation.OccupierChanged += HandleOccupierChanged;
 
@@ -75,11 +78,13 @@ namespace ControlComponents.Core
 
         ~ControlComponent()
         {
-            execution.ExecutionStateChanged -= HandleExecutionChanged;
+            execution.ExecutionStateChanged -= HandleExecutionStateChanged;
+            execution.ExecutionModeChanged -= HandleExecutionModeChanged;
             occupation.OccupierChanged -= HandleOccupierChanged;
         }
 
-        private void HandleExecutionChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this, e);
+        private void HandleExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this, e);
+        private void HandleExecutionModeChanged(object sender, ExecutionModeEventArgs e) => ExecutionModeChanged?.Invoke(this, e);
         private void HandleOccupierChanged(object sender, OccupationEventArgs e) => OccupierChanged?.Invoke(this, e);
 
         public string OCCUPIER => occupation.OCCUPIER;
@@ -157,6 +162,16 @@ namespace ControlComponents.Core
         {
             ChangeState(ExecutionState.CLEARING, sender);
         }
+
+        public void SemiAuto(string sender)
+        {
+            execution.SetMode(ExecutionMode.SEMIAUTO);
+        }
+        public void Auto(string sender)
+        {
+            execution.SetMode(ExecutionMode.AUTO);
+        }
+
 
         // TODO add Async to the name of this method and add a new method, which does not return a task (same for deselect)
         public async Task SelectOperationMode(string operationMode)

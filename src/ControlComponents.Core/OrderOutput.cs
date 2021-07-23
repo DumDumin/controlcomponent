@@ -25,6 +25,7 @@ namespace ControlComponents.Core
         public string Role { get; }
         public string Id { get; }
         public ExecutionState EXST => controlComponent.EXST;
+        public ExecutionMode EXMODE => controlComponent.EXMODE;
 
         public string OpModeName => controlComponent.OpModeName;
         public ICollection<string> OpModes => controlComponent.OpModes;
@@ -33,6 +34,7 @@ namespace ControlComponents.Core
         public event ExecutionStateEventHandler ExecutionStateChanged;
         public event OccupationEventHandler OccupierChanged;
         public event OperationModeEventHandler OperationModeChanged;
+        public event ExecutionModeEventHandler ExecutionModeChanged;
 
         public string OCCUPIER => controlComponent.OCCUPIER;
 
@@ -47,6 +49,7 @@ namespace ControlComponents.Core
         public bool IsFree() => controlComponent.IsFree();
 
         private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
+        private void OnExecutionModeChanged(object sender, ExecutionModeEventArgs e) => ExecutionModeChanged?.Invoke(this.Role, e);
         private void OnOccupierChanged(object sender, OccupationEventArgs e) => OccupierChanged?.Invoke(this.Role, e);
         private void OnOperationModeChanged(object sender, OperationModeEventArgs e) => OperationModeChanged?.Invoke(this.Role, e);
 
@@ -61,6 +64,7 @@ namespace ControlComponents.Core
         {
             controlComponent = cc;
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+            controlComponent.ExecutionModeChanged += OnExecutionModeChanged;
             controlComponent.OccupierChanged += OnOccupierChanged;
             controlComponent.OperationModeChanged += OnOperationModeChanged;
             IsSet = true;
@@ -149,6 +153,7 @@ namespace ControlComponents.Core
             {
                 controlComponent = cc;
                 controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+                controlComponent.ExecutionModeChanged += OnExecutionModeChanged;
                 controlComponent.OccupierChanged += OnOccupierChanged;
                 controlComponent.OperationModeChanged += OnOperationModeChanged;
                 IsSet = true;
@@ -157,11 +162,13 @@ namespace ControlComponents.Core
             else if (controlComponent.EXST == ExecutionState.STOPPED)
             {
                 controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
+                controlComponent.ExecutionModeChanged -= OnExecutionModeChanged;
                 controlComponent.OccupierChanged -= OnOccupierChanged;
                 controlComponent.OperationModeChanged -= OnOperationModeChanged;
                 controlComponent = cc;
                 controlComponent.OccupierChanged += OnOccupierChanged;
                 controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+                controlComponent.ExecutionModeChanged += OnExecutionModeChanged;
                 controlComponent.OperationModeChanged += OnOperationModeChanged;
                 return true;
             }
@@ -177,7 +184,9 @@ namespace ControlComponents.Core
             {
                 IsSet = false;
                 controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
+                controlComponent.ExecutionModeChanged -= OnExecutionModeChanged;
                 controlComponent.OccupierChanged -= OnOccupierChanged;
+                controlComponent.OperationModeChanged -= OnOperationModeChanged;
                 // controlComponent = null;
             }
         }
@@ -186,6 +195,16 @@ namespace ControlComponents.Core
         public bool ChangeOutput(string role, string id)
         {
             return controlComponent.ChangeOutput(role, id);
+        }
+
+        public void Auto(string sender)
+        {
+            controlComponent.Auto(sender);
+        }
+
+        public void SemiAuto(string sender)
+        {
+            controlComponent.SemiAuto(sender);
         }
     }
 }

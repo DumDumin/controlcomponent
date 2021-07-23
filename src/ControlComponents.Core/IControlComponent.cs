@@ -9,7 +9,6 @@ namespace ControlComponents.Core
         ICollection<string> OpModes { get; }
         ICollection<string> Roles { get; }
 
-
         void Reset(string sender);
         void Start(string sender);
         void Suspend(string sender);
@@ -19,6 +18,9 @@ namespace ControlComponents.Core
         void Unhold(string sender);
         void Abort(string sender);
         void Clear(string sender);
+
+        void Auto(string sender);
+        void SemiAuto(string sender);
 
         event OperationModeEventHandler OperationModeChanged;
         Task SelectOperationMode(string operationMode);

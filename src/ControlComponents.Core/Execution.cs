@@ -10,8 +10,10 @@ namespace ControlComponents.Core
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         public ExecutionState EXST { get ; private set; } = ExecutionState.STOPPED;
+        public ExecutionMode EXMODE { get; private set; } = ExecutionMode.AUTO;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
+        public event ExecutionModeEventHandler ExecutionModeChanged;
 
         private readonly Dictionary<ExecutionState, List<ExecutionState>> allowedTransitions;
 
@@ -61,6 +63,12 @@ namespace ControlComponents.Core
             {
                 throw new ExecutionException($"Not allowed to change from {EXST} to {newState}");
             }
+        }
+
+        public void SetMode(ExecutionMode mode)
+        {
+            EXMODE = mode;
+            ExecutionModeChanged?.Invoke(this, new ExecutionModeEventArgs(EXMODE));
         }
     }
 }
