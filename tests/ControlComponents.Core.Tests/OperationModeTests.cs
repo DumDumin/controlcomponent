@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture.NUnit3;
+using FluentAssertions;
 using Moq;
 using NLog;
 using NUnit.Framework;
@@ -113,6 +115,22 @@ namespace ControlComponents.Core.Tests
             await select;
 
             Assert.AreEqual(ExecutionState.COMPLETED, execution.EXST);
+        }
+
+        [Test, AutoData]
+        public async Task Given_NoneOpmodeSelected_When_SelectOpmode_Then_RaiseEvent(ControlComponent cc)
+        {
+            OperationMode operation = new OperationMode(OPMODENAME);
+            cc.AddOperationMode(operation);
+
+            string newOperationMode = cc.OpModeName;
+            cc.OperationModeChanged += (object sender, OperationModeEventArgs e) => newOperationMode = e.OperationModeName;
+            Task running = cc.SelectOperationMode(OPMODENAME);
+
+            newOperationMode.Should().Be(OPMODENAME);
+
+            await cc.DeselectOperationMode();
+            await running;
         }
     }
 }

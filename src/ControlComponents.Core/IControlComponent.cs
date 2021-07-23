@@ -20,6 +20,7 @@ namespace ControlComponents.Core
         void Abort(string sender);
         void Clear(string sender);
 
+        event OperationModeEventHandler OperationModeChanged;
         Task SelectOperationMode(string operationMode);
         Task DeselectOperationMode();
 

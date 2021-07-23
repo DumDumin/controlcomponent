@@ -12,6 +12,8 @@ namespace ControlComponents.Core
 
         private Execution execution;
         private Occupation occupation;
+
+        // TODO add event for this
         private IOperationMode operationMode;
         private IDictionary<string, IOperationMode> operationModes;
         // TODO change string keys Enums
@@ -19,6 +21,7 @@ namespace ControlComponents.Core
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
         public event OccupationEventHandler OccupierChanged;
+        public event OperationModeEventHandler OperationModeChanged;
 
         public string OpModeName => operationMode != null ? operationMode.OpModeName : "NONE";
         public ICollection<string> OpModes => operationModes.Keys;
@@ -74,6 +77,7 @@ namespace ControlComponents.Core
         ~ControlComponent()
         {
             execution.ExecutionStateChanged -= HandleExecutionChanged;
+            occupation.OccupierChanged -= HandleOccupierChanged;
         }
 
         private void HandleExecutionChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this, e);
@@ -168,6 +172,7 @@ namespace ControlComponents.Core
                 if (EXST == ExecutionState.STOPPED)
                 {
                     this.operationMode = operationModes[operationMode];
+                    OperationModeChanged?.Invoke(this, new OperationModeEventArgs(OpModeName));
                     runningOpMode = this.operationMode.Select(this.execution, orderOutputs);
                     await runningOpMode;
                 }
@@ -192,6 +197,7 @@ namespace ControlComponents.Core
                     this.operationMode.Deselect();
                     await runningOpMode;
                     this.operationMode = null;
+                    OperationModeChanged?.Invoke(this, new OperationModeEventArgs(OpModeName));
                 }
                 else
                 {

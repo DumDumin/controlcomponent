@@ -32,6 +32,7 @@ namespace ControlComponents.Core
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
         public event OccupationEventHandler OccupierChanged;
+        public event OperationModeEventHandler OperationModeChanged;
 
         public string OCCUPIER => controlComponent.OCCUPIER;
 
@@ -47,6 +48,7 @@ namespace ControlComponents.Core
 
         private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
         private void OnOccupierChanged(object sender, OccupationEventArgs e) => OccupierChanged?.Invoke(this.Role, e);
+        private void OnOperationModeChanged(object sender, OperationModeEventArgs e) => OperationModeChanged?.Invoke(this.Role, e);
 
         public OrderOutputTemplate(string role, string id, IControlComponentProvider provider)
         {
@@ -60,6 +62,7 @@ namespace ControlComponents.Core
             controlComponent = cc;
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
             controlComponent.OccupierChanged += OnOccupierChanged;
+            controlComponent.OperationModeChanged += OnOperationModeChanged;
             IsSet = true;
         }
 
@@ -147,6 +150,7 @@ namespace ControlComponents.Core
                 controlComponent = cc;
                 controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
                 controlComponent.OccupierChanged += OnOccupierChanged;
+                controlComponent.OperationModeChanged += OnOperationModeChanged;
                 IsSet = true;
                 return true;
             }
@@ -154,9 +158,11 @@ namespace ControlComponents.Core
             {
                 controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
                 controlComponent.OccupierChanged -= OnOccupierChanged;
+                controlComponent.OperationModeChanged -= OnOperationModeChanged;
                 controlComponent = cc;
                 controlComponent.OccupierChanged += OnOccupierChanged;
                 controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+                controlComponent.OperationModeChanged += OnOperationModeChanged;
                 return true;
             }
             else
