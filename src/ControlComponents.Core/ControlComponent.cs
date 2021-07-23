@@ -13,7 +13,6 @@ namespace ControlComponents.Core
         private Execution execution;
         private Occupation occupation;
 
-        // TODO add event for this
         private IOperationMode operationMode;
         private IDictionary<string, IOperationMode> operationModes;
         // TODO change string keys Enums

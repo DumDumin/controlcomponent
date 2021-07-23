@@ -21,7 +21,7 @@ namespace ControlComponents.Core
         CancellationTokenSource mainTokenSource;
 
         protected IDictionary<string, IOrderOutput> outputs;
-        // protected IReadOnlyDictionary<string, OrderOutput> Outputs => outputs;
+
         public ReadOnlyCollection<string> neededRoles;
 
         public OperationModeBase(string name) : this(name, new Collection<string>())
@@ -175,19 +175,6 @@ namespace ControlComponents.Core
             }
         }
 
-        // private async Task Resetting_(CancellationToken token)
-        // {
-        //     bool wait = await Resetting(token);
-        //     if (!token.IsCancellationRequested)
-        //     {
-        //         if(wait)
-        //         {
-        //             await WaitForOutputs((OrderOutput output) => output.ResetAndWaitForIdle(this.execution.ComponentName));
-        //         }
-        //         execution.SetState(ExecutionState.IDLE);
-        //     }
-        // }
-
         private async Task Starting_(CancellationToken token)
         {
             await Starting(token);
@@ -218,7 +205,6 @@ namespace ControlComponents.Core
             }
         }
 
-        // Clear has to set EXST to STOPPED after completion.
         private async Task Clearing_(CancellationToken token)
         {
             await Clearing(token);
@@ -228,15 +214,9 @@ namespace ControlComponents.Core
                 execution.SetState(ExecutionState.STOPPED);
             }
         }
-        // Hold has to set EXST to HELD after completion.
+
         private async Task Holding_(CancellationToken token)
         {
-            // TOBI TODO stay in this state till all outputs are done with hold
-            // foreach (var output in control.OrderOutputs)
-            // {
-            //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //         output.Value.Cc.Hold(control.ComponentName);
-            // }
             await Holding(token);
             if (!token.IsCancellationRequested)
             {
@@ -244,14 +224,9 @@ namespace ControlComponents.Core
                 await Task.CompletedTask;
             }
         }
-        // Unhold has to set EXST to EXECUTE after completion.
+
         private async Task Unholding_(CancellationToken token)
         {
-            // foreach (var output in control.OrderOutputs)
-            // {
-            //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //         output.Value.Cc.Unhold(control.ComponentName);
-            // }
             await Unholding(token);
             if (!token.IsCancellationRequested)
             {
@@ -262,20 +237,6 @@ namespace ControlComponents.Core
 
         private async Task Suspending_(CancellationToken token)
         {
-            // foreach (var output in control.OrderOutputs)
-            // {
-            //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //         output.Value.Cc.Suspend(control.ComponentName);
-            // }
-
-            // Task suspending = Suspending(token);
-
-            // await Task.Run( async () => {
-            //     control.OrderOutputs.Values.All((OrderOutput o) => o.Cc.EXST == ExecutionState.STOPPED);
-            //     await Task.Delay(25);
-            // });
-
-            // await suspending;
             await Suspending(token);
             if (!token.IsCancellationRequested)
             {
@@ -284,14 +245,8 @@ namespace ControlComponents.Core
             }
         }
 
-        // Unhold has to set EXST to EXECUTE after completion.
         private async Task Unsuspending_(CancellationToken token)
         {
-            // foreach (var output in control.OrderOutputs)
-            // {
-            //     if (output.Value.Cc != null && output.Value.Cc.IsOccupied(control.ComponentName))
-            //         output.Value.Cc.Unsuspend(control.ComponentName);
-            // }
             await Unsuspending(token);
             if (!token.IsCancellationRequested)
             {
@@ -300,15 +255,6 @@ namespace ControlComponents.Core
             }
         }
 
-        /*
-        * OnExecute is called cyclic, if OnSelected isn't overriden.
-        * If execution is finished set EXST to COMPLETING an call OnCompleting():
-        * <code>
-        * control.EXST = ExecutionState.COMPLETING;
-        * OnCompleting();
-        * </code>
-        * //TODO maybe its better to use this as a coroutine ?
-        */
         private async Task Execute_(CancellationToken token)
         {
             
@@ -325,7 +271,6 @@ namespace ControlComponents.Core
             await Completing(token);
             if (!token.IsCancellationRequested)
             {
-                // await WaitForOutputsToDo((OrderOutput output) => {} , new Collection<ExecutionState>(){ExecutionState.COMPLETED});
                 execution.SetState(ExecutionState.COMPLETED);
                 await Task.CompletedTask;
             }
