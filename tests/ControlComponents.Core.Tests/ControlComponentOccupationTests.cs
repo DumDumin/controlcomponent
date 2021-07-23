@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
@@ -65,6 +66,16 @@ namespace ControlComponents.Core.Tests
             cc.Prio(OCCUPIER_B);
             cc.IsOccupied().Should().BeTrue();
             cc.OCCUPIER.Should().Be(OCCUPIER_B);
+        }
+
+        [Test, AutoData]
+        public void Given_Free_When_Occupy_Then_RaiseEvent(ControlComponent cc)
+        {
+            string newOccupier = cc.OCCUPIER;
+            cc.OccupierChanged += (object sender, OccupationEventArgs e) => newOccupier = e.Occupier;
+            cc.Occupy(OCCUPIER_A);
+
+            newOccupier.Should().Be(OCCUPIER_A);
         }
     }
 }

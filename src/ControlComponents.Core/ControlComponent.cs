@@ -18,6 +18,7 @@ namespace ControlComponents.Core
         protected IDictionary<string, IOrderOutput> orderOutputs;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
+        public event OccupationEventHandler OccupierChanged;
 
         public string OpModeName => operationMode != null ? operationMode.OpModeName : "NONE";
         public ICollection<string> OpModes => operationModes.Keys;
@@ -38,6 +39,7 @@ namespace ControlComponents.Core
             execution = new Execution(ComponentName);
             execution.ExecutionStateChanged += HandleExecutionChanged;
             occupation = new Occupation();
+            occupation.OccupierChanged += HandleOccupierChanged;
 
             var missingRoles = neededRoles.Except(orderOutputs.Select(o => o.Role));
             if(missingRoles.Any())
@@ -75,6 +77,7 @@ namespace ControlComponents.Core
         }
 
         private void HandleExecutionChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this, e);
+        private void HandleOccupierChanged(object sender, OccupationEventArgs e) => OccupierChanged?.Invoke(this, e);
 
         public string OCCUPIER => occupation.OCCUPIER;
         public void Occupy(string sender) => occupation.Occupy(sender);
