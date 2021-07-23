@@ -14,6 +14,7 @@ namespace ControlComponents.Core
     // TODO there can be also providers to search the network and create network cc to access the real one (factory)
     public class ControlComponentProvider : Dictionary<string, IControlComponent>, IControlComponentProvider
     {
+        // TODO get IControlComponent from dict and check type
         public T GetComponent<T>(string id)
         {
             return (T)this.Values.First(c => c.ComponentName == id && c is T);
