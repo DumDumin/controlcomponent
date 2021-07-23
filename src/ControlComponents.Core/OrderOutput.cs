@@ -31,6 +31,7 @@ namespace ControlComponents.Core
         public ICollection<string> Roles => controlComponent.Roles;
 
         public event ExecutionStateEventHandler ExecutionStateChanged;
+        public event OccupationEventHandler OccupierChanged;
 
         public string OCCUPIER => controlComponent.OCCUPIER;
 
@@ -44,10 +45,8 @@ namespace ControlComponents.Core
         public bool IsOccupied() => controlComponent.IsOccupied();
         public bool IsFree() => controlComponent.IsFree();
 
-        private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e)
-        {
-            ExecutionStateChanged?.Invoke(this.Role, e);
-        }
+        private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
+        private void OnOccupierChanged(object sender, OccupationEventArgs e) => OccupierChanged?.Invoke(this.Role, e);
 
         public OrderOutputTemplate(string role, string id, IControlComponentProvider provider)
         {
@@ -60,6 +59,7 @@ namespace ControlComponents.Core
         {
             controlComponent = cc;
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+            controlComponent.OccupierChanged += OnOccupierChanged;
             IsSet = true;
         }
 
@@ -146,13 +146,16 @@ namespace ControlComponents.Core
             {
                 controlComponent = cc;
                 controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+                controlComponent.OccupierChanged += OnOccupierChanged;
                 IsSet = true;
                 return true;
             }
             else if (controlComponent.EXST == ExecutionState.STOPPED)
             {
                 controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
+                controlComponent.OccupierChanged -= OnOccupierChanged;
                 controlComponent = cc;
+                controlComponent.OccupierChanged += OnOccupierChanged;
                 controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
                 return true;
             }
@@ -168,6 +171,7 @@ namespace ControlComponents.Core
             {
                 IsSet = false;
                 controlComponent.ExecutionStateChanged -= OnExecutionStateChanged;
+                controlComponent.OccupierChanged -= OnOccupierChanged;
                 // controlComponent = null;
             }
         }

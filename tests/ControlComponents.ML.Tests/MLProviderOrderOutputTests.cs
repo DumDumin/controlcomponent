@@ -52,18 +52,6 @@ namespace ControlComponents.ML.Tests
         }
 
         [Test]
-        public void Given_NotRunningProvider_When_EndEpisode_Then_Throw()
-        {
-            var properties = new MLProperties(1, 1);
-            MLControlComponent mlprovider = new MLControlComponent("Provider", properties);
-            mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
-
-            MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);
-
-            Assert.ThrowsAsync(typeof(InvalidOperationException), () => output.EndEpisode(1));
-        }
-
-        [Test]
         public async Task Given__When_DecideAndEndEpisode_Then_CorrectStateFlow()
         {
             var properties = new MLProperties(1, 1);

@@ -3,18 +3,12 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core
 {
-    public interface IControlComponent : IExecutionState
+    public interface IControlComponent : IExecutionState, IOccupation
     {
         string OpModeName { get; }
         ICollection<string> OpModes { get; }
         ICollection<string> Roles { get; }
 
-        string OCCUPIER { get; }
-        void Occupy(string sender);
-        void Free(string sender);
-        void Prio(string sender);
-        bool IsOccupied();
-        bool IsFree();
 
         void Reset(string sender);
         void Start(string sender);
