@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using ControlComponents.Core;
 using NUnit.Framework;
-using PTS.ControlComponents;
 
 namespace ControlComponents.ML.Tests
 {

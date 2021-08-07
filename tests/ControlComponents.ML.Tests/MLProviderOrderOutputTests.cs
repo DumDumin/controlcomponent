@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using ControlComponents.Core;
 using Moq;
 using NUnit.Framework;
-using PTS.ControlComponents;
 
 namespace ControlComponents.ML.Tests
 {

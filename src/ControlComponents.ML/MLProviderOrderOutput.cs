@@ -1,9 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using ControlComponents.Core;
-using ControlComponents.ML;
 
-namespace PTS.ControlComponents
+namespace ControlComponents.ML
 {
     public class MLProviderOrderOutput : OrderOutput
     {

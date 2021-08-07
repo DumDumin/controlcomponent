@@ -1,4 +1,7 @@
-public enum ExecutionMode
+namespace ControlComponents.Core
 {
-    AUTO, SEMIAUTO, MANUAL // , SIMULATE, TRAIN, LEARN
+    public enum ExecutionMode
+    {
+        AUTO, SEMIAUTO, MANUAL // , SIMULATE, TRAIN, LEARN
+    }
 }
