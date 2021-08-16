@@ -53,7 +53,7 @@ namespace ControlComponents.Core.Tests
         public void Given_Stopped_When_Reset_Then_Throw()
         {
             InvalidOperationException e = Assert.Throws<InvalidOperationException>(() => cc.Reset(OCCUPIER_B));
-            Assert.AreEqual($"{OCCUPIER_B} cannot change to {ExecutionState.RESETTING}, while {OCCUPIER_A} occupies {CC}.", e.Message);
+            Assert.AreEqual($"{OCCUPIER_B} cannot change {CC} to {ExecutionState.RESETTING}, while occupied by {OCCUPIER_A}.", e.Message);
         }
     }
 }
