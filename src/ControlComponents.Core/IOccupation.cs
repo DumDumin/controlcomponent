@@ -8,6 +8,8 @@ namespace ControlComponents.Core
         void Prio(string sender);
         bool IsOccupied();
         bool IsFree();
+        
+        bool IsUsableBy(string id);
 
         event OccupationEventHandler OccupierChanged;
     }

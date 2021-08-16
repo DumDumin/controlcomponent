@@ -20,7 +20,7 @@ namespace ControlComponents.ML
             if(_running.Status == TaskStatus.WaitingForActivation)
             {
                 cc.MLREWARD = reward;
-                await cc.StopAndWaitForStopped(Id, false);
+                await cc.StopAndWaitForStopped(Id);
                 await cc.DeselectOperationMode();
             }
             else
@@ -65,7 +65,7 @@ namespace ControlComponents.ML
             await cc.ResetAndWaitForIdle(Id);
             await cc.StartAndWaitForExecute(Id);
             // TODO TIME
-            await cc.WaitForCompleted(5000);
+            await cc.WaitForCompleted(10000);
 
             return cc.MLDECIDE;
         }

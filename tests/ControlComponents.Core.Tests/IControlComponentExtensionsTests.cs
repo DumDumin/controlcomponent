@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using NLog;
 using NUnit.Framework;
 
+using AutoFixture.NUnit3;
+using FluentAssertions;
+
 namespace ControlComponents.Core.Tests
 {
     public class IControlComponentExtensionsTests
@@ -41,7 +44,8 @@ namespace ControlComponents.Core.Tests
             {
                 if(cc.EXST != ExecutionState.STOPPED)
                 {
-                    await cc.StopAndWaitForStopped(SENDER, true);
+                    await cc.StopAndWaitForStopped(SENDER);
+                    cc.Free(SENDER);
                 }
                 await cc.DeselectOperationMode();
                 await runningOpMode;
@@ -57,7 +61,7 @@ namespace ControlComponents.Core.Tests
             cc.Stop(SENDER);
             
             // When
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             // Then
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
@@ -85,7 +89,7 @@ namespace ControlComponents.Core.Tests
             await cc.ResetAndWaitForIdle(SENDER);
             
             // When
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             // Then
             Assert.AreEqual(SENDER, cc.OCCUPIER);
@@ -100,7 +104,8 @@ namespace ControlComponents.Core.Tests
             await cc.ResetAndWaitForIdle(SENDER);
             
             // When
-            await cc.StopAndWaitForStopped(SENDER, true);
+            await cc.StopAndWaitForStopped(SENDER);
+            cc.Free(SENDER);
 
             // Then
             Assert.AreEqual("NONE", cc.OCCUPIER);
@@ -113,7 +118,8 @@ namespace ControlComponents.Core.Tests
             // Given
             
             // When
-            await cc.StopAndWaitForStopped(SENDER, true);
+            await cc.StopAndWaitForStopped(SENDER);
+            cc.Free(SENDER);
 
             // Then
             Assert.AreEqual("NONE", cc.OCCUPIER);
@@ -188,6 +194,26 @@ namespace ControlComponents.Core.Tests
             
             // When - Then
             Assert.ThrowsAsync(typeof(Exception), () => cc.WaitForCompleted(100));
+        }
+
+        [Test]
+        public async Task Given_Aborted_When_AbortAndWaitForAborted_Then_Aborted()
+        {
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.AbortAndWaitForAborted(SENDER);
+
+            await cc.AbortAndWaitForAborted(SENDER);
+            cc.EXST.Should().Be(ExecutionState.ABORTED);
+        }
+
+        [Test]
+        public async Task Given_Aborting_When_AbortAndWaitForAborted_Then_Aborted()
+        {
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            cc.Abort(SENDER);
+
+            await cc.AbortAndWaitForAborted(SENDER);
+            cc.EXST.Should().Be(ExecutionState.ABORTED);
         }
     }
 }

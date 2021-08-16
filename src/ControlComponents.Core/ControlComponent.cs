@@ -31,6 +31,7 @@ namespace ControlComponents.Core
 
         public ExecutionState EXST => execution.EXST;
         public ExecutionMode EXMODE => execution.EXMODE;
+        public string WORKST => operationMode != null ? operationMode.WORKST : "BSTATE";
 
         public ControlComponent(string name) 
             : this(name, new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())
@@ -93,6 +94,7 @@ namespace ControlComponents.Core
         public void Free(string sender) => occupation.Free(sender);
         public bool IsOccupied() => occupation.IsOccupied();
         public bool IsFree() => occupation.IsFree();
+        public bool IsUsableBy(string id) => occupation.IsUsableBy(id);
 
         private void ChangeStateOccupied(ExecutionState newState, string sender)
         {
@@ -107,7 +109,7 @@ namespace ControlComponents.Core
             }
             else
             {
-                throw new InvalidOperationException($"{sender} cannot change to {newState}, while {OCCUPIER} occupies cc.");
+                throw new InvalidOperationException($"{sender} cannot change {ComponentName} to {newState}, while occupied by {OCCUPIER}.");
             }
         }
 

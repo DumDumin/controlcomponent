@@ -42,11 +42,15 @@ namespace ControlComponents.Core
 
         public bool IsSet { get; private set; }
 
+        public string WORKST => controlComponent.WORKST;
+
         public void Occupy(string sender) => controlComponent.Occupy(sender);
         public void Prio(string sender) => controlComponent.Prio(sender);
         public void Free(string sender) => controlComponent.Free(sender);
         public bool IsOccupied() => controlComponent.IsOccupied();
         public bool IsFree() => controlComponent.IsFree();
+        // TODO use IsSet as well
+        public bool IsUsableBy(string id) => controlComponent.IsUsableBy(id);
 
         private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
         private void OnExecutionModeChanged(object sender, ExecutionModeEventArgs e) => ExecutionModeChanged?.Invoke(this.Role, e);

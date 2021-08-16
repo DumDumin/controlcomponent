@@ -2,16 +2,17 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core
 {
-
     public static class IControlComponentExtensions
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static async Task WaitForCompleted(this IControlComponent cc, int delay = 1000)
         {
-            
+
             StateWaiter waiter = new StateWaiter();
             cc.ExecutionStateChanged += waiter.EventHandler;
 
-            if(cc.EXST != ExecutionState.COMPLETED)
+            if (cc.EXST != ExecutionState.COMPLETED)
             {
                 await waiter.Completed(delay);
             }
@@ -21,67 +22,124 @@ namespace ControlComponents.Core
 
         public static async Task ResetAndWaitForIdle(this IControlComponent cc, string occupier)
         {
-            StateWaiter waiter = new StateWaiter();
-            cc.ExecutionStateChanged += waiter.EventHandler;
+            if (cc.EXST == ExecutionState.STOPPED || cc.EXST == ExecutionState.COMPLETED || cc.EXST == ExecutionState.RESETTING)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
 
-            cc.Reset(occupier);
-            await waiter.Idle();
+                if (cc.EXST != ExecutionState.RESETTING)
+                {
+                    cc.Reset(occupier);
+                }
+                await waiter.Idle();
 
-            cc.ExecutionStateChanged -= waiter.EventHandler;
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in STOPPED, COMPLETED OR RESETTING");
+            }
         }
 
         public static async Task StartAndWaitForExecute(this IControlComponent cc, string occupier)
         {
-            StateWaiter waiter = new StateWaiter();
-            cc.ExecutionStateChanged += waiter.EventHandler;
+            if (cc.EXST == ExecutionState.IDLE || cc.EXST == ExecutionState.STARTING)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
 
-            cc.Start(occupier);
-            await waiter.Execute();
+                if (cc.EXST == ExecutionState.IDLE)
+                {
+                    cc.Start(occupier);
+                }
+                await waiter.Execute();
 
-            cc.ExecutionStateChanged -= waiter.EventHandler;
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in IDLE OR STARTING");
+            }
         }
 
         public static async Task SuspendAndWaitForSuspended(this IControlComponent cc, string occupier)
         {
-            StateWaiter waiter = new StateWaiter();
-            cc.ExecutionStateChanged += waiter.EventHandler;
+            if (cc.EXST == ExecutionState.EXECUTE || cc.EXST == ExecutionState.SUSPENDING)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
 
-            cc.Suspend(occupier);
-            await waiter.Suspend();
+                cc.Suspend(occupier);
+                await waiter.Suspend();
 
-            cc.ExecutionStateChanged -= waiter.EventHandler;
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in EXECUTING OR SUSPENDING");
+            }
         }
 
         public static async Task HoldAndWaitForHeld(this IControlComponent cc, string occupier)
         {
-            StateWaiter waiter = new StateWaiter();
-            cc.ExecutionStateChanged += waiter.EventHandler;
+            if (cc.EXST == ExecutionState.EXECUTE || cc.EXST == ExecutionState.HOLDING)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
 
-            cc.Hold(occupier);
-            await waiter.Held();
+                if (cc.EXST == ExecutionState.EXECUTE)
+                {
+                    cc.Hold(occupier);
+                }
+                await waiter.Held();
 
-            cc.ExecutionStateChanged -= waiter.EventHandler;
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in EXECUTING OR HOLDING");
+            }
         }
 
         public static async Task AbortAndWaitForAborted(this IControlComponent cc, string occupier)
         {
-            StateWaiter waiter = new StateWaiter();
-            cc.ExecutionStateChanged += waiter.EventHandler;
+            if (cc.EXST != ExecutionState.ABORTED)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
 
-            cc.Abort(occupier);
-            await waiter.Aborted();
+                if (cc.EXST != ExecutionState.ABORTING)
+                {
+                    cc.Abort(occupier);
+                }
 
-            cc.ExecutionStateChanged -= waiter.EventHandler;
+                await waiter.Aborted();
+
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is already in state {cc.EXST}");
+            }
         }
 
-        public static async Task StopAndWaitForStopped(this IControlComponent cc, string occupier, bool free, int delay = 1000)
+        public static async Task StopPrioAndWaitForStopped(this IControlComponent cc, string occupier, int delay = 1000)
         {
-            // Bring control component to IDLE
             if (cc.EXST != ExecutionState.STOPPED)
             {
                 // Occupy with higher priority to overwrite exisiting occupations
                 cc.Prio(occupier);
+                await cc.StopAndWaitForStopped(occupier, delay);
+                // Downgrade occupation from PRIO to OCCUPIED if necessary
+                cc.Occupy(occupier);
+            }
+        }
 
+        public static async Task StopAndWaitForStopped(this IControlComponent cc, string occupier, int delay = 1000)
+        {
+            // Bring control component to IDLE
+            if (cc.EXST != ExecutionState.STOPPED)
+            {
                 StateWaiter waiter = new StateWaiter();
                 cc.ExecutionStateChanged += waiter.EventHandler;
 
@@ -115,18 +173,6 @@ namespace ControlComponents.Core
                 cc.ExecutionStateChanged -= waiter.EventHandler;
             }
 
-            // TODO
-            // Free component if desired or leave occupied by the environment
-            if (free)
-            {
-                if(cc.IsOccupied())
-                    cc.Free(occupier);
-            }
-            else
-            {
-                // Downgrade occupation from PRIO to OCCUPIED if necessary
-                cc.Occupy(occupier);
-            }
         }
     }
 }

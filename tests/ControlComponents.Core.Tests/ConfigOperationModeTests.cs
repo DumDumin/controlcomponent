@@ -60,7 +60,7 @@ namespace ControlComponents.Core.Tests
             Assert.AreEqual(ExecutionState.COMPLETED, configureCC.EXST);
             Assert.AreEqual(ExecutionState.COMPLETED, externalCC.EXST);
 
-            await configureCC.StopAndWaitForStopped(SENDER, false);
+            await configureCC.StopAndWaitForStopped(SENDER);
             Assert.AreEqual(ExecutionState.STOPPED, configureCC.EXST);
             Assert.AreEqual(ExecutionState.STOPPED, externalCC.EXST);
 

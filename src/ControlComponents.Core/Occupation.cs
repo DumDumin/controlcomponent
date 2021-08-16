@@ -47,6 +47,8 @@ namespace ControlComponents.Core
             return !IsFree();
         }
 
+        public bool IsUsableBy(string id) => IsFree() || OCCUPIER == id;
+
         public void Prio(string sender)
         {
             OCCUPIER = sender;

@@ -210,7 +210,7 @@ namespace ControlComponents.ML
                     || output.EXST == ExecutionState.STOPPED
                     || output.EXST == ExecutionState.IDLE))
                 {
-                    await output.StopAndWaitForStopped(base.execution.ComponentName, false);
+                    await output.StopAndWaitForStopped(base.execution.ComponentName);
                     // if (output.EXST != ExecutionState.IDLE)
                     //     output.Reset(base.execution.ComponentName);
                     // // TODO maybe its better to free only in UNSUSPENDING or add a call for FreeOutputs() and overwrite it application specific

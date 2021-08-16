@@ -65,7 +65,7 @@ namespace ControlComponents.Core
 
         protected override async Task Stopping(CancellationToken token)
         {
-            await _externalCC.StopAndWaitForStopped(base.execution.ComponentName, false);
+            await _externalCC.StopAndWaitForStopped(base.execution.ComponentName);
             await base.Stopping(token);
         }
 

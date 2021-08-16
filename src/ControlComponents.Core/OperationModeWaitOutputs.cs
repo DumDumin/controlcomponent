@@ -30,7 +30,11 @@ namespace ControlComponents.Core
 
         protected override async Task Stopping(CancellationToken token)
         {
-            await WaitForOutputs((IOrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false));
+            await WaitForOutputs((IOrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName));
+            foreach (var output in outputs.Values.Where(o => o.IsSet && o.IsUsableBy(execution.ComponentName)))
+            {
+                output.Free(this.execution.ComponentName);
+            }
         }
 
         // protected override Task Execute(CancellationToken token)
@@ -50,7 +54,11 @@ namespace ControlComponents.Core
         
         protected override async Task Clearing(CancellationToken token)
         {
-            await WaitForOutputs((IOrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName, false));
+            await WaitForOutputs((IOrderOutput output) => output.StopAndWaitForStopped(this.execution.ComponentName));
+            foreach (var output in outputs.Values.Where(o => o.IsSet && o.IsUsableBy(execution.ComponentName)))
+            {
+                output.Free(this.execution.ComponentName);
+            }
         }
     }
 }

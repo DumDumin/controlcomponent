@@ -6,6 +6,7 @@ namespace ControlComponents.Core
     public interface IControlComponent : IExecutionState, IOccupation
     {
         string OpModeName { get; }
+        string WORKST { get; }
         ICollection<string> OpModes { get; }
         ICollection<string> Roles { get; }
 

@@ -39,7 +39,7 @@ namespace ControlComponents.Core.Tests
                 cc.Stop(SENDER);
             }
             
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
             await cc.DeselectOperationMode();
             await runningOpMode;
         }

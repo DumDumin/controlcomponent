@@ -220,7 +220,7 @@ namespace ControlComponents.Core.Tests
             Assert.False(success);
             Assert.AreEqual(c1.ComponentName, output.ComponentName);
 
-            await output.StopAndWaitForStopped(SENDER, false);
+            await output.StopAndWaitForStopped(SENDER);
             await output.DeselectOperationMode();
             await runningOpMode;
         }

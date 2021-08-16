@@ -57,7 +57,7 @@ namespace ControlComponents.ML.Tests
             await provider.WaitForCompleted();
             Assert.AreEqual(provider.MLOBSERVE, provider.MLDECIDE);
 
-            await provider.StopAndWaitForStopped(SENDER, false);
+            await provider.StopAndWaitForStopped(SENDER);
             Assert.AreEqual(1, provider.MLREWARD);
 
             await provider.DeselectOperationMode();

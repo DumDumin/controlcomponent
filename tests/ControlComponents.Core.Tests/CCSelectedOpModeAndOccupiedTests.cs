@@ -42,7 +42,7 @@ namespace ControlComponents.Core.Tests
                 cc.Stop(SENDER);
             }
             
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             await cc.DeselectOperationMode();
             await runningOpMode;
@@ -53,7 +53,7 @@ namespace ControlComponents.Core.Tests
         public void Given_Stopped_When_Reset_Then_Throw()
         {
             InvalidOperationException e = Assert.Throws<InvalidOperationException>(() => cc.Reset(OCCUPIER_B));
-            Assert.AreEqual($"{OCCUPIER_B} cannot change to {ExecutionState.RESETTING}, while {OCCUPIER_A} occupies cc.", e.Message);
+            Assert.AreEqual($"{OCCUPIER_B} cannot change to {ExecutionState.RESETTING}, while {OCCUPIER_A} occupies {CC}.", e.Message);
         }
     }
 }

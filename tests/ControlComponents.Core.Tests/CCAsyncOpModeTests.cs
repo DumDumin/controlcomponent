@@ -50,7 +50,7 @@ namespace ControlComponents.Core.Tests
         {
             if(cc.EXST != ExecutionState.STOPPED)
             {
-                await cc.StopAndWaitForStopped(SENDER, false);
+                await cc.StopAndWaitForStopped(SENDER);
             }
             
             await cc.DeselectOperationMode();
@@ -74,7 +74,7 @@ namespace ControlComponents.Core.Tests
             await cc.ResetAndWaitForIdle(SENDER);
             await cc.StartAndWaitForExecute(SENDER);
 
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
@@ -86,7 +86,7 @@ namespace ControlComponents.Core.Tests
             await cc.StartAndWaitForExecute(SENDER);
             cc.Suspend(SENDER);
 
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
@@ -99,7 +99,7 @@ namespace ControlComponents.Core.Tests
             await cc.SuspendAndWaitForSuspended(SENDER);
             cc.Unsuspend(SENDER);
 
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
@@ -111,7 +111,7 @@ namespace ControlComponents.Core.Tests
             await cc.StartAndWaitForExecute(SENDER);
             cc.Hold(SENDER);
 
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
@@ -124,7 +124,7 @@ namespace ControlComponents.Core.Tests
             await cc.HoldAndWaitForHeld(SENDER);
             cc.Unhold(SENDER);
 
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
@@ -135,7 +135,7 @@ namespace ControlComponents.Core.Tests
             await cc.ResetAndWaitForIdle(SENDER);
             cc.Start(SENDER);
 
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
@@ -145,7 +145,7 @@ namespace ControlComponents.Core.Tests
         {
             cc.Reset(SENDER);
 
-            await cc.StopAndWaitForStopped(SENDER, false);
+            await cc.StopAndWaitForStopped(SENDER);
 
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
