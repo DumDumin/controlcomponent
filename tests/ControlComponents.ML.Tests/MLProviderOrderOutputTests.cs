@@ -21,7 +21,7 @@ namespace ControlComponents.ML.Tests
         [Test]
         public async Task Given_ProviderOutput_When_Decide_Then_DecisionAvailable()
         {
-            var properties = new MLProperties(1, 1);
+            var properties = new MLProperties(1, new int[1]{1});
             MLControlComponent mlprovider = new MLControlComponent("Provider", properties);
             mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
 
@@ -40,7 +40,7 @@ namespace ControlComponents.ML.Tests
         [Test]
         public async Task Given_RunningProvider_When_EndEpisode_Then_DoNotThrow()
         {
-            var properties = new MLProperties(1, 1);
+            var properties = new MLProperties(1, new int[1]{1});
             MLControlComponent mlprovider = new MLControlComponent("Provider", properties);
             mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
 
@@ -53,7 +53,7 @@ namespace ControlComponents.ML.Tests
         [Test]
         public async Task Given__When_DecideAndEndEpisode_Then_CorrectStateFlow()
         {
-            var properties = new MLProperties(1, 1);
+            var properties = new MLProperties(1, new int[1]{1});
             MLControlComponent mlprovider = new MLControlComponent("Provider", properties);
             mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
             MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);

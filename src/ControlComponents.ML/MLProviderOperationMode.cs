@@ -11,7 +11,7 @@ namespace ControlComponents.ML
     {
         private readonly IMLControlComponent cc;
 
-        protected abstract Task<float[]> Decide();
+        protected abstract Task<float[][]> Decide();
         protected abstract Task EndEpisode();
 
         public MLProviderOperationMode(IMLControlComponent cc) : base("Inference")

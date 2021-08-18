@@ -6,9 +6,19 @@ namespace ControlComponents.ML
     {
         public MLControlComponent(string name, MLProperties properties) : base(name) {
             MLOBSERVE = new float[properties.ObservationSize];
-            MLDECIDE = new float[properties.ActionSize];
-            MLENACT = new bool[1][];
-            MLENACT[0] = new bool[properties.ActionSize];
+
+            MLDECIDE = new float[properties.ActionSize.Length][];
+            for (int i = 0; i < properties.ActionSize.Length; i++)
+            {
+                MLDECIDE[i] = new float[properties.ActionSize[i]];
+            }
+
+            MLENACT = new bool[properties.ActionSize.Length][];
+            for (int i = 0; i < properties.ActionSize.Length; i++)
+            {
+                MLENACT[i] = new bool[properties.ActionSize[i]];
+            }
+            
             MLProperties = properties;
         }
 
@@ -19,7 +29,7 @@ namespace ControlComponents.ML
         public string MLMODEL { get; }
         public float[] MLOBSERVE { get; set; }
         public bool[][] MLENACT { get; set; }
-        public float[] MLDECIDE { get; set; }
+        public float[][] MLDECIDE { get; set; }
         public float MLREWARD { get; set; }
         public string MLSTATS { get; set; }
 

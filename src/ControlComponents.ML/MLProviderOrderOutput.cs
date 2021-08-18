@@ -48,7 +48,7 @@ namespace ControlComponents.ML
         }
 
         // TODO seperate Inference from Training
-        public async Task<float[]> Decide(float[] observations, float[] actionMask, float reward)
+        public async Task<float[][]> Decide(float[] observations, float[] actionMask, float reward)
         {
             if(cc.OpModeName == "NONE")
             {
