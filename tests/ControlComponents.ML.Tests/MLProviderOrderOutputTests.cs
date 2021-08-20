@@ -27,7 +27,7 @@ namespace ControlComponents.ML.Tests
 
             MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);
 
-            await output.Decide(new float[1], new float[1], 0);
+            await output.Decide(new float[1], new float[1][]{ new float[1] }, 0);
 
 
             // Assert.AreEqual(null, provider.MLDECIDE);
@@ -45,7 +45,7 @@ namespace ControlComponents.ML.Tests
             mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
 
             MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);
-            await output.Decide(new float[1], new float[1], 0);
+            await output.Decide(new float[1], new float[1][]{ new float[1] }, 0);
 
             Assert.DoesNotThrowAsync(() => output.EndEpisode(1));
         }
@@ -58,7 +58,7 @@ namespace ControlComponents.ML.Tests
             mlprovider.AddOperationMode(new MLProviderOperationModeTest(mlprovider));
             MLProviderOrderOutput output = new MLProviderOrderOutput("Provider", "Provider", provider.Object, mlprovider);
 
-            await output.Decide(new float[1], new float[1], 0);
+            await output.Decide(new float[1], new float[1][]{ new float[1] }, 0);
             Assert.AreEqual(ExecutionState.COMPLETED, output.EXST);
             Assert.AreEqual("Inference", output.OpModeName);
 
