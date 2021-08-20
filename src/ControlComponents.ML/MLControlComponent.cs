@@ -34,5 +34,43 @@ namespace ControlComponents.ML
         public string MLSTATS { get; set; }
 
         public MLProperties MLProperties { get;  private set; }
+
+        public static float[][] ConvertToActionMask(bool[][] actions)
+        {
+            var actionMask = new float[actions.Length][];
+            for (int j = 0; j < actions.Length; j++)
+            {    
+                // returns action mask => 1 indicates masked and will not be used
+                actionMask[j] = new float[actions[j].Length];
+                for (int i = 0; i < actions[j].Length; i++)
+                {
+                    if (actions[j][i])
+                        actionMask[j][i] = 0;
+                    else
+                        actionMask[j][i] = 1;
+                }
+            }
+            return actionMask;
+        }
+
+        public static bool[][] ConvertToMLENACT(float[][] actionMask)
+        {
+            var action = new bool[actionMask.Length][];
+            for (int j = 0; j < actionMask.Length; j++)
+            {
+                // returns MLENACT => false is masked and should not be used
+                action[j] = new bool[actionMask[j].Length];
+                for (int i = 0; i < actionMask[j].Length; i++)
+                {
+                    // if it is masked => false
+                    if (actionMask[j][i] == 1)
+                        action[j][i] = false;
+                    else
+                        action[j][i] = true;
+                }
+            }
+
+            return action;
+        }
     }
 }
