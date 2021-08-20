@@ -61,7 +61,7 @@ namespace ControlComponents.Core
             }
             else
             {
-                throw new ExecutionException($"Not allowed to change from {EXST} to {newState}");
+                logger.Warn($"Not allowed to change from {EXST} to {newState}");
             }
         }
 
