@@ -1,3 +1,5 @@
+using System;
+
 namespace ControlComponents.Core
 {
     public class FrameControlComponent : ControlComponent
@@ -17,6 +19,14 @@ namespace ControlComponents.Core
             {
                 AddOperationMode(new ConfigOperationMode(operationModeName, output));
             }
+        }
+
+        public override TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
+        {
+            if(this.orderOutputs.ContainsKey(targetRole))
+                return ReadPropertyy<TReturn>(targetRole, propertyName, this.orderOutputs[targetRole]);
+            else
+                return ReadPropertyy<TReturn>(targetRole, propertyName, this);
         }
     }
 }

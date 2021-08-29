@@ -10,6 +10,59 @@ namespace ControlComponents.Core
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+        protected IDictionary<string, object> propertyCache = new Dictionary<string, object>();
+
+        public virtual TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
+        {
+            return ReadPropertyy<TReturn>(targetRole, propertyName, this);
+        }
+
+        protected TReturn ReadPropertyy<TReturn>(string targetRole, string propertyName, object instance)
+        {
+            var propertyId = propertyName + targetRole;
+            if(!propertyCache.ContainsKey(propertyId))
+            {
+                // do not use typeof, but GetType to get dynamic type
+                var propertyInfo = instance.GetType().GetProperty(propertyName);
+                Func<TReturn> propertyDelegate = PropertyCache.BuildTypedGetter<TReturn>(propertyInfo, instance);
+                propertyCache.Add(propertyId, propertyDelegate);
+            }
+
+            return (propertyCache[propertyId] as Func<TReturn>).Invoke();
+        }
+
+        public TReturn CallMethod<TReturn>(string targetRole, string methodName)
+        {
+            var info = this.GetType().GetMethod(methodName);
+            if(info.ReturnType == typeof(void))
+            {
+                Action propertyDelegate = PropertyCache.BuildTypedAction(info, this);
+                propertyDelegate();
+                return default(TReturn);
+            }
+            else
+            {
+                Func<TReturn> propertyDelegate = PropertyCache.BuildTypedFunc<TReturn>(info, this);
+                return propertyDelegate();
+            }
+        }
+
+        public TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param1)
+        {
+            var info = this.GetType().GetMethod(methodName);
+            if(info.ReturnType == typeof(void))
+            {
+                Action<TParam> propertyDelegate = PropertyCache.BuildTypedAction<TParam>(info, this);
+                propertyDelegate(param1);
+                return default(TReturn);
+            }
+            else
+            {
+                Func<TParam, TReturn> propertyDelegate = PropertyCache.BuildTypedFunc<TParam, TReturn>(info, this);
+                return propertyDelegate(param1);
+            }
+        }
+
         private Execution execution;
         private Occupation occupation;
 
@@ -18,6 +71,7 @@ namespace ControlComponents.Core
         // TODO change string keys Enums
         protected IDictionary<string, IOrderOutput> orderOutputs;
 
+        // TODO create a Method to subscribe and provide role to find correct subscription => might be clever to put all these methods in a new interface, which is used by orderoutputs
         public event ExecutionStateEventHandler ExecutionStateChanged;
         public event OccupationEventHandler OccupierChanged;
         public event OperationModeEventHandler OperationModeChanged;
