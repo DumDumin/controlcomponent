@@ -17,37 +17,55 @@ namespace ControlComponents.Core
 
         protected override void Selected()
         {
-            // Check if all necessary outputs are available
-            if(!_externalCC.Roles.All(role => this.outputs.Keys.Contains(role) && this.outputs[role].IsSet))
+            if (AllNeededOutputsAreSet())
+            {
+                ConfigureOutputsAtExternalCC();
+                // By selecting the ConfigOperationMode, simply the same OperationMode is selected on the external cc
+                externalOperationMode = _externalCC.SelectOperationMode(OpModeName);
+                _externalCC.ExecutionStateChanged += ExecutionStateChanged;
+            }
+            else
             {
                 base.execution.SetState(ExecutionState.ABORTING);
             }
-            
-            // configure all outputs to be outputs at external opmode as well
+        }
+        
+        protected override async Task Deselected()
+        {
+            _externalCC.ExecutionStateChanged -= ExecutionStateChanged;
+            // No need to call DeselectOperationMode, because all outputs are deselected if this opmode is deselected
+            await externalOperationMode;
+        }
+
+        private bool AllNeededOutputsAreSet()
+        {
+            return _externalCC.Roles.All(role => this.outputs.Keys.Contains(role) && this.outputs[role].IsSet);
+        }
+
+        private void ConfigureOutputsAtExternalCC()
+        {
             foreach (var role in _externalCC.Roles)
             {
                 _externalCC.ChangeOutput(role, this.outputs[role].ComponentName);
             }
-
-            // By selecting the ConfigOperationMode, simply the same OperationMode is selected on the external cc
-            externalOperationMode = _externalCC.SelectOperationMode(OpModeName);
         }
 
-        protected override async Task Deselected()
+        private void ExecutionStateChanged(object sender, ExecutionStateEventArgs e)
         {
-            await _externalCC.DeselectOperationMode();
-            await externalOperationMode;
+            base.execution.SetState(e.ExecutionState);
         }
 
         protected override async Task Resetting(CancellationToken token)
         {
-            await _externalCC.ResetAndWaitForIdle(base.execution.ComponentName);
+            _externalCC.Reset(base.execution.ComponentName);
+            await MirrorState(token);
             await base.Resetting(token);
         }
 
         protected override async Task Starting(CancellationToken token)
         {
-            await _externalCC.StartAndWaitForExecute(base.execution.ComponentName);
+            _externalCC.Start(base.execution.ComponentName);
+            await MirrorState(token);
             await base.Starting(token);
         }
 
@@ -65,24 +83,27 @@ namespace ControlComponents.Core
 
         protected override async Task Stopping(CancellationToken token)
         {
-            await _externalCC.StopAndWaitForStopped(base.execution.ComponentName);
+            _externalCC.Stop(base.execution.ComponentName);
+            await MirrorState(token);
             await base.Stopping(token);
+        }
+
+        protected override async Task Clearing(CancellationToken token)
+        {
+            _externalCC.Clear(base.execution.ComponentName);
+            await MirrorState(token);
+            await base.Clearing(token);
+        }
+
+        protected override async Task Aborting(CancellationToken token)
+        {
+            await MirrorState(token);
+            await base.Aborting(token);
         }
 
         private async Task MirrorState(CancellationToken token)
         {
-            while(!token.IsCancellationRequested)
-            {
-                // TODO might be too slow if network is involved => subscription
-                if(_externalCC.EXST != base.execution.EXST)
-                {
-                    base.execution.SetState(_externalCC.EXST);
-                }
-                else
-                {
-                    await Task.Delay(1);
-                }
-            }
+            await Task.Delay(Timeout.Infinite, token).ContinueWith(task => { });
         }
     }
 }

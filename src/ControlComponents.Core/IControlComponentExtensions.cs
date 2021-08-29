@@ -20,6 +20,20 @@ namespace ControlComponents.Core
             cc.ExecutionStateChanged -= waiter.EventHandler;
         }
 
+        public static async Task WaitForAborted(this IControlComponent cc, int delay = 1000)
+        {
+
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            if (cc.EXST != ExecutionState.ABORTED)
+            {
+                await waiter.Aborted(delay);
+            }
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
         public static async Task ResetAndWaitForIdle(this IControlComponent cc, string occupier)
         {
             if (cc.EXST == ExecutionState.STOPPED || cc.EXST == ExecutionState.COMPLETED || cc.EXST == ExecutionState.RESETTING)

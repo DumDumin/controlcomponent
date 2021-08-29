@@ -118,7 +118,6 @@ namespace ControlComponents.Core
             }
             finally
             {
-                // TOBI TODO test that output opmodes are deselected
                 // TODO what should happen with not STOPPED outputs, that are ABORTED for example?
                 foreach (var output in outputs.Values.Where(o => o.IsSet && o.OpModeName != "NONE" && o.EXST == ExecutionState.STOPPED))
                 {
