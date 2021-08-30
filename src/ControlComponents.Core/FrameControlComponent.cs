@@ -60,5 +60,21 @@ namespace ControlComponents.Core
             else
                 return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
         }
+
+        public override void Subscribe<T>(string targetRole, string eventName, T eventHandler)
+        {
+            if (this.orderOutputs.ContainsKey(targetRole))
+                ControlComponentReflection.Subscribe<T>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
+            else
+                ControlComponentReflection.Subscribe<T>(targetRole, eventName, eventHandler, this);
+        }
+
+        public override void Unsubscribe<T>(string targetRole, string eventName, T eventHandler)
+        {
+            if (this.orderOutputs.ContainsKey(targetRole))
+                ControlComponentReflection.Unsubscribe<T>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
+            else
+                ControlComponentReflection.Unsubscribe<T>(targetRole, eventName, eventHandler, this);
+        }
     }
 }

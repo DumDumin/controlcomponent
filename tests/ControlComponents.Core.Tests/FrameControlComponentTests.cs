@@ -156,6 +156,40 @@ namespace ControlComponents.Core.Tests
             await running;
         }
 
+        [Test, AutoData]
+        public void Given_CCWithOutput_When_SubscribeEvent_Then_SubscribedToOutput(ControlComponent ese)
+        {
+            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
+            IOrderOutput orderOutput = new ExtendedOrderOutput(ROLE, sut.ComponentName, provider.Object, ese);
+            ese.AddOperationMode(new OperationMode(OPMODE));
+            sut.AddOrderOutput(orderOutput);
+
+            int i = 0;
+            sut.Subscribe<OccupationEventHandler>(orderOutput.Role, nameof(sut.OccupierChanged), (object sender, OccupationEventArgs e) => i++);
+            orderOutput.Occupy("SENDER");
+            i.Should().Be(1);
+            orderOutput.Prio("OCCUPIER");
+            i.Should().Be(2);
+        }
+
+        [Test, AutoData]
+        public void Given_CCWithOutput_When_UnsubscribeEvent_Then_UnsubscribedFromOutput(ControlComponent ese)
+        {
+            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
+            IOrderOutput orderOutput = new ExtendedOrderOutput(ROLE, sut.ComponentName, provider.Object, ese);
+            ese.AddOperationMode(new OperationMode(OPMODE));
+            sut.AddOrderOutput(orderOutput);
+
+            int i = 0;
+            OccupationEventHandler eventHandler = (object sender, OccupationEventArgs e) => i++;
+            sut.Subscribe<OccupationEventHandler>(orderOutput.Role, nameof(sut.OccupierChanged), eventHandler);
+            orderOutput.Occupy("SENDER");
+            i.Should().Be(1);
+            sut.Unsubscribe<OccupationEventHandler>(orderOutput.Role, nameof(sut.OccupierChanged), eventHandler);
+            orderOutput.Prio("OCCUPIER");
+            i.Should().Be(1);
+        }
+
         interface IExtendedOrderOutput : IExtendedControlComponent
         {
             string TestString { get; }

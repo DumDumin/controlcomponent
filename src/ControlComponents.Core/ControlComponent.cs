@@ -254,5 +254,15 @@ namespace ControlComponents.Core
         {
             return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
         }
+
+        public virtual void Subscribe<T>(string targetRole, string eventName, T eventHandler)
+        {
+            ControlComponentReflection.Subscribe<T>(targetRole, eventName, eventHandler, this);
+        }
+
+        public virtual void Unsubscribe<T>(string targetRole, string eventName, T eventHandler)
+        {
+            ControlComponentReflection.Unsubscribe<T>(targetRole, eventName, eventHandler, this);
+        }
     }
 }

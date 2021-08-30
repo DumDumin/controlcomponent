@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+
 namespace ControlComponents.Core
 {
 
@@ -74,5 +76,17 @@ namespace ControlComponents.Core
             return (methodCache[methodId] as Func<TParam, TReturn>).Invoke(param);
         }
 
+        public static void Subscribe<T>(string targetRole, string eventName, T eventHandler, IControlComponent instance)
+        {
+            EventInfo eventInfo = instance.GetType().GetEvent(eventName);
+            Action<T> addEventHandler = (Action<T>) eventInfo.GetAddMethod().CreateDelegate(typeof(Action<T>), instance);
+            addEventHandler(eventHandler);
+        }
+        public static void Unsubscribe<T>(string targetRole, string eventName, T eventHandler, IControlComponent instance)
+        {
+            EventInfo eventInfo = instance.GetType().GetEvent(eventName);
+            Action<T> removeEventHandler = (Action<T>) eventInfo.GetRemoveMethod().CreateDelegate(typeof(Action<T>), instance);
+            removeEventHandler(eventHandler);
+        }
     }
 }

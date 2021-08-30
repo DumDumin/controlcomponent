@@ -55,6 +55,27 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test, AutoData]
+        public void Given_CC_When_SubscribeEvent_Then_Subscribed(ControlComponent sut)
+        {
+            int i = 0;
+            // sut.Subscribe<ExecutionStateEventHandler>("", nameof(sut.ExecutionStateChanged), (object sender, ExecutionStateEventArgs e) => i++);
+            sut.Subscribe<OccupationEventHandler>("", nameof(sut.OccupierChanged), (object sender, OccupationEventArgs e) => i++);
+            sut.Occupy("SENDER");
+            i.Should().Be(1);
+        }
+
+        [Test, AutoData]
+        public void Given_CC_When_UnsubscribeEvent_Then_Unsubscribed(ControlComponent sut)
+        {
+            int i = 0;
+            OccupationEventHandler eventHandler = (object sender, OccupationEventArgs e) => i++;
+            sut.Subscribe<OccupationEventHandler>("", nameof(sut.OccupierChanged), eventHandler);
+            sut.Unsubscribe<OccupationEventHandler>("", nameof(sut.OccupierChanged), eventHandler);
+            sut.Occupy("SENDER");
+            i.Should().Be(0);
+        }
+
+        [Test, AutoData]
         [Ignore("Test Timings")]
         public void Test_Timings(ControlComponent sut)
         {

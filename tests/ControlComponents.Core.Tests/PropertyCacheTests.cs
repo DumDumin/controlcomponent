@@ -90,5 +90,30 @@ namespace ControlComponents.Core.Tests
             Func<ExecutionState> dd = (Func<ExecutionState>)Delegate.CreateDelegate(typeof(Func<ExecutionState>), sut, EXST_get);
             dd().Should().Be(ExecutionState.STOPPED);
         }
+
+        public interface TestValueA{
+            int Test { get; }
+        }
+        public interface TestValueB{
+            int Test { get; }
+        }
+
+        public class TestImplementation : TestValueA, TestValueB
+        {
+            int TestValueA.Test => 0;
+
+            int TestValueB.Test => 1;
+        }
+
+
+        // https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/interfaces/explicit-interface-implementation
+        [Test, AutoData]
+        public void Test_Explicit(TestImplementation sut)
+        {
+            TestValueA testA = sut;
+            testA.Test.Should().Be(0);
+            TestValueB testB = sut;
+            testB.Test.Should().Be(1);
+        }
     }
 }
