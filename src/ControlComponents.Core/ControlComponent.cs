@@ -6,62 +6,9 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core
 {
-    public class ControlComponent : IControlComponent
+    public class ControlComponent : IControlComponent, IControlComponentReflection
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-        protected IDictionary<string, object> propertyCache = new Dictionary<string, object>();
-
-        public virtual TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
-        {
-            return ReadPropertyy<TReturn>(targetRole, propertyName, this);
-        }
-
-        protected TReturn ReadPropertyy<TReturn>(string targetRole, string propertyName, object instance)
-        {
-            var propertyId = propertyName + targetRole;
-            if(!propertyCache.ContainsKey(propertyId))
-            {
-                // do not use typeof, but GetType to get dynamic type
-                var propertyInfo = instance.GetType().GetProperty(propertyName);
-                Func<TReturn> propertyDelegate = PropertyCache.BuildTypedGetter<TReturn>(propertyInfo, instance);
-                propertyCache.Add(propertyId, propertyDelegate);
-            }
-
-            return (propertyCache[propertyId] as Func<TReturn>).Invoke();
-        }
-
-        public TReturn CallMethod<TReturn>(string targetRole, string methodName)
-        {
-            var info = this.GetType().GetMethod(methodName);
-            if(info.ReturnType == typeof(void))
-            {
-                Action propertyDelegate = PropertyCache.BuildTypedAction(info, this);
-                propertyDelegate();
-                return default(TReturn);
-            }
-            else
-            {
-                Func<TReturn> propertyDelegate = PropertyCache.BuildTypedFunc<TReturn>(info, this);
-                return propertyDelegate();
-            }
-        }
-
-        public TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param1)
-        {
-            var info = this.GetType().GetMethod(methodName);
-            if(info.ReturnType == typeof(void))
-            {
-                Action<TParam> propertyDelegate = PropertyCache.BuildTypedAction<TParam>(info, this);
-                propertyDelegate(param1);
-                return default(TReturn);
-            }
-            else
-            {
-                Func<TParam, TReturn> propertyDelegate = PropertyCache.BuildTypedFunc<TParam, TReturn>(info, this);
-                return propertyDelegate(param1);
-            }
-        }
 
         private Execution execution;
         private Occupation occupation;
@@ -87,7 +34,7 @@ namespace ControlComponents.Core
         public ExecutionMode EXMODE => execution.EXMODE;
         public string WORKST => operationMode != null ? operationMode.WORKST : "BSTATE";
 
-        public ControlComponent(string name) 
+        public ControlComponent(string name)
             : this(name, new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())
         {
         }
@@ -102,14 +49,14 @@ namespace ControlComponents.Core
             occupation.OccupierChanged += HandleOccupierChanged;
 
             var missingRoles = neededRoles.Except(orderOutputs.Select(o => o.Role));
-            if(missingRoles.Any())
+            if (missingRoles.Any())
             {
                 throw new ArgumentException($"Missing roles {string.Join(" ", missingRoles)} for {name}");
             }
 
             operationModes = opModes.ToDictionary(o => o.OpModeName);
 
-            if(orderOutputs.Any(o => o.Id != ComponentName))
+            if (orderOutputs.Any(o => o.Id != ComponentName))
             {
                 throw new ArgumentException($"Output Id must be {ComponentName}");
             }
@@ -118,7 +65,7 @@ namespace ControlComponents.Core
 
         public void AddOrderOutput(IOrderOutput newOrderOutput)
         {
-            if(newOrderOutput.Id != ComponentName)
+            if (newOrderOutput.Id != ComponentName)
             {
                 throw new ArgumentException($"Output Id must be {ComponentName} not {newOrderOutput.Id}");
             }
@@ -233,7 +180,7 @@ namespace ControlComponents.Core
         public async Task SelectOperationMode(string operationMode)
         {
             // TODO it is also possible to Deselect here and then Select new opmode?
-            if(this.operationMode != null)
+            if (this.operationMode != null)
             {
                 throw new InvalidOperationException("There is already an operation mode selected");
             }
@@ -255,7 +202,7 @@ namespace ControlComponents.Core
 
         public async Task DeselectOperationMode()
         {
-            if(operationMode == null)
+            if (operationMode == null)
             {
                 throw new InvalidOperationException("No operation mode selected");
             }
@@ -279,6 +226,33 @@ namespace ControlComponents.Core
         public bool ChangeOutput(string role, string id)
         {
             return orderOutputs[role].ChangeComponent(id);
+        }
+
+
+        // In the core ControlComponent targetRole is ignored. This is counterintuitive
+        public virtual TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
+        {
+            return ControlComponentReflection.ReadProperty<TReturn>(targetRole, propertyName, this);
+        }
+
+        public virtual void CallMethod(string targetRole, string methodName)
+        {
+            ControlComponentReflection.CallMethod(targetRole, methodName, this);
+        }
+
+        public virtual void CallMethod<TParam>(string targetRole, string methodName, TParam param)
+        {
+            ControlComponentReflection.CallMethod<TParam>(targetRole, methodName, param, this);
+        }
+
+        public virtual TReturn CallMethod<TReturn>(string targetRole, string methodName)
+        {
+            return ControlComponentReflection.CallMethod<TReturn>(targetRole, methodName, this);
+        }
+
+        public virtual TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param)
+        {
+            return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
         }
     }
 }

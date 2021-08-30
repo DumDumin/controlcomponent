@@ -23,10 +23,42 @@ namespace ControlComponents.Core
 
         public override TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
         {
-            if(this.orderOutputs.ContainsKey(targetRole))
-                return ReadPropertyy<TReturn>(targetRole, propertyName, this.orderOutputs[targetRole]);
+            if (this.orderOutputs.ContainsKey(targetRole))
+                return ControlComponentReflection.ReadProperty<TReturn>(targetRole, propertyName, this.orderOutputs[targetRole]);
             else
-                return ReadPropertyy<TReturn>(targetRole, propertyName, this);
+                return ControlComponentReflection.ReadProperty<TReturn>(targetRole, propertyName, this);
+        }
+
+        public override void CallMethod(string targetRole, string methodName)
+        {
+            if (this.orderOutputs.ContainsKey(targetRole))
+                ControlComponentReflection.CallMethod(targetRole, methodName, this.orderOutputs[targetRole]);
+            else
+                ControlComponentReflection.CallMethod(targetRole, methodName, this);
+        }
+
+        public override void CallMethod<TParam>(string targetRole, string methodName, TParam param)
+        {
+            if (this.orderOutputs.ContainsKey(targetRole))
+                ControlComponentReflection.CallMethod<TParam>(targetRole, methodName, param, this.orderOutputs[targetRole]);
+            else
+                ControlComponentReflection.CallMethod<TParam>(targetRole, methodName, param, this);
+        }
+
+        public override TReturn CallMethod<TReturn>(string targetRole, string methodName)
+        {
+            if (this.orderOutputs.ContainsKey(targetRole))
+                return ControlComponentReflection.CallMethod<TReturn>(targetRole, methodName, this.orderOutputs[targetRole]);
+            else
+                return ControlComponentReflection.CallMethod<TReturn>(targetRole, methodName, this);
+        }
+
+        public override TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param)
+        {
+            if (this.orderOutputs.ContainsKey(targetRole))
+                return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this.orderOutputs[targetRole]);
+            else
+                return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
         }
     }
 }

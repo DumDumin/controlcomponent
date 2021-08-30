@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
@@ -27,74 +29,54 @@ namespace ControlComponents.Core.Tests
         {
             bool result = sut.CallMethod<bool>(ROLE, nameof(IControlComponent.IsFree));
             result.Should().Be(true);
-            // sut.EXST.Should().Be(ExecutionState.RESETTING);
-            // result.Should().Be(sut.EXST);
         }
+
         [Test, AutoData]
-        public async Task Given_CC_When_CallMethod_Then_Returnm(ControlComponent sut)
+        public async Task Given_CC_When_CallMethodWithParam_Then_Return(ControlComponent sut)
         {
             sut.AddOperationMode(new OperationModeAsync(OPMODE));
 
             Task running = sut.CallMethod<string, Task>(ROLE, nameof(IControlComponent.SelectOperationMode), OPMODE);
-            sut.CallMethod<string, object>(ROLE, nameof(IControlComponent.Reset), "SENDER");
+            sut.CallMethod<string>(ROLE, nameof(IControlComponent.Reset), "SENDER");
             sut.EXST.Should().Be(ExecutionState.RESETTING);
-            sut.CallMethod<string, object>(ROLE, nameof(IControlComponent.Stop), "SENDER");
+            sut.CallMethod<string>(ROLE, nameof(IControlComponent.Stop), "SENDER");
             ExecutionState exst = sut.ReadProperty<ExecutionState>(ROLE, nameof(IControlComponent.EXST));
 
+            await sut.WaitForStopped();
             // TODO StopAndWait is not usable in this context => create new tests with 3 components to emulate correct behaviour
-            while (exst != ExecutionState.STOPPED)
-            {
-                await Task.Delay(1);
-                exst = sut.ReadProperty<ExecutionState>(ROLE, nameof(IControlComponent.EXST));
-            }
+            // while (exst != ExecutionState.STOPPED)
+            // {
+            //     await Task.Delay(1);
+            //     exst = sut.ReadProperty<ExecutionState>(ROLE, nameof(IControlComponent.EXST));
+            // }
 
             await sut.CallMethod<Task>(ROLE, nameof(IControlComponent.DeselectOperationMode));
             await running;
         }
 
         [Test, AutoData]
-        public async Task Given_CCWithOutput_When_GetProperty_Then_ReturnOutputProperty(ControlComponent output)
+        [Ignore("Test Timings")]
+        public void Test_Timings(ControlComponent sut)
         {
-            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
-            IOrderOutput orderOutput = new ExtendedOrderOutput(ROLE, CC, provider.Object, output);
-            output.AddOperationMode(new OperationMode(OPMODE));
+            Stopwatch sw = new Stopwatch();
 
-            FrameControlComponent sut = new FrameControlComponent(output, provider.Object, CC);
-            sut.AddOrderOutput(orderOutput);
+            sw.Start();
 
-            Task running = output.SelectOperationMode(OPMODE);
-            await output.ResetAndWaitForIdle(SENDER);
-
-            ExecutionState result = sut.ReadProperty<ExecutionState>(orderOutput.Role, nameof(IControlComponent.EXST));
-            result.Should().Be(output.EXST);
-
-            await output.StopAndWaitForStopped(SENDER);
-            await output.DeselectOperationMode();
-            await running;
-        }
-
-        interface IExtendedOrderOutput : IExtendedControlComponent
-        {
-            string TestString { get; }
-        }
-
-        interface IExtendedControlComponent : IControlComponent { }
-
-        internal class ExtendedOrderOutput : OrderOutput, IExtendedOrderOutput
-        {
-            public int TestValue => 100;
-            public string TestString => "Test";
-            public ExtendedOrderOutput(string role, string id, IControlComponentProvider provider, IControlComponent cc) : base(role, id, provider, cc)
+            // ExecutionState test;
+            // bool test;
+            for (int i = 0; i < 10000000; i++)
             {
+                // test = sut.EXST; // 0.06 sec
+                // test = sut.ReadProperty<ExecutionState>("", nameof(sut.EXST)); // 0.51 sec
+                // test = sut.ReadPropertyyy<ExecutionState>("", nameof(sut.EXST)); // 1.88 sec
+
+                //test = sut.CallMethod<bool>("", nameof(sut.IsFree)); // 0.46 sec   (without cache was 4.87 sec)
+                // test = sut.IsFree(); // 0.09 sec
             }
 
-        }
+            sw.Stop();
 
-        public class ExtendedControlComponent : ControlComponent, IExtendedControlComponent
-        {
-            public ExtendedControlComponent(string name) : base(name)
-            {
-            }
+            System.Console.WriteLine("Elapsed={0}",sw.Elapsed);
         }
     }
 }

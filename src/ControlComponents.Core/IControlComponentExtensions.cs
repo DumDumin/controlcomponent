@@ -8,7 +8,6 @@ namespace ControlComponents.Core
 
         public static async Task WaitForCompleted(this IControlComponent cc, int delay = 1000)
         {
-
             StateWaiter waiter = new StateWaiter();
             cc.ExecutionStateChanged += waiter.EventHandler;
 
@@ -22,13 +21,25 @@ namespace ControlComponents.Core
 
         public static async Task WaitForAborted(this IControlComponent cc, int delay = 1000)
         {
-
             StateWaiter waiter = new StateWaiter();
             cc.ExecutionStateChanged += waiter.EventHandler;
 
             if (cc.EXST != ExecutionState.ABORTED)
             {
                 await waiter.Aborted(delay);
+            }
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task WaitForStopped(this IControlComponent cc, int delay = 1000)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            if (cc.EXST != ExecutionState.STOPPED)
+            {
+                await waiter.Stopped(delay);
             }
 
             cc.ExecutionStateChanged -= waiter.EventHandler;

@@ -17,8 +17,8 @@ namespace ControlComponents.Core.Tests
         public void Test_GetProperty(ControlComponent sut)
         {
             var propertyInfo = sut.GetType().GetProperty(nameof(sut.EXST));
-            var f = PropertyCache.BuildTypedGetter<ExecutionState>(propertyInfo, sut);
-            f().Should().Be(ExecutionState.STOPPED);
+            Func<ExecutionState> func = PropertyCache.BuildTypedGetter<ExecutionState>(propertyInfo, sut);
+            func().Should().Be(ExecutionState.STOPPED);
         }
 
         [Test, AutoData]
@@ -29,10 +29,10 @@ namespace ControlComponents.Core.Tests
             MethodInfo free = sut.GetType().GetMethod(nameof(sut.Reset));
             MethodInfo select = sut.GetType().GetMethod(nameof(sut.SelectOperationMode));
 
-            var s = PropertyCache.BuildTypedFunc<string,Task>(select, sut);
-            Task running = s(OPMODE);
-            var f = PropertyCache.BuildTypedAction<string>(free, sut);
-            f("SENDER");
+            var selectFunc = PropertyCache.BuildTypedFunc<string,Task>(select, sut);
+            Task running = selectFunc(OPMODE);
+            var freeFunc = PropertyCache.BuildTypedAction<string>(free, sut);
+            freeFunc("SENDER");
 
             sut.EXST.Should().Be(ExecutionState.RESETTING);
         }
@@ -83,7 +83,6 @@ namespace ControlComponents.Core.Tests
             MethodInfo EXST_get = EXST.GetGetMethod();
             Func<ControlComponent, ExecutionState> d = (Func<ControlComponent, ExecutionState>)EXST_get.CreateDelegate(typeof(Func<ControlComponent, ExecutionState>));
             d(sut).Should().Be(ExecutionState.STOPPED);
-
 
             d = (Func<ControlComponent, ExecutionState>)Delegate.CreateDelegate(typeof(Func<ControlComponent, ExecutionState>), EXST_get);
             d(sut).Should().Be(ExecutionState.STOPPED);

@@ -7,8 +7,7 @@ nupkg/
 
 # Visual Studio Code
 .vscode
-tests/ControlComponents.Core.Tests/TestResults/
-tests/ControlComponents.Conveyor.Tests/TestResults/
+**/TestResults/
 coveragereport
 
 # User-specific files
