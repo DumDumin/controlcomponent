@@ -44,7 +44,6 @@ namespace ControlComponents.Core
 
         private void ConfigureOutputsAtExternalCC()
         {
-            // TODO only roles, which are available in FrameControlComponent
             foreach (var role in _externalCC.Roles)
             {
                 // TODO this can be used for READ interfaces to access target component directly
