@@ -23,6 +23,7 @@ namespace ControlComponents.Core.Tests
         ControlComponent externalCC;
         FrameControlComponent sut;
         Task running;
+        Mock<IControlComponentProvider> provider;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -39,7 +40,7 @@ namespace ControlComponents.Core.Tests
         [SetUp]
         public void Setup()
         {
-            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
+            provider = new Mock<IControlComponentProvider>();
 
             // external controlcomponent has different opmodes to test with
             externalCC = new ControlComponent(CC);
@@ -65,6 +66,40 @@ namespace ControlComponents.Core.Tests
             }
             sut.OpModeName.Should().Be("NONE");
             externalCC.OpModeName.Should().Be("NONE");
+        }
+
+        [Test]
+        public async Task Given_MissingOutput_When_SelectOperationMode_Then_Abort()
+        {
+            externalCC.AddOrderOutput(new OrderOutput(ROLE, CC, provider.Object));
+
+            running = sut.SelectOperationMode(NormalOpMode);
+            await sut.WaitForAborted();
+            sut.EXST.Should().Be(ExecutionState.ABORTED);
+        }
+
+        public class TestExternalOutput : OrderOutput
+        {
+            public TestExternalOutput(string role, string id, IControlComponentProvider provider) : base(role, id, provider)
+            {
+            }
+            public IControlComponent GetControlComponent => this.controlComponent;
+        }
+
+        [Test, AutoData]
+        public void Given_Output_When_SelectOperationMode_Then_FrameComponentAtOutputConfigured(ControlComponent ese)
+        {
+            provider.Setup(p => p.GetComponent<IControlComponent>(sut.ComponentName)).Returns(sut);
+            provider.Setup(p => p.GetComponent<IControlComponent>(ese.ComponentName)).Returns(ese);
+            provider.Setup(p => p.GetComponent<IControlComponent>(externalCC.ComponentName)).Returns(externalCC);
+
+            var externalCCOutput = new TestExternalOutput(ROLE, externalCC.ComponentName, provider.Object);
+            externalCC.AddOrderOutput(externalCCOutput);
+            sut.AddOrderOutput(new OrderOutput(ROLE, sut.ComponentName, provider.Object, ese));
+
+            running = sut.SelectOperationMode(NormalOpMode);
+            externalCCOutput.ComponentName.Should().Be(ese.ComponentName);
+            externalCCOutput.GetControlComponent.ComponentName.Should().Be(sut.ComponentName);
         }
 
         [Test]

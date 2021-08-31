@@ -137,12 +137,6 @@ namespace ControlComponents.Core
             }
         }
 
-        public bool ChangeComponent(string id)
-        {
-            T c = _provider.GetComponent<T>(id);
-            return this.ChangeComponent(c);
-        }
-
         private void SubscribeToEvents()
         {
             controlComponent.Subscribe<ExecutionStateEventHandler>(Role, nameof(ExecutionStateChanged), OnExecutionStateChanged);
@@ -156,6 +150,12 @@ namespace ControlComponents.Core
             controlComponent.Unsubscribe<ExecutionModeEventHandler>(Role, nameof(ExecutionModeChanged), OnExecutionModeChanged);
             controlComponent.Unsubscribe<OccupationEventHandler>(Role, nameof(OccupierChanged), OnOccupierChanged);
             controlComponent.Unsubscribe<OperationModeEventHandler>(Role, nameof(OperationModeChanged), OnOperationModeChanged);
+        }
+        
+        public bool ChangeComponent(string id)
+        {
+            T c = _provider.GetComponent<T>(id);
+            return this.ChangeComponent(c);
         }
 
         public bool ChangeComponent(T cc)

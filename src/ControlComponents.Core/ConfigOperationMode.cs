@@ -8,7 +8,7 @@ namespace ControlComponents.Core
     {
         // This component includes the external deployed operation mode
         private readonly IControlComponent _externalCC;
-        Task externalOperationMode;
+        Task externalOperationMode = Task.CompletedTask;
 
         public ConfigOperationMode(string name, IControlComponent externalCC) : base(name)
         {
@@ -44,9 +44,13 @@ namespace ControlComponents.Core
 
         private void ConfigureOutputsAtExternalCC()
         {
+            // TODO only roles, which are available in FrameControlComponent
             foreach (var role in _externalCC.Roles)
             {
-                _externalCC.ChangeOutput(role, this.outputs[role].ComponentName);
+                // TODO this can be used for READ interfaces to access target component directly
+                // _externalCC.ChangeOutput(role, this.outputs[role].ComponentName);
+
+                _externalCC.ChangeOutput(role, this.execution.ComponentName);
             }
         }
 
@@ -83,21 +87,30 @@ namespace ControlComponents.Core
 
         protected override async Task Stopping(CancellationToken token)
         {
-            _externalCC.Stop(base.execution.ComponentName);
-            await MirrorState(token);
+            if(_externalCC.OpModeName != "NONE")
+            {
+                _externalCC.Stop(base.execution.ComponentName);
+                await MirrorState(token);
+            }
             await base.Stopping(token);
         }
 
         protected override async Task Clearing(CancellationToken token)
         {
-            _externalCC.Clear(base.execution.ComponentName);
-            await MirrorState(token);
+            if(_externalCC.OpModeName != "NONE")
+            {
+                _externalCC.Clear(base.execution.ComponentName);
+                await MirrorState(token);
+            }
             await base.Clearing(token);
         }
 
         protected override async Task Aborting(CancellationToken token)
         {
-            await MirrorState(token);
+            if(_externalCC.OpModeName != "NONE")
+            {
+                await MirrorState(token);
+            }
             await base.Aborting(token);
         }
 
