@@ -229,7 +229,7 @@ namespace ControlComponents.Core
         }
 
 
-        // In the core ControlComponent targetRole is ignored. This is counterintuitive
+        // TODO In the core ControlComponent targetRole is ignored. This is counterintuitive
         public virtual TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
         {
             return ControlComponentReflection.ReadProperty<TReturn>(targetRole, propertyName, this);
@@ -253,6 +253,10 @@ namespace ControlComponents.Core
         public virtual TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param)
         {
             return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
+        }
+        public virtual TReturn CallMethod<TParam1, TParam2, TReturn>(string targetRole, string methodName, TParam1 param1, TParam2 param2)
+        {
+            return ControlComponentReflection.CallMethod<TParam1, TParam2, TReturn>(targetRole, methodName, param1, param2, this);
         }
 
         public virtual void Subscribe<T>(string targetRole, string eventName, T eventHandler)

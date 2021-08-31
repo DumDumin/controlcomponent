@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core
 {
-    public interface IControlComponent : IExecutionState, IOccupation
+    public interface IControlComponent : IExecutionState, IOccupation, IControlComponentReflection
     {
         string OpModeName { get; }
         string WORKST { get; }

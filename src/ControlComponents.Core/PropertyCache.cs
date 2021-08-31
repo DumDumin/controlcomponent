@@ -23,6 +23,12 @@ namespace ControlComponents.Core
             return (Func<TParam, TReturn>)reflGet;
         }
 
+        public static Func<TParam1, TParam2, TReturn> BuildTypedFunc<TParam1, TParam2, TReturn>(MethodInfo methodInfo, object instance)
+        {
+            var reflGet = Delegate.CreateDelegate(typeof(Func<TParam1, TParam2, TReturn>), instance, methodInfo);
+            return (Func<TParam1, TParam2, TReturn>)reflGet;
+        }
+
         public static Action<TParam> BuildTypedAction<TParam>(MethodInfo methodInfo, object instance)
         {
             var reflGet = Delegate.CreateDelegate(typeof(Action<TParam>), instance, methodInfo);

@@ -83,13 +83,12 @@ namespace ControlComponents.Core.Tests
 
             sw.Start();
 
-            // ExecutionState test;
+            // ExecutionState testE;
             // bool test;
             for (int i = 0; i < 10000000; i++)
             {
-                // test = sut.EXST; // 0.06 sec
-                // test = sut.ReadProperty<ExecutionState>("", nameof(sut.EXST)); // 0.51 sec
-                // test = sut.ReadPropertyyy<ExecutionState>("", nameof(sut.EXST)); // 1.88 sec
+                // testE = sut.EXST; // 0.06 sec
+                // testE = sut.ReadProperty<ExecutionState>("", nameof(sut.EXST)); // 0.51 sec
 
                 //test = sut.CallMethod<bool>("", nameof(sut.IsFree)); // 0.46 sec   (without cache was 4.87 sec)
                 // test = sut.IsFree(); // 0.09 sec

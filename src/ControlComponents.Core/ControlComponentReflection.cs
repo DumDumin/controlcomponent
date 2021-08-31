@@ -7,85 +7,58 @@ namespace ControlComponents.Core
 
     internal static class ControlComponentReflection
     {
-        static IDictionary<string, object> methodCache = new Dictionary<string, object>();
-        static IDictionary<string, object> propertyCache = new Dictionary<string, object>();
-
         public static TReturn ReadProperty<TReturn>(string targetRole, string propertyName, IControlComponent instance)
         {
-            var propertyId = propertyName + targetRole + instance.ComponentName;
-            if (!propertyCache.ContainsKey(propertyId))
+            // TODO extend this to use all known IControlComponent properties to make the code faster
+            if(propertyName == nameof(IControlComponent.EXST))
             {
-                // do not use typeof, but GetType to get dynamic type
-                var propertyInfo = instance.GetType().GetProperty(propertyName);
-                Func<TReturn> propertyDelegate = PropertyCache.BuildTypedGetter<TReturn>(propertyInfo, instance);
-                propertyCache.Add(propertyId, propertyDelegate);
+                return (TReturn)(object)instance.EXST;
             }
 
-            return (propertyCache[propertyId] as Func<TReturn>).Invoke();
+            return (TReturn)instance.GetType().GetProperty(propertyName).GetValue(instance);
         }
 
         public static void CallMethod(string targetRole, string methodName, IControlComponent instance)
         {
-            var methodId = methodName + targetRole + instance.ComponentName;
-            if (!methodCache.ContainsKey(methodId))
-            {
-                var methodInfo = instance.GetType().GetMethod(methodName);
-                Action propertyDelegate = PropertyCache.BuildTypedAction(methodInfo, instance);
-                methodCache.Add(methodId, propertyDelegate);
-            }
-
-            (methodCache[methodId] as Action).Invoke();
+            instance.GetType().GetMethod(methodName).Invoke(instance, new object[]{});
         }
 
         public static TReturn CallMethod<TReturn>(string targetRole, string methodName, IControlComponent instance)
         {
-            var methodId = methodName + targetRole + instance.ComponentName;
-            if (!methodCache.ContainsKey(methodId))
+            // TODO extend this to use all known IControlComponent methods to make the code faster
+            if(methodName == nameof(IControlComponent.IsFree))
             {
-                var methodInfo = instance.GetType().GetMethod(methodName);
-                Func<TReturn> propertyDelegate = PropertyCache.BuildTypedFunc<TReturn>(methodInfo, instance);
-                methodCache.Add(methodId, propertyDelegate);
+                return (TReturn)(object)instance.IsFree();
             }
 
-            return (methodCache[methodId] as Func<TReturn>).Invoke();
+            return (TReturn) instance.GetType().GetMethod(methodName).Invoke(instance, new object[]{});
         }
 
         public static void CallMethod<TParam>(string targetRole, string methodName, TParam param, IControlComponent instance)
         {
-            var methodId = methodName + targetRole + instance.ComponentName;
-            if (!methodCache.ContainsKey(methodId))
-            {
-                var methodInfo = instance.GetType().GetMethod(methodName);
-                Action<TParam> propertyDelegate = PropertyCache.BuildTypedAction<TParam>(methodInfo, instance);
-                methodCache.Add(methodId, propertyDelegate);
-            }
-
-            (methodCache[methodId] as Action<TParam>).Invoke(param);
+            instance.GetType().GetMethod(methodName).Invoke(instance, new object[]{param});
         }
 
         public static TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param, IControlComponent instance)
         {
-            var methodId = methodName + targetRole + instance.ComponentName;
-            if (!methodCache.ContainsKey(methodId))
-            {
-                var methodInfo = instance.GetType().GetMethod(methodName);
-                Func<TParam, TReturn> propertyDelegate = PropertyCache.BuildTypedFunc<TParam, TReturn>(methodInfo, instance);
-                methodCache.Add(methodId, propertyDelegate);
-            }
+            return (TReturn) instance.GetType().GetMethod(methodName).Invoke(instance, new object[]{param});
+        }
 
-            return (methodCache[methodId] as Func<TParam, TReturn>).Invoke(param);
+        public static TReturn CallMethod<TParam1, TParam2, TReturn>(string targetRole, string methodName, TParam1 param1, TParam2 param2, IControlComponent instance)
+        {
+            return (TReturn) instance.GetType().GetMethod(methodName).Invoke(instance, new object[]{param1, param2});
         }
 
         public static void Subscribe<T>(string targetRole, string eventName, T eventHandler, IControlComponent instance)
         {
             EventInfo eventInfo = instance.GetType().GetEvent(eventName);
-            Action<T> addEventHandler = (Action<T>) eventInfo.GetAddMethod().CreateDelegate(typeof(Action<T>), instance);
+            Action<T> addEventHandler = (Action<T>)eventInfo.GetAddMethod().CreateDelegate(typeof(Action<T>), instance);
             addEventHandler(eventHandler);
         }
         public static void Unsubscribe<T>(string targetRole, string eventName, T eventHandler, IControlComponent instance)
         {
             EventInfo eventInfo = instance.GetType().GetEvent(eventName);
-            Action<T> removeEventHandler = (Action<T>) eventInfo.GetRemoveMethod().CreateDelegate(typeof(Action<T>), instance);
+            Action<T> removeEventHandler = (Action<T>)eventInfo.GetRemoveMethod().CreateDelegate(typeof(Action<T>), instance);
             removeEventHandler(eventHandler);
         }
     }
