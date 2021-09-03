@@ -21,11 +21,11 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test, AutoData]
-        public void Given_TypeNotAvailable_When_GetComponent_Then_Throw(ControlComponentProvider provider, ControlComponent cc)
+        public void Given_TypeNotAvailable_When_GetComponent_Then_Throw(ControlComponentProvider provider, ControlComponent cc, ControlComponent ccc)
         {
             provider.Add(cc.ComponentName, cc);
 
-            Action act = () => provider.GetComponent<ControlComponentProvider>(cc.ComponentName);
+            Action act = () => provider.GetComponent<ControlComponent>(ccc.ComponentName);
 
             act.Should().Throw<InvalidOperationException>();
         }

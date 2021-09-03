@@ -6,16 +6,17 @@ namespace ControlComponents.Core
 {
     public interface IControlComponentProvider
     {
-        T GetComponent<T>(string id);
+        T GetComponent<T>(string id) where T : IControlComponent;
         IEnumerable<T> GetComponents<T>();
         int CountComponents<T>();
     }
 
     // TODO there can be also providers to search the network and create network cc to access the real one (factory)
+    // => http://wiki.eclipse.org/BaSyx_/_Documentation_/_Components_/_Registry
     public class ControlComponentProvider : Dictionary<string, IControlComponent>, IControlComponentProvider
     {
         // TODO get IControlComponent from dict and check type
-        public T GetComponent<T>(string id)
+        public T GetComponent<T>(string id) where T : IControlComponent
         {
             return (T)this.Values.First(c => c.ComponentName == id && c is T);
         }

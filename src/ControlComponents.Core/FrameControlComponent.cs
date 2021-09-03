@@ -7,6 +7,7 @@ namespace ControlComponents.Core
         // This component includes the external deployed operation mode
         private readonly IControlComponent externalControlComponent;
 
+        // TODO default name should not be used -> Component names must be unique
         public FrameControlComponent(IControlComponent cc, IControlComponentProvider provider, string name = "FrameControlComponent") : base(name)
         {
             this.externalControlComponent = cc;
