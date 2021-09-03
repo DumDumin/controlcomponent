@@ -31,6 +31,7 @@ Using the following command creates a TestResult folder with the coverage result
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
+install reportgenerator to generate a test report. `dotnet tool install -g dotnet-reportgenerator-globaltool`
 Run the following command (with the correct result id) to create a "coveragereport" folder with an index.html file to present the coverage results:
 ```
 reportgenerator -reports:.\tests\ControlComponent.Core.Tests\TestResults\efa01ed4-c5e1-4bf4-bda1-d18ec296017c\coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html
