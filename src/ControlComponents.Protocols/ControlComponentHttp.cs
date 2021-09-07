@@ -7,11 +7,24 @@ using ControlComponents.Core;
 
 namespace ControlComponents.Protocols
 {
+    public class ControlComponentInfo
+    {
+        public ExecutionState EXST { get; }
+        public string OCCUPIER { get; }
+
+        public ControlComponentInfo(ExecutionState eXST, string oCCUPIER)
+        {
+            EXST = eXST;
+            OCCUPIER = oCCUPIER;
+        }
+    }
+
     public class ControlComponentHttp : IControlComponent
     {
         private readonly string name;
         private readonly string baseUrl;
         private readonly HttpClient client;
+        private readonly IWebSocketFactory webSocketFactory;
 
         public event OperationModeEventHandler OperationModeChanged;
         public event ExecutionStateEventHandler ExecutionStateChanged;
@@ -28,11 +41,11 @@ namespace ControlComponents.Protocols
 
         public string ComponentName => throw new NotImplementedException();
 
-        public ExecutionState EXST => ExecutionState.RESETTING;
+        public ExecutionState EXST { get; } = ExecutionState.STOPPED;
 
         public ExecutionMode EXMODE => throw new NotImplementedException();
 
-        public string OCCUPIER => throw new NotImplementedException();
+        public string OCCUPIER { get; } = "NONE";
 
         // public ExecutionState EXST
         // {
@@ -46,14 +59,53 @@ namespace ControlComponents.Protocols
         // }
 
         // https://stackoverflow.com/questions/50813851/clientwebsocket-and-unit-tests
-        public ControlComponentHttp(string name, string baseUrl, HttpClient client)
+        public ControlComponentHttp(string name, string baseUrl, HttpClient client, IWebSocketFactory webSocketFactory)
         {
             this.name = name;
             this.baseUrl = baseUrl;
             this.client = client;
+            this.webSocketFactory = webSocketFactory;
 
-            ClientWebSocket ws = new ClientWebSocket();
+            IWebSocket ws = webSocketFactory.CreateWebSocket();
+            Task read = ReadWebSocket(ws);
+        }
+
+
+
+        private async Task ReadWebSocket(IWebSocket ws)
+        {
             // ws.ConnectAsync()
+            try
+            {
+                while (true)
+                {
+
+
+                    var array = new byte[100];
+                    var buffer = new ArraySegment<byte>(array);
+                    var result = await ws.ReceiveAsync(buffer, new System.Threading.CancellationToken());
+                    if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
+                    {
+
+                        string json = System.Text.Encoding.Default.GetString(buffer.Array, 0, result.Count).TrimEnd();
+                        ControlComponentInfo info = System.Text.Json.JsonSerializer.Deserialize<ControlComponentInfo>(json);
+                        if (info.EXST != EXST)
+                        {
+                            ExecutionStateChanged?.Invoke(this, new ExecutionStateEventArgs(EXST));
+                        }
+                        if (info.OCCUPIER != OCCUPIER)
+                        {
+                            OccupierChanged?.Invoke(this, new OccupationEventArgs(OCCUPIER));
+                        }
+                    }
+                    await Task.Delay(1);
+                }
+            }
+            catch (System.Exception e)
+            {
+
+                throw e;
+            }
         }
 
         public void Reset(string sender)
