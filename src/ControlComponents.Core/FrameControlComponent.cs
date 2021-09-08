@@ -2,17 +2,17 @@ using System;
 
 namespace ControlComponents.Core
 {
-    public class FrameControlComponent : ControlComponent
+    public class FrameControlComponent<T> : ControlComponent where T : IControlComponent
     {
         // This component includes the external deployed operation mode
-        private readonly IControlComponent externalControlComponent;
+        protected readonly T externalControlComponent;
 
         // TODO default name should not be used -> Component names must be unique
-        public FrameControlComponent(IControlComponent cc, IControlComponentProvider provider, string name = "FrameControlComponent") : base(name)
+        public FrameControlComponent(T cc, IControlComponentProvider provider, string name = "FrameControlComponent") : base(name)
         {
             this.externalControlComponent = cc;
 
-            // (TODO) create ExternalOpmodeOutput to inject it into opmode
+            // TODO create ExternalOpmodeOutput to inject it into opmode
             var output = new OrderOutput("ExternalOperationMode", ComponentName, provider, cc);
             AddOrderOutput(output);
 

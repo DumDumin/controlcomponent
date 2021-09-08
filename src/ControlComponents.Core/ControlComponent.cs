@@ -228,6 +228,10 @@ namespace ControlComponents.Core
             return orderOutputs[role].ChangeComponent(id);
         }
 
+        public void ClearOutput(string role)
+        {
+            orderOutputs[role].ClearComponent();
+        }
 
         // TODO In the core ControlComponent targetRole is ignored. This is counterintuitive
         public virtual TReturn ReadProperty<TReturn>(string targetRole, string propertyName)

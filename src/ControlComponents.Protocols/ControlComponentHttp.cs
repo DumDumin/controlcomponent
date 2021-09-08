@@ -41,7 +41,7 @@ namespace ControlComponents.Protocols
 
         public string ComponentName => throw new NotImplementedException();
 
-        public ExecutionState EXST { get; } = ExecutionState.STOPPED;
+        public ExecutionState EXST { get; private set; } = ExecutionState.STOPPED;
 
         public ExecutionMode EXMODE => throw new NotImplementedException();
 
@@ -91,6 +91,7 @@ namespace ControlComponents.Protocols
                         ControlComponentInfo info = System.Text.Json.JsonSerializer.Deserialize<ControlComponentInfo>(json);
                         if (info.EXST != EXST)
                         {
+                            EXST = info.EXST;
                             ExecutionStateChanged?.Invoke(this, new ExecutionStateEventArgs(EXST));
                         }
                         if (info.OCCUPIER != OCCUPIER)
@@ -247,6 +248,11 @@ namespace ControlComponents.Protocols
         }
 
         public void Unsubscribe<T>(string targetRole, string eventName, T eventHandler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ClearOutput(string role)
         {
             throw new NotImplementedException();
         }

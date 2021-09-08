@@ -11,5 +11,6 @@ namespace ControlComponents.Core
         bool IsSet { get; }
 
         bool ChangeComponent(string id);
+        void ClearComponent();
     }
 }

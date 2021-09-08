@@ -21,7 +21,7 @@ namespace ControlComponents.Core.Tests
         string FailingOpModeExecute = "FAILING-Execute";
 
         ControlComponent externalCC;
-        FrameControlComponent sut;
+        FrameControlComponent<IControlComponent> sut;
         Task running;
         Mock<IControlComponentProvider> provider;
 
@@ -49,7 +49,7 @@ namespace ControlComponents.Core.Tests
             externalCC.AddOperationMode(new FailingOperationModeExecute(FailingOpModeExecute));
             externalCC.AddOperationMode(new OperationModeAsync(NormalOpMode));
 
-            sut = new FrameControlComponent(externalCC, provider.Object);
+            sut = new FrameControlComponent<IControlComponent>(externalCC, provider.Object);
         }
 
         [TearDown]

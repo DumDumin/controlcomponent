@@ -91,7 +91,7 @@ namespace ControlComponents.Protocols.Tests
                     .Returns(Task.FromResult(new WebSocketReceiveResult(bytes.Length, WebSocketMessageType.Text, true)));
             
             // Wait for a message of the websocket
-            await Task.Delay(1000, t.Token).ContinueWith(t => Task.Delay(1));
+            await Task.Delay(5000, t.Token).ContinueWith(t => Task.Delay(1));
             i.Should().Be(1);
         }
 
@@ -99,22 +99,45 @@ namespace ControlComponents.Protocols.Tests
         public async Task When_Created_Then_SubscribedToOccupierChanged()
         {
             Mock<IWebSocket> socket = new Mock<IWebSocket>();
-            socket.Setup(s => s.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<CancellationToken>()))
-                    .Returns(Task.Delay(10).ContinueWith(t => new WebSocketReceiveResult(10, WebSocketMessageType.Text, true)));
+            var info = new ControlComponentInfo(ExecutionState.STOPPED, SENDER);
+            var bytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes<ControlComponentInfo>(info);
+
+            socket.Setup(s => s.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new WebSocketReceiveResult(0, WebSocketMessageType.Text, true)));
             IWebSocketFactory webSocketFactory = new WebSocketFactory(socket.Object);
             ControlComponentHttp sut = new ControlComponentHttp(CC, baseUrl, client, webSocketFactory);
 
             int i = 0;
-            sut.OccupierChanged += (object sender, OccupationEventArgs e) => i++;
-            sut.ExecutionStateChanged += (object sender, ExecutionStateEventArgs e) => i++;
-            await Task.Delay(20);
+            CancellationTokenSource t = new CancellationTokenSource();
+            sut.OccupierChanged += (object sender, OccupationEventArgs e) => { i++; t.Cancel(); };
+            sut.ExecutionStateChanged += (object sender, ExecutionStateEventArgs e) => { i++; t.Cancel(); };
+
+            // activate the websocket after subscribing to events
+            socket.Setup(s => s.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<CancellationToken>()))
+                    .Callback((ArraySegment<byte> buffer, CancellationToken token) =>
+                    {
+                        bytes.CopyTo(buffer.Array, 0);
+                    })
+                    .Returns(Task.FromResult(new WebSocketReceiveResult(bytes.Length, WebSocketMessageType.Text, true)));
+            
+            // Wait for a message of the websocket
+            await Task.Delay(1000, t.Token).ContinueWith(t => Task.Delay(1));
             i.Should().Be(1);
         }
 
         [Test]
-        public void Test1()
+        public void When_Reset_Then_Resetting()
         {
             Mock<IWebSocket> socket = new Mock<IWebSocket>();
+            var info = new ControlComponentInfo(ExecutionState.RESETTING, SENDER);
+            var bytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes<ControlComponentInfo>(info);
+            // activate the websocket after subscribing to events
+            socket.Setup(s => s.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<CancellationToken>()))
+                    .Callback((ArraySegment<byte> buffer, CancellationToken token) =>
+                    {
+                        bytes.CopyTo(buffer.Array, 0);
+                    })
+                    .Returns(Task.FromResult(new WebSocketReceiveResult(bytes.Length, WebSocketMessageType.Text, true)));
+
             IWebSocketFactory webSocketFactory = new WebSocketFactory(socket.Object);
 
             var response = new HttpResponseMessage()
@@ -123,29 +146,7 @@ namespace ControlComponents.Protocols.Tests
                 Content = new StringContent("", Encoding.UTF8, "text/plain")
             };
 
-            string path = $"/controlcomponent/{CC}/SENDER/OPERATIONS/RESET";
-            var request = new HttpRequestMessage(HttpMethod.Get, baseUrl + path);
-            ConfigureHttpClient(response, request);
-
-            ControlComponentHttp cc = new ControlComponentHttp(CC, baseUrl, client, webSocketFactory);
-            cc.Reset(SENDER);
-
-            cc.EXST.Should().Be(ExecutionState.RESETTING);
-        }
-
-        [Test]
-        public void Test2()
-        {
-            Mock<IWebSocket> socket = new Mock<IWebSocket>();
-            IWebSocketFactory webSocketFactory = new WebSocketFactory(socket.Object);
-
-            var response = new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("", Encoding.UTF8, "text/plain")
-            };
-
-            string path = $"/controlcomponent/{CC}/SENDER/OPERATIONS/RESET";
+            string path = $"/controlcomponent/{CC}/{SENDER}/OPERATIONS/RESET";
             var request = new HttpRequestMessage(HttpMethod.Get, baseUrl + path);
             ConfigureHttpClient(response, request);
 

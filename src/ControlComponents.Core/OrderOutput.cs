@@ -245,5 +245,10 @@ namespace ControlComponents.Core
         {
             return (Role + Id).GetHashCode();
         }
+
+        public void ClearOutput(string role)
+        {
+            controlComponent.CallMethod<string>(Role, nameof(ClearOutput), role);
+        }
     }
 }

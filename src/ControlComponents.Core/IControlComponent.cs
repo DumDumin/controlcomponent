@@ -28,5 +28,6 @@ namespace ControlComponents.Core
         Task DeselectOperationMode();
 
         bool ChangeOutput(string role, string id);
+        void ClearOutput(string role);
     }
 }
