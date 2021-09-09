@@ -268,7 +268,7 @@ namespace ControlComponents.Core.Tests
         public void Given_Id_When_GetId_Then_Id()
         {
             OrderOutput output = new OrderOutput("Test", "Output", provider.Object);
-            Assert.AreEqual(output.Id, "Output");
+            Assert.AreEqual(output.OwnerId, "Output");
         }
 
         [Test]
