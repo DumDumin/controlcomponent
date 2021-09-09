@@ -12,6 +12,7 @@ namespace ControlComponents.Core.Tests
     public class FrameControlComponentTests
     {
         string CC = "CC";
+        string FRAMECC = "FRAMECC";
         string SENDER = "SENDER";
         string ROLE = "ROLE";
         string OPMODE = "OPMODE";
@@ -49,7 +50,7 @@ namespace ControlComponents.Core.Tests
             externalCC.AddOperationMode(new FailingOperationModeExecute(FailingOpModeExecute));
             externalCC.AddOperationMode(new OperationModeAsync(NormalOpMode));
 
-            sut = new FrameControlComponent<IControlComponent>(externalCC, provider.Object);
+            sut = FrameControlComponent<IControlComponent>.Create(FRAMECC, externalCC, provider.Object);
         }
 
         [TearDown]
