@@ -4,11 +4,23 @@ using ControlComponents.Core;
 
 namespace ControlComponents.ML
 {
-    public class MLProviderOrderOutput : OrderOutput
+    public class MLProviderOrderOutput : OrderOutput// , IMLControlComponent
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IMLControlComponent cc;
         private Task _running = Task.CompletedTask;
+
+        // public ExecutionState MLSC { get => cc.MLSC; set => cc.MLSC = value; }
+
+        // public string MLMODEL => cc.MLMODEL;
+
+        // public float[] MLOBSERVE { get => cc.MLOBSERVE; set => cc.MLOBSERVE = value; }
+        // public bool[][] MLENACT { get => cc.MLENACT; set => cc.MLENACT = value; }
+        // public float[][] MLDECIDE { get => cc.MLDECIDE; set => cc.MLDECIDE = value; }
+        // public float MLREWARD { get => cc.MLREWARD; set => cc.MLREWARD = value; }
+        // public string MLSTATS { get => cc.MLSTATS; set => cc.MLSTATS = value; }
+
+        // public MLProperties MLProperties => cc.MLProperties;
 
         public MLProviderOrderOutput(string role, string id, IControlComponentProvider provider, IMLControlComponent cc) : base(role, id, provider, cc)
         {
@@ -20,7 +32,7 @@ namespace ControlComponents.ML
             if(_running.Status == TaskStatus.WaitingForActivation)
             {
                 cc.MLREWARD = reward;
-                await cc.StopAndWaitForStopped(Id);
+                await cc.StopAndWaitForStopped(OwnerId);
                 await cc.DeselectOperationMode();
             }
             else
@@ -47,8 +59,8 @@ namespace ControlComponents.ML
             cc.MLOBSERVE = observations;
             cc.MLENACT = MLControlComponent.ConvertToMLENACT(actionMask);
 
-            await cc.ResetAndWaitForIdle(Id);
-            await cc.StartAndWaitForExecute(Id);
+            await cc.ResetAndWaitForIdle(OwnerId);
+            await cc.StartAndWaitForExecute(OwnerId);
             // TODO TIME
             await cc.WaitForCompleted(10000);
 
