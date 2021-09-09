@@ -1,7 +1,5 @@
-using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System;
 using System.Threading.Tasks;
-using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
 using NLog;
@@ -12,6 +10,7 @@ namespace ControlComponents.Core.Tests
     public class FrameControlComponentTests
     {
         string CC = "CC";
+        string ESE = "ESE";
         string FRAMECC = "FRAMECC";
         string SENDER = "SENDER";
         string ROLE = "ROLE";
@@ -21,7 +20,9 @@ namespace ControlComponents.Core.Tests
         string FailingOpModeStart = "FAILING-Start";
         string FailingOpModeExecute = "FAILING-Execute";
 
+        ControlComponent ese;
         ControlComponent externalCC;
+        ExtendedOrderOutput externalCCOutput;
         FrameControlComponent<IControlComponent> sut;
         Task running;
         Mock<IControlComponentProvider> provider;
@@ -43,14 +44,32 @@ namespace ControlComponents.Core.Tests
         {
             provider = new Mock<IControlComponentProvider>();
 
-            // external controlcomponent has different opmodes to test with
+            // ESE
+            ese = new ControlComponent(ESE);
+            ese.AddOperationMode(new OperationMode(OPMODE));
+
+            provider.Setup(p => p.GetComponent<IControlComponent>(ese.ComponentName)).Returns(ese);
+
+            // EXTERNAL CC
             externalCC = new ControlComponent(CC);
+
+            // external controlcomponent has different opmodes to test with
             externalCC.AddOperationMode(new FailingOperationModeReset(FailingOpModeReset));
             externalCC.AddOperationMode(new FailingOperationModeStart(FailingOpModeStart));
             externalCC.AddOperationMode(new FailingOperationModeExecute(FailingOpModeExecute));
             externalCC.AddOperationMode(new OperationModeAsync(NormalOpMode));
 
+            // external controlcomponent has one output
+            externalCCOutput = new ExtendedOrderOutput(ROLE, externalCC.ComponentName, provider.Object);
+            externalCC.AddOrderOutput(externalCCOutput);
+
+            provider.Setup(p => p.GetComponent<IControlComponent>(externalCC.ComponentName)).Returns(externalCC);
+
+            // FRAME CC
             sut = FrameControlComponent<IControlComponent>.Create(FRAMECC, externalCC, provider.Object);
+            sut.ChangeOutput(ROLE, ese.ComponentName);
+
+            provider.Setup(p => p.GetComponent<IControlComponent>(sut.ComponentName)).Returns(sut);
         }
 
         [TearDown]
@@ -67,38 +86,33 @@ namespace ControlComponents.Core.Tests
             }
             sut.OpModeName.Should().Be("NONE");
             externalCC.OpModeName.Should().Be("NONE");
+
+            externalCCOutput.IsSet.Should().BeFalse();
+        }
+
+        [Test]
+        public void When_Created_Then_OutputsCreated()
+        {
+            sut.Roles.Should().Contain(ROLE);
         }
 
         [Test]
         public async Task Given_MissingOutput_When_SelectOperationMode_Then_Abort()
         {
-            externalCC.AddOrderOutput(new OrderOutput(ROLE, CC, provider.Object));
-
+            sut.ClearOutput(ROLE);
             running = sut.SelectOperationMode(NormalOpMode);
             await sut.WaitForAborted();
             sut.EXST.Should().Be(ExecutionState.ABORTED);
         }
 
-        public class TestExternalOutput : OrderOutput
+        [Test]
+        public void Given_Output_When_SelectOperationMode_Then_FrameComponentAtOutputConfigured()
         {
-            public TestExternalOutput(string role, string id, IControlComponentProvider provider) : base(role, id, provider)
-            {
-            }
-            public IControlComponent GetControlComponent => this.controlComponent;
-        }
-
-        [Test, AutoData]
-        public void Given_Output_When_SelectOperationMode_Then_FrameComponentAtOutputConfigured(ControlComponent ese)
-        {
-            provider.Setup(p => p.GetComponent<IControlComponent>(sut.ComponentName)).Returns(sut);
-            provider.Setup(p => p.GetComponent<IControlComponent>(ese.ComponentName)).Returns(ese);
-            provider.Setup(p => p.GetComponent<IControlComponent>(externalCC.ComponentName)).Returns(externalCC);
-
-            var externalCCOutput = new TestExternalOutput(ROLE, externalCC.ComponentName, provider.Object);
-            externalCC.AddOrderOutput(externalCCOutput);
-            sut.AddOrderOutput(new OrderOutput(ROLE, sut.ComponentName, provider.Object, ese));
+            // Output is not "filled" before opmode is started
+            Assert.Throws(typeof(NullReferenceException), () => externalCCOutput.ComponentName.ToString());
 
             running = sut.SelectOperationMode(NormalOpMode);
+
             externalCCOutput.ComponentName.Should().Be(ese.ComponentName);
             externalCCOutput.GetControlComponent.ComponentName.Should().Be(sut.ComponentName);
         }
@@ -170,21 +184,16 @@ namespace ControlComponents.Core.Tests
 
         ///////////////
 
-        [Test, AutoData]
-        public async Task Given_CCWithOutput_When_GetProperty_Then_ReturnOutputProperty(ControlComponent ese)
+        [Test]
+        public async Task Given_CCWithOutput_When_GetProperty_Then_ReturnOutputProperty()
         {
-            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
-            IOrderOutput orderOutput = new ExtendedOrderOutput(ROLE, sut.ComponentName, provider.Object, ese);
-            ese.AddOperationMode(new OperationMode(OPMODE));
-            sut.AddOrderOutput(orderOutput);
-
             // put the ese in a different state than STOPPED to see a difference between sut
             Task running = ese.SelectOperationMode(OPMODE);
             await ese.ResetAndWaitForIdle(SENDER);
             ese.EXST.Should().Be(ExecutionState.IDLE);
 
             // request property of ese through sut
-            ExecutionState result = sut.ReadProperty<ExecutionState>(orderOutput.Role, nameof(IControlComponent.EXST));
+            ExecutionState result = sut.ReadProperty<ExecutionState>(externalCCOutput.Role, nameof(IControlComponent.EXST));
             result.Should().Be(ese.EXST);
 
             await ese.StopAndWaitForStopped(SENDER);
@@ -192,37 +201,29 @@ namespace ControlComponents.Core.Tests
             await running;
         }
 
-        [Test, AutoData]
-        public void Given_CCWithOutput_When_SubscribeEvent_Then_SubscribedToOutput(ControlComponent ese)
+        [Test]
+        public void Given_CCWithOutput_When_SubscribeEvent_Then_SubscribedToOutput()
         {
-            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
-            IOrderOutput orderOutput = new ExtendedOrderOutput(ROLE, sut.ComponentName, provider.Object, ese);
-            ese.AddOperationMode(new OperationMode(OPMODE));
-            sut.AddOrderOutput(orderOutput);
-
+            running = sut.SelectOperationMode(NormalOpMode);
             int i = 0;
-            sut.Subscribe<OccupationEventHandler>(orderOutput.Role, nameof(sut.OccupierChanged), (object sender, OccupationEventArgs e) => i++);
-            orderOutput.Occupy("SENDER");
+            sut.Subscribe<OccupationEventHandler>(externalCCOutput.Role, nameof(sut.OccupierChanged), (object sender, OccupationEventArgs e) => i++);
+            externalCCOutput.Occupy("SENDER");
             i.Should().Be(1);
-            orderOutput.Prio("OCCUPIER");
+            externalCCOutput.Prio("OCCUPIER");
             i.Should().Be(2);
         }
 
-        [Test, AutoData]
-        public void Given_CCWithOutput_When_UnsubscribeEvent_Then_UnsubscribedFromOutput(ControlComponent ese)
+        [Test]
+        public void Given_CCWithOutput_When_UnsubscribeEvent_Then_UnsubscribedFromOutput()
         {
-            Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
-            IOrderOutput orderOutput = new ExtendedOrderOutput(ROLE, sut.ComponentName, provider.Object, ese);
-            ese.AddOperationMode(new OperationMode(OPMODE));
-            sut.AddOrderOutput(orderOutput);
-
+            running = sut.SelectOperationMode(NormalOpMode);
             int i = 0;
             OccupationEventHandler eventHandler = (object sender, OccupationEventArgs e) => i++;
-            sut.Subscribe<OccupationEventHandler>(orderOutput.Role, nameof(sut.OccupierChanged), eventHandler);
-            orderOutput.Occupy("SENDER");
+            sut.Subscribe<OccupationEventHandler>(externalCCOutput.Role, nameof(sut.OccupierChanged), eventHandler);
+            externalCCOutput.Occupy("SENDER");
             i.Should().Be(1);
-            sut.Unsubscribe<OccupationEventHandler>(orderOutput.Role, nameof(sut.OccupierChanged), eventHandler);
-            orderOutput.Prio("OCCUPIER");
+            sut.Unsubscribe<OccupationEventHandler>(externalCCOutput.Role, nameof(sut.OccupierChanged), eventHandler);
+            externalCCOutput.Prio("OCCUPIER");
             i.Should().Be(1);
         }
 
@@ -237,7 +238,8 @@ namespace ControlComponents.Core.Tests
         {
             public int TestValue => 100;
             public string TestString => "Test";
-            public ExtendedOrderOutput(string role, string id, IControlComponentProvider provider, IControlComponent cc) : base(role, id, provider, cc)
+            public IControlComponent GetControlComponent => this.controlComponent;
+            public ExtendedOrderOutput(string role, string id, IControlComponentProvider provider) : base(role, id, provider)
             {
             }
 

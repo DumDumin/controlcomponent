@@ -32,9 +32,19 @@ namespace ControlComponents.Core
         
         protected override async Task Deselected()
         {
+            DeconfigureOutputsAtExternalCC();
+
             _externalCC.ExecutionStateChanged -= ExecutionStateChanged;
             // No need to call DeselectOperationMode, because all outputs are deselected if this opmode is deselected
             await externalOperationMode;
+        }
+
+        private void DeconfigureOutputsAtExternalCC()
+        {
+            foreach (var role in _externalCC.Roles)
+            {
+                _externalCC.ClearOutput(role);
+            }
         }
 
         private bool AllNeededOutputsAreSet()

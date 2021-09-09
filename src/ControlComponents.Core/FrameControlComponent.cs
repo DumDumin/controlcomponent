@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -8,21 +7,6 @@ namespace ControlComponents.Core
     {
         // This component includes the external deployed operation mode
         protected readonly T externalControlComponent;
-
-        // TODO default name should not be used -> Component names must be unique
-        // public FrameControlComponent(T cc, IControlComponentProvider provider, string name = "FrameControlComponent") : base(name)
-        // {
-        //     this.externalControlComponent = cc;
-
-        //     // TODO create ExternalOpmodeOutput to inject it into opmode
-        //     var output = new OrderOutput("ExternalOperationMode", ComponentName, provider, cc);
-        //     AddOrderOutput(output);
-
-        //     foreach (var operationModeName in cc.OpModes)
-        //     {
-        //         AddOperationMode(new ConfigOperationMode(operationModeName, output));
-        //     }
-        // }
 
         protected FrameControlComponent(string name, T cc, ICollection<IOperationMode> opModes, ICollection<IOrderOutput> orderOutputs, ICollection<string> neededRoles)
         : base(name, opModes, orderOutputs, neededRoles)
@@ -35,8 +19,20 @@ namespace ControlComponents.Core
             // TODO create ExternalOpmodeOutput to inject it into opmode
             var output = new OrderOutput("ExternalOperationMode", name, provider, cc);
             Collection<IOperationMode> opmodes = CreateConfigOperationModes(cc, output);
+            Collection<IOrderOutput> outputs = CreateOrderOutputs(name, cc, provider);
+            outputs.Add(output);
 
-            return new FrameControlComponent<T>(name, cc, opmodes, new Collection<IOrderOutput>() { output }, new Collection<string>());
+            return new FrameControlComponent<T>(name, cc, opmodes, outputs, new Collection<string>());
+        }
+
+        protected static Collection<IOrderOutput> CreateOrderOutputs(string name, T cc, IControlComponentProvider provider)
+        {
+            var outputs = new Collection<IOrderOutput>();
+            foreach (var role in cc.Roles)
+            {
+                outputs.Add(new OrderOutput(role, name, provider));
+            }
+            return outputs;
         }
 
         protected static Collection<IOperationMode> CreateConfigOperationModes(T cc, OrderOutput output)
@@ -46,7 +42,6 @@ namespace ControlComponents.Core
             {
                 opmodes.Add(new ConfigOperationMode(operationModeName, output));
             }
-
             return opmodes;
         }
 
@@ -90,20 +85,20 @@ namespace ControlComponents.Core
                 return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
         }
 
-        public override void Subscribe<T>(string targetRole, string eventName, T eventHandler)
+        public override void Subscribe<THandler>(string targetRole, string eventName, THandler eventHandler)
         {
             if (this.orderOutputs.ContainsKey(targetRole))
-                ControlComponentReflection.Subscribe<T>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
+                ControlComponentReflection.Subscribe<THandler>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
             else
-                ControlComponentReflection.Subscribe<T>(targetRole, eventName, eventHandler, this);
+                ControlComponentReflection.Subscribe<THandler>(targetRole, eventName, eventHandler, this);
         }
 
-        public override void Unsubscribe<T>(string targetRole, string eventName, T eventHandler)
+        public override void Unsubscribe<THandler>(string targetRole, string eventName, THandler eventHandler)
         {
             if (this.orderOutputs.ContainsKey(targetRole))
-                ControlComponentReflection.Unsubscribe<T>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
+                ControlComponentReflection.Unsubscribe<THandler>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
             else
-                ControlComponentReflection.Unsubscribe<T>(targetRole, eventName, eventHandler, this);
+                ControlComponentReflection.Unsubscribe<THandler>(targetRole, eventName, eventHandler, this);
         }
     }
 }
