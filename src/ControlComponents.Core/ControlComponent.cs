@@ -56,7 +56,7 @@ namespace ControlComponents.Core
 
             operationModes = opModes.ToDictionary(o => o.OpModeName);
 
-            if (orderOutputs.Any(o => o.Id != ComponentName))
+            if (orderOutputs.Any(o => o.OwnerId != ComponentName))
             {
                 throw new ArgumentException($"Output Id must be {ComponentName}");
             }
@@ -65,9 +65,9 @@ namespace ControlComponents.Core
 
         public void AddOrderOutput(IOrderOutput newOrderOutput)
         {
-            if (newOrderOutput.Id != ComponentName)
+            if (newOrderOutput.OwnerId != ComponentName)
             {
-                throw new ArgumentException($"Output Id must be {ComponentName} not {newOrderOutput.Id}");
+                throw new ArgumentException($"Output Id must be {ComponentName} not {newOrderOutput.OwnerId}");
             }
 
             orderOutputs.Add(newOrderOutput.Role, newOrderOutput);

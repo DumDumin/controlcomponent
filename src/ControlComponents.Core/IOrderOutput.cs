@@ -7,7 +7,7 @@ namespace ControlComponents.Core
     {
         OrderOutputError Error { get; }
         string Role { get; }
-        string Id { get; }
+        string OwnerId { get; }
         bool IsSet { get; }
 
         bool ChangeComponent(string id);
