@@ -23,7 +23,7 @@ namespace ControlComponents.Core
         protected T controlComponent { get; private set; }
 
         public string Role { get; }
-        public string Id { get; }
+        public string OwnerId { get; }
         public ExecutionState EXST => controlComponent.ReadProperty<ExecutionState>(Role, nameof(EXST));
         public ExecutionMode EXMODE => controlComponent.ReadProperty<ExecutionMode>(Role, nameof(EXMODE));
 
@@ -60,7 +60,7 @@ namespace ControlComponents.Core
         public OrderOutputTemplate(string role, string id, IControlComponentProvider provider)
         {
             Role = role;
-            Id = id;
+            OwnerId = id;
             _provider = provider;
         }
 
@@ -243,7 +243,7 @@ namespace ControlComponents.Core
 
         public override int GetHashCode()
         {
-            return (Role + Id).GetHashCode();
+            return (Role + OwnerId).GetHashCode();
         }
 
         public void ClearOutput(string role)
