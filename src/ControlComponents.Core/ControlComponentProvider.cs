@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,7 +19,14 @@ namespace ControlComponents.Core
         // TODO get IControlComponent from dict and check type
         public T GetComponent<T>(string id) where T : IControlComponent
         {
-            return (T)this.Values.First(c => c.ComponentName == id && c is T);
+            try
+            {
+                return (T)this.Values.First(c => c.ComponentName == id);
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new InvalidOperationException($"Cannot cast {id} to {typeof(T)}", e);
+            }
         }
 
         public int CountComponents<T>()
