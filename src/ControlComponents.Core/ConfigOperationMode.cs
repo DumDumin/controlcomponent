@@ -19,7 +19,6 @@ namespace ControlComponents.Core
         {
             if (AllNeededOutputsArePresent())
             {
-                ConfigureOutputsAtExternalCC();
                 // By selecting the ConfigOperationMode, simply the same OperationMode is selected on the external cc
                 externalOperationMode = _externalCC.SelectOperationMode(OpModeName);
                 _externalCC.ExecutionStateChanged += ExecutionStateChanged;
@@ -32,35 +31,14 @@ namespace ControlComponents.Core
         
         protected override async Task Deselected()
         {
-            DeconfigureOutputsAtExternalCC();
-
             _externalCC.ExecutionStateChanged -= ExecutionStateChanged;
             // No need to call DeselectOperationMode, because all outputs are deselected if this opmode is deselected
             await externalOperationMode;
         }
 
-        private void DeconfigureOutputsAtExternalCC()
-        {
-            foreach (var role in _externalCC.Roles)
-            {
-                _externalCC.ClearOutput(role);
-            }
-        }
-
         private bool AllNeededOutputsArePresent()
         {
             return _externalCC.Roles.All(role => this.outputs.Keys.Contains(role));
-        }
-
-        private void ConfigureOutputsAtExternalCC()
-        {
-            foreach (var role in _externalCC.Roles)
-            {
-                // TODO this can be used for READ interfaces to access target component directly
-                // _externalCC.ChangeOutput(role, this.outputs[role].ComponentName);
-
-                _externalCC.ChangeOutput(role, this.execution.ComponentName);
-            }
         }
 
         private void ExecutionStateChanged(object sender, ExecutionStateEventArgs e)

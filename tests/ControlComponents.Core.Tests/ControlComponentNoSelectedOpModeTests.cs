@@ -118,9 +118,9 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
-        public void Given_Stopped_When_Deselect_Then_Throw()
+        public void Given_NoOperationModeSelected_When_Deselect_Then_DoNotThrow()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => cc.DeselectOperationMode());
+            Assert.DoesNotThrowAsync(() => cc.DeselectOperationMode());
         }
 
         [Test]
