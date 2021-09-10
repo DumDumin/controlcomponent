@@ -17,7 +17,7 @@ namespace ControlComponents.Core
 
         protected override void Selected()
         {
-            if (AllNeededOutputsAreSet())
+            if (AllNeededOutputsArePresent())
             {
                 ConfigureOutputsAtExternalCC();
                 // By selecting the ConfigOperationMode, simply the same OperationMode is selected on the external cc
@@ -47,9 +47,9 @@ namespace ControlComponents.Core
             }
         }
 
-        private bool AllNeededOutputsAreSet()
+        private bool AllNeededOutputsArePresent()
         {
-            return _externalCC.Roles.All(role => this.outputs.Keys.Contains(role) && this.outputs[role].IsSet);
+            return _externalCC.Roles.All(role => this.outputs.Keys.Contains(role));
         }
 
         private void ConfigureOutputsAtExternalCC()
@@ -92,6 +92,26 @@ namespace ControlComponents.Core
         {
             await MirrorState(token);
             await base.Completing(token);
+        }
+
+        protected override async Task Suspending(CancellationToken token)
+        {
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.SUSPENDING)
+            {
+                _externalCC.Suspend(base.execution.ComponentName);
+            }
+            await MirrorState(token);
+            await base.Suspending(token);
+        }
+
+        protected override async Task Unsuspending(CancellationToken token)
+        {
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.UNSUSPENDING)
+            {
+                _externalCC.Unsuspend(base.execution.ComponentName);
+            }
+            await MirrorState(token);
+            await base.Unsuspending(token);
         }
 
         protected override async Task Stopping(CancellationToken token)

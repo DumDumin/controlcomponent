@@ -49,8 +49,7 @@ namespace ControlComponents.Core
         public void Free(string sender) => controlComponent.CallMethod<string>(Role, nameof(Free), sender);
         public bool IsOccupied() => controlComponent.CallMethod<bool>(Role, nameof(IsOccupied));
         public bool IsFree() => controlComponent.CallMethod<bool>(Role, nameof(IsFree));
-        // TODO use IsSet as well
-        public bool IsUsableBy(string id) => controlComponent.CallMethod<string, bool>(Role, nameof(IsUsableBy), id);
+        public bool IsUsableBy(string id) => IsSet && controlComponent.CallMethod<string, bool>(Role, nameof(IsUsableBy), id);
 
         private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
         private void OnExecutionModeChanged(object sender, ExecutionModeEventArgs e) => ExecutionModeChanged?.Invoke(this.Role, e);
@@ -79,7 +78,10 @@ namespace ControlComponents.Core
 
         public Task DeselectOperationMode()
         {
-            return controlComponent.CallMethod<Task>(Role, nameof(DeselectOperationMode));
+            if(IsSet)
+                return controlComponent.CallMethod<Task>(Role, nameof(DeselectOperationMode));
+            else
+                return Task.CompletedTask;
         }
 
         public void Reset(string sender)

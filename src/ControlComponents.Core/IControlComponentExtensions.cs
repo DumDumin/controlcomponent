@@ -117,6 +117,24 @@ namespace ControlComponents.Core
             }
         }
 
+        public static async Task UnsuspendAndWaitForExecute(this IControlComponent cc, string occupier)
+        {
+            if (cc.EXST == ExecutionState.SUSPENDED || cc.EXST == ExecutionState.UNSUSPENDING)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
+
+                cc.Unsuspend(occupier);
+                await waiter.Execute();
+
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in SUSPENDED OR UNSUSPENDING");
+            }
+        }
+
         public static async Task HoldAndWaitForHeld(this IControlComponent cc, string occupier)
         {
             if (cc.EXST == ExecutionState.EXECUTE || cc.EXST == ExecutionState.HOLDING)
