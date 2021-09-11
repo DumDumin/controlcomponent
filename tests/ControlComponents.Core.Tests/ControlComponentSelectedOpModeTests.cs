@@ -84,20 +84,19 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
-        [Ignore("Need to return bool to indicate success")]
         public void Given_Stopped_When_NotAllowedOperations_Then_Throw()
         {
-            // Assert.Throws<ExecutionException>(() => cc.Start(SENDER));
+            Assert.Throws<ExecutionException>(() => cc.Start(SENDER));
 
-            // Assert.Throws<ExecutionException>(() => cc.Suspend(SENDER));
+            Assert.Throws<ExecutionException>(() => cc.Suspend(SENDER));
 
-            // Assert.Throws<ExecutionException>(() => cc.Unsuspend(SENDER));
+            Assert.Throws<ExecutionException>(() => cc.Unsuspend(SENDER));
 
-            // Assert.Throws<ExecutionException>(() => cc.Stop(SENDER));
+            Assert.Throws<ExecutionException>(() => cc.Stop(SENDER));
 
-            // Assert.Throws<ExecutionException>(() => cc.Hold(SENDER));
+            Assert.Throws<ExecutionException>(() => cc.Hold(SENDER));
 
-            // Assert.Throws<ExecutionException>(() => cc.Unhold(SENDER));
+            Assert.Throws<ExecutionException>(() => cc.Unhold(SENDER));
         }
 
         [Test]

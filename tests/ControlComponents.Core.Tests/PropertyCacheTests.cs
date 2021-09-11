@@ -22,19 +22,26 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test, AutoData]
-        public void Test_CallMethod(ControlComponent sut)
+        public async Task Test_CallMethod(ControlComponent sut)
         {
             sut.AddOperationMode(new OperationModeAsync(OPMODE));
 
             MethodInfo free = sut.GetType().GetMethod(nameof(sut.Reset));
+            MethodInfo stop = sut.GetType().GetMethod(nameof(sut.Stop));
             MethodInfo select = sut.GetType().GetMethod(nameof(sut.SelectOperationMode));
+            MethodInfo deselect = sut.GetType().GetMethod(nameof(sut.DeselectOperationMode));
 
             var selectFunc = PropertyCache.BuildTypedFunc<string,Task>(select, sut);
-            Task running = selectFunc(OPMODE);
             var freeFunc = PropertyCache.BuildTypedAction<string>(free, sut);
-            freeFunc("SENDER");
+            var stopFunc = PropertyCache.BuildTypedAction<string>(stop, sut);
+            var deselectFunc = PropertyCache.BuildTypedFunc<Task>(deselect, sut);
 
+            Task running = selectFunc(OPMODE);
+            freeFunc("SENDER");
             sut.EXST.Should().Be(ExecutionState.RESETTING);
+            stopFunc("SENDER");
+            await sut.WaitForStopped();
+            await deselectFunc();
         }
 
         [Test, AutoData]

@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace ControlComponents.Core
 {
+    // https://web.archive.org/web/20141020092917/http://flurfunk.sdx-ag.de/2012/05/c-performance-bei-der-befullungmapping.html
     public static class PropertyCache
     {
         public static Func<TReturn> BuildTypedGetter<TReturn>(PropertyInfo propertyInfo, object instance)
@@ -17,16 +18,11 @@ namespace ControlComponents.Core
             var reflGet = Delegate.CreateDelegate(typeof(Func<TReturn>), instance, methodInfo);
             return (Func<TReturn>)reflGet;
         }
+        
         public static Func<TParam, TReturn> BuildTypedFunc<TParam, TReturn>(MethodInfo methodInfo, object instance)
         {
             var reflGet = Delegate.CreateDelegate(typeof(Func<TParam, TReturn>), instance, methodInfo);
             return (Func<TParam, TReturn>)reflGet;
-        }
-
-        public static Func<TParam1, TParam2, TReturn> BuildTypedFunc<TParam1, TParam2, TReturn>(MethodInfo methodInfo, object instance)
-        {
-            var reflGet = Delegate.CreateDelegate(typeof(Func<TParam1, TParam2, TReturn>), instance, methodInfo);
-            return (Func<TParam1, TParam2, TReturn>)reflGet;
         }
 
         public static Action<TParam> BuildTypedAction<TParam>(MethodInfo methodInfo, object instance)
@@ -34,16 +30,5 @@ namespace ControlComponents.Core
             var reflGet = Delegate.CreateDelegate(typeof(Action<TParam>), instance, methodInfo);
             return (Action<TParam>)reflGet;
         }
-        public static Action BuildTypedAction(MethodInfo methodInfo, object instance)
-        {
-            var reflGet = Delegate.CreateDelegate(typeof(Action), instance, methodInfo);
-            return (Action)reflGet;
-        }
-
-        // public static Action<T, TProperty> BuildTypedSetter<T, TProperty>(PropertyInfo propertyInfo)
-        // {
-        //     Action<T, TProperty> reflSet = (Action<T, TProperty>)Delegate.CreateDelegate(typeof(Action<T, TProperty>), propertyInfo.GetSetMethod());
-        //     return reflSet;
-        // }
     }
 }

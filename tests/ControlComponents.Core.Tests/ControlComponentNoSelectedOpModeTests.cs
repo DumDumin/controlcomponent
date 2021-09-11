@@ -124,7 +124,7 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
-        public void Given_Stopped_When_UserActions_Then_Throw()
+        public void Given_NoOperationModeSelected_When_UserActions_Then_Throw()
         {
             InvalidOperationException e = Assert.Throws<InvalidOperationException>(() => cc.Reset(SENDER));
             Assert.AreEqual($"{cc.ComponentName} cannot change to {ExecutionState.RESETTING}, if no operation mode is selected", e.Message);

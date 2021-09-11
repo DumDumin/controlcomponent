@@ -43,7 +43,8 @@ namespace ControlComponents.Core
 
         private void ExecutionStateChanged(object sender, ExecutionStateEventArgs e)
         {
-            base.execution.SetState(e.ExecutionState);
+            if(e.ExecutionState != base.execution.EXST)
+                base.execution.SetState(e.ExecutionState);
         }
 
         protected override async Task Resetting(CancellationToken token)
@@ -120,7 +121,7 @@ namespace ControlComponents.Core
 
         protected override async Task Aborting(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.ABORTING)
+            if(!token.IsCancellationRequested && _externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.ABORTING)
             {
                 _externalCC.Abort(base.execution.ComponentName);
             }
