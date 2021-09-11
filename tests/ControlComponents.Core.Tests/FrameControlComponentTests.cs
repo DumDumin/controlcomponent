@@ -134,6 +134,8 @@ namespace ControlComponents.Core.Tests
             ese.EXST.Should().Be(ExecutionState.RESETTING);
             ese.OCCUPIER.Should().Be(sut.ComponentName);
             sut.CallMethod<string>(ROLE, nameof(sut.Stop), CC);
+            // This is usually done by the output which used the sut (FrameControlComponent)
+            await ese.WaitForStopped();
 
             await sut.CallMethod<Task>(ROLE, nameof(sut.DeselectOperationMode));
             await running;
@@ -203,18 +205,76 @@ namespace ControlComponents.Core.Tests
             externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
 
             await sut.SuspendAndWaitForSuspended(SENDER);
-            // await externalCC.SuspendAndWaitForSuspended(sut.ComponentName);
             sut.EXST.Should().Be(ExecutionState.SUSPENDED);
             externalCC.EXST.Should().Be(ExecutionState.SUSPENDED);
 
             await sut.UnsuspendAndWaitForExecute(SENDER);
-            // await externalCC.UnsuspendAndWaitForExecute(sut.ComponentName);
             sut.EXST.Should().Be(ExecutionState.EXECUTE);
             externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
 
             await sut.WaitForCompleted();
             sut.EXST.Should().Be(ExecutionState.COMPLETED);
             externalCC.EXST.Should().Be(ExecutionState.COMPLETED);
+        }
+
+        [Test]
+        public async Task Given_ExternalCC_When_SuspendCalledByExternalItself_Then_CorrectStateFlow()
+        {
+            running = sut.SelectOperationMode(NormalOpMode);
+            sut.OpModeName.Should().Be(NormalOpMode);
+            externalCC.OpModeName.Should().Be(NormalOpMode);
+
+            await sut.ResetAndWaitForIdle(SENDER);
+            sut.EXST.Should().Be(ExecutionState.IDLE);
+            externalCC.EXST.Should().Be(ExecutionState.IDLE);
+
+            await sut.StartAndWaitForExecute(SENDER);
+            sut.EXST.Should().Be(ExecutionState.EXECUTE);
+            externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
+
+            await externalCC.SuspendAndWaitForSuspended(sut.ComponentName);
+            sut.EXST.Should().Be(ExecutionState.SUSPENDED);
+            externalCC.EXST.Should().Be(ExecutionState.SUSPENDED);
+
+            await externalCC.UnsuspendAndWaitForExecute(sut.ComponentName);
+            sut.EXST.Should().Be(ExecutionState.EXECUTE);
+            externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
+
+            await sut.WaitForCompleted();
+            sut.EXST.Should().Be(ExecutionState.COMPLETED);
+            externalCC.EXST.Should().Be(ExecutionState.COMPLETED);
+        }
+
+        [Test]
+        public async Task Given_ExternalCC_When_Abort_Then_Aborted()
+        {
+            running = sut.SelectOperationMode(NormalOpMode);
+            sut.OpModeName.Should().Be(NormalOpMode);
+            externalCC.OpModeName.Should().Be(NormalOpMode);
+
+            await sut.ResetAndWaitForIdle(SENDER);
+            sut.EXST.Should().Be(ExecutionState.IDLE);
+            externalCC.EXST.Should().Be(ExecutionState.IDLE);
+
+            await sut.AbortAndWaitForAborted(SENDER);
+            sut.EXST.Should().Be(ExecutionState.ABORTED);
+            externalCC.EXST.Should().Be(ExecutionState.ABORTED);
+        }
+
+        [Test]
+        public async Task Given_ExternalCC_When_AbortCalledByExternalItself_Then_Aborted()
+        {
+            running = sut.SelectOperationMode(NormalOpMode);
+            sut.OpModeName.Should().Be(NormalOpMode);
+            externalCC.OpModeName.Should().Be(NormalOpMode);
+
+            await sut.ResetAndWaitForIdle(SENDER);
+            sut.EXST.Should().Be(ExecutionState.IDLE);
+            externalCC.EXST.Should().Be(ExecutionState.IDLE);
+
+            await externalCC.AbortAndWaitForAborted(sut.ComponentName);
+            sut.EXST.Should().Be(ExecutionState.ABORTED);
+            externalCC.EXST.Should().Be(ExecutionState.ABORTED);
         }
 
         [Test]

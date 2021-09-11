@@ -8,8 +8,6 @@ namespace ControlComponents.Core
     public interface IControlComponentProvider
     {
         T GetComponent<T>(string id) where T : IControlComponent;
-        IEnumerable<T> GetComponents<T>();
-        int CountComponents<T>();
     }
 
     // TODO there can be also providers to search the network and create network cc to access the real one (factory)
@@ -27,16 +25,6 @@ namespace ControlComponents.Core
             {
                 throw new InvalidOperationException($"Cannot cast {id} to {typeof(T)}", e);
             }
-        }
-
-        public int CountComponents<T>()
-        {
-            return this.Values.Count(c => c is T);
-        }
-
-        public IEnumerable<T> GetComponents<T>()
-        {
-            return this.Values.Where(c => c is T).Select(c => (T)c);
         }
     }
 }

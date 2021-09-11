@@ -44,18 +44,6 @@ namespace ControlComponents.Core
 
             cc.ExecutionStateChanged -= waiter.EventHandler;
         }
-        public static async Task WaitForIdle(this IControlComponent cc, int delay = 1000)
-        {
-            StateWaiter waiter = new StateWaiter();
-            cc.ExecutionStateChanged += waiter.EventHandler;
-
-            if (cc.EXST != ExecutionState.IDLE)
-            {
-                await waiter.Idle();
-            }
-
-            cc.ExecutionStateChanged -= waiter.EventHandler;
-        }
 
         public static async Task ResetAndWaitForIdle(this IControlComponent cc, string occupier)
         {

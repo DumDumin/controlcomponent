@@ -18,11 +18,6 @@ namespace ControlComponents.Core
 
         }
 
-        protected override void Selected()
-        {
-            // No operation modes are selected on outputs
-        }
-
         protected override async Task Resetting(CancellationToken token)
         {
             await WaitForOutputs((IOrderOutput output) => output.ResetAndWaitForIdle(this.execution.ComponentName));
@@ -36,11 +31,6 @@ namespace ControlComponents.Core
                 output.Free(this.execution.ComponentName);
             }
         }
-
-        // protected override Task Execute(CancellationToken token)
-        // {
-        //     await WaitForOutputsToDo((OrderOutput output) => {});
-        // }
 
         protected override async Task Aborting(CancellationToken token)
         {
