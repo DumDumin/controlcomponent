@@ -190,6 +190,33 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
+        public async Task Given_ExternalCC_When_NormalRunCalledByExternalItself_Then_CorrectStateFlow()
+        {
+            running = sut.SelectOperationMode(NormalOpMode);
+            sut.OpModeName.Should().Be(NormalOpMode);
+            externalCC.OpModeName.Should().Be(NormalOpMode);
+
+            // IMPORTANT: This is an attempt to verify, that externalCC changed state to IDLE before sut does
+            externalCC.Reset(sut.ComponentName);
+            await sut.WaitForIdle();
+            externalCC.EXST.Should().Be(ExecutionState.IDLE);
+
+            // IMPORTANT: This is an attempt to verify, that externalCC changed state to EXECUTE before sut does
+            externalCC.Start(sut.ComponentName);
+            await sut.WaitForExecute();
+            externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
+
+            await sut.WaitForCompleted();
+            sut.EXST.Should().Be(ExecutionState.COMPLETED);
+            externalCC.EXST.Should().Be(ExecutionState.COMPLETED);
+
+            // IMPORTANT: This is an attempt to verify, that externalCC changed state to STOPPED before sut does
+            externalCC.Stop(sut.ComponentName);
+            await sut.WaitForStopped();
+            externalCC.EXST.Should().Be(ExecutionState.STOPPED);
+        }
+
+        [Test]
         public async Task Given_ExternalCC_When_NormalSuspendRun_Then_CorrectStateFlow()
         {
             running = sut.SelectOperationMode(NormalOpMode);
@@ -201,14 +228,6 @@ namespace ControlComponents.Core.Tests
             externalCC.EXST.Should().Be(ExecutionState.IDLE);
 
             await sut.StartAndWaitForExecute(SENDER);
-            sut.EXST.Should().Be(ExecutionState.EXECUTE);
-            externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
-
-            await sut.SuspendAndWaitForSuspended(SENDER);
-            sut.EXST.Should().Be(ExecutionState.SUSPENDED);
-            externalCC.EXST.Should().Be(ExecutionState.SUSPENDED);
-
-            await sut.UnsuspendAndWaitForExecute(SENDER);
             sut.EXST.Should().Be(ExecutionState.EXECUTE);
             externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
 
@@ -232,12 +251,14 @@ namespace ControlComponents.Core.Tests
             sut.EXST.Should().Be(ExecutionState.EXECUTE);
             externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
 
-            await externalCC.SuspendAndWaitForSuspended(sut.ComponentName);
-            sut.EXST.Should().Be(ExecutionState.SUSPENDED);
+            // IMPORTANT: This is an attempt to verify, that externalCC changed state to SUSPENDED before sut does
+            externalCC.Suspend(sut.ComponentName);
+            await sut.WaitForSuspended();
             externalCC.EXST.Should().Be(ExecutionState.SUSPENDED);
 
-            await externalCC.UnsuspendAndWaitForExecute(sut.ComponentName);
-            sut.EXST.Should().Be(ExecutionState.EXECUTE);
+            // IMPORTANT: This is an attempt to verify, that externalCC changed state to EXECUTE before sut does
+            externalCC.Unsuspend(sut.ComponentName);
+            await sut.WaitForExecute();
             externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
 
             await sut.WaitForCompleted();
@@ -272,9 +293,15 @@ namespace ControlComponents.Core.Tests
             sut.EXST.Should().Be(ExecutionState.IDLE);
             externalCC.EXST.Should().Be(ExecutionState.IDLE);
 
-            await externalCC.AbortAndWaitForAborted(sut.ComponentName);
-            sut.EXST.Should().Be(ExecutionState.ABORTED);
+            // IMPORTANT: This is an attempt to verify, that externalCC changed state to ABORTED before sut does
+            externalCC.Abort(sut.ComponentName);
+            await sut.WaitForAborted();
             externalCC.EXST.Should().Be(ExecutionState.ABORTED);
+
+            // IMPORTANT: This is an attempt to verify, that externalCC changed state to STOPPED before sut does
+            externalCC.Clear(sut.ComponentName);
+            await sut.WaitForStopped();
+            externalCC.EXST.Should().Be(ExecutionState.STOPPED);
         }
 
         [Test]

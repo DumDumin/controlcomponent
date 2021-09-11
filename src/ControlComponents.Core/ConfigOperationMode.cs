@@ -48,14 +48,20 @@ namespace ControlComponents.Core
 
         protected override async Task Resetting(CancellationToken token)
         {
-            _externalCC.Reset(base.execution.ComponentName);
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.RESETTING)
+            {
+                _externalCC.Reset(base.execution.ComponentName);
+            }
             await MirrorState(token);
             await base.Resetting(token);
         }
 
         protected override async Task Starting(CancellationToken token)
         {
-            _externalCC.Start(base.execution.ComponentName);
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.STARTING)
+            {
+                _externalCC.Start(base.execution.ComponentName);
+            }
             await MirrorState(token);
             await base.Starting(token);
         }
@@ -94,21 +100,21 @@ namespace ControlComponents.Core
 
         protected override async Task Stopping(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE")
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.STOPPING)
             {
                 _externalCC.Stop(base.execution.ComponentName);
-                await MirrorState(token);
             }
+            await MirrorState(token);
             await base.Stopping(token);
         }
 
         protected override async Task Clearing(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE")
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.CLEARING)
             {
                 _externalCC.Clear(base.execution.ComponentName);
-                await MirrorState(token);
             }
+            await MirrorState(token);
             await base.Clearing(token);
         }
 
@@ -117,8 +123,8 @@ namespace ControlComponents.Core
             if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.ABORTING)
             {
                 _externalCC.Abort(base.execution.ComponentName);
-                await MirrorState(token);
             }
+            await MirrorState(token);
             await base.Aborting(token);
         }
 

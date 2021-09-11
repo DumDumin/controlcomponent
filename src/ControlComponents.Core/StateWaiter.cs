@@ -52,13 +52,13 @@ namespace ControlComponents.Core
             }
         }
 
-        public async Task Idle()
+        public async Task Idle(int delay = 1000)
         {
-            await Task.Delay(1000, idle.Token).ContinueWith(HandleTaskResult);
+            await Task.Delay(delay, idle.Token).ContinueWith(HandleTaskResult);
         }
-        public async Task Execute()
+        public async Task Execute(int delay = 1000)
         {
-            await Task.Delay(1000, execute.Token).ContinueWith(HandleTaskResult);
+            await Task.Delay(delay, execute.Token).ContinueWith(HandleTaskResult);
         }
         public async Task Completed(int delay = 1000)
         {

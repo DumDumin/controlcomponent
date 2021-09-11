@@ -45,6 +45,45 @@ namespace ControlComponents.Core
             cc.ExecutionStateChanged -= waiter.EventHandler;
         }
 
+        public static async Task WaitForSuspended(this IControlComponent cc, int delay = 1000)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            if (cc.EXST != ExecutionState.SUSPENDED)
+            {
+                await waiter.Suspend(delay);
+            }
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task WaitForExecute(this IControlComponent cc, int delay = 1000)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            if (cc.EXST != ExecutionState.EXECUTE)
+            {
+                await waiter.Execute(delay);
+            }
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task WaitForIdle(this IControlComponent cc, int delay = 1000)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            if (cc.EXST != ExecutionState.IDLE)
+            {
+                await waiter.Idle(delay);
+            }
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
         public static async Task ResetAndWaitForIdle(this IControlComponent cc, string occupier)
         {
             if (cc.EXST == ExecutionState.STOPPED || cc.EXST == ExecutionState.COMPLETED || cc.EXST == ExecutionState.RESETTING)
