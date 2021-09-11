@@ -1,9 +1,7 @@
 using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+using System.Linq;
 using AutoFixture.NUnit3;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 
 namespace ControlComponents.Core.Tests
@@ -28,6 +26,17 @@ namespace ControlComponents.Core.Tests
             Action act = () => provider.GetComponent<ControlComponent>(ccc.ComponentName);
 
             act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test, AutoData]
+        public void Given_TypeAvailable_When_GetComponents_Then_ReturnComponents(ControlComponentProvider provider, ControlComponent cc)
+        {
+            provider.Add(cc.ComponentName, cc);
+            
+            var c = provider.GetComponents<ControlComponent>();
+
+            c.Count().Should().Be(1);
+            c.First().ComponentName.Should().Be(cc.ComponentName);
         }
     }
 }
