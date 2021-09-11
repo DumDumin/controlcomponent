@@ -4,23 +4,23 @@ using ControlComponents.Core;
 
 namespace ControlComponents.ML
 {
-    public class MLProviderOrderOutput : OrderOutput// , IMLControlComponent
+    public class MLProviderOrderOutput : OrderOutput , IMLControlComponent
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IMLControlComponent cc;
         private Task _running = Task.CompletedTask;
 
-        // public ExecutionState MLSC { get => cc.MLSC; set => cc.MLSC = value; }
+        public ExecutionState MLSC { get => cc.MLSC; set => cc.MLSC = value; }
 
-        // public string MLMODEL => cc.MLMODEL;
+        public string MLMODEL => cc.MLMODEL;
 
-        // public float[] MLOBSERVE { get => cc.MLOBSERVE; set => cc.MLOBSERVE = value; }
-        // public bool[][] MLENACT { get => cc.MLENACT; set => cc.MLENACT = value; }
-        // public float[][] MLDECIDE { get => cc.MLDECIDE; set => cc.MLDECIDE = value; }
-        // public float MLREWARD { get => cc.MLREWARD; set => cc.MLREWARD = value; }
-        // public string MLSTATS { get => cc.MLSTATS; set => cc.MLSTATS = value; }
+        public float[] MLOBSERVE { get => cc.MLOBSERVE; set => cc.MLOBSERVE = value; }
+        public bool[][] MLENACT { get => cc.MLENACT; set => cc.MLENACT = value; }
+        public float[][] MLDECIDE { get => cc.MLDECIDE; set => cc.MLDECIDE = value; }
+        public float MLREWARD { get => cc.MLREWARD; set => cc.MLREWARD = value; }
+        public string MLSTATS { get => cc.MLSTATS; set => cc.MLSTATS = value; }
 
-        // public MLProperties MLProperties => cc.MLProperties;
+        public MLProperties MLProperties => cc.MLProperties;
 
         public MLProviderOrderOutput(string role, string id, IControlComponentProvider provider, IMLControlComponent cc) : base(role, id, provider, cc)
         {

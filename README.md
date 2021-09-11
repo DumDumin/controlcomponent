@@ -34,7 +34,7 @@ dotnet test --collect:"XPlat Code Coverage"
 install reportgenerator to generate a test report. `dotnet tool install -g dotnet-reportgenerator-globaltool`
 Run the following command (with the correct result id) to create a "coveragereport" folder with an index.html file to present the coverage results:
 ```
-reportgenerator -reports:.\tests\ControlComponent.Core.Tests\TestResults\efa01ed4-c5e1-4bf4-bda1-d18ec296017c\coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html
+reportgenerator -reports:.\tests\ControlComponents.Core.Tests\TestResults\58238ace-ffed-4f17-8afa-d9a60792f957\coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html
 ```
 
 Open the index.html file in your browser to access the results.

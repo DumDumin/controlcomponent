@@ -44,6 +44,33 @@ namespace ControlComponents.Core
 
             cc.ExecutionStateChanged -= waiter.EventHandler;
         }
+
+        public static async Task WaitForSuspended(this IControlComponent cc, int delay = 1000)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            if (cc.EXST != ExecutionState.SUSPENDED)
+            {
+                await waiter.Suspend(delay);
+            }
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
+        public static async Task WaitForExecute(this IControlComponent cc, int delay = 1000)
+        {
+            StateWaiter waiter = new StateWaiter();
+            cc.ExecutionStateChanged += waiter.EventHandler;
+
+            if (cc.EXST != ExecutionState.EXECUTE)
+            {
+                await waiter.Execute(delay);
+            }
+
+            cc.ExecutionStateChanged -= waiter.EventHandler;
+        }
+
         public static async Task WaitForIdle(this IControlComponent cc, int delay = 1000)
         {
             StateWaiter waiter = new StateWaiter();
@@ -51,7 +78,7 @@ namespace ControlComponents.Core
 
             if (cc.EXST != ExecutionState.IDLE)
             {
-                await waiter.Idle();
+                await waiter.Idle(delay);
             }
 
             cc.ExecutionStateChanged -= waiter.EventHandler;
@@ -114,6 +141,24 @@ namespace ControlComponents.Core
             else
             {
                 logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in EXECUTING OR SUSPENDING");
+            }
+        }
+
+        public static async Task UnsuspendAndWaitForExecute(this IControlComponent cc, string occupier)
+        {
+            if (cc.EXST == ExecutionState.SUSPENDED || cc.EXST == ExecutionState.UNSUSPENDING)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
+
+                cc.Unsuspend(occupier);
+                await waiter.Execute();
+
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in SUSPENDED OR UNSUSPENDING");
             }
         }
 

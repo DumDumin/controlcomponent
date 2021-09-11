@@ -67,6 +67,7 @@ namespace ControlComponents.Protocols.Tests
         }
 
         [Test]
+        // TODO sometimes test fails, might be a timing issue
         public async Task When_Created_Then_SubscribedToEXST()
         {
             Mock<IWebSocket> socket = new Mock<IWebSocket>();

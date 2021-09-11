@@ -106,7 +106,7 @@ namespace ControlComponents.Core
                 while (!mainTokenSource.IsCancellationRequested)
                 {
                     executionTokenSource = new CancellationTokenSource();
-                    logger.Debug($"Invoke {execution.EXST} action");
+                    logger.Debug($"{execution.ComponentName} Invoke {execution.EXST} action");
                     await stateActions[execution.EXST].Invoke(executionTokenSource.Token);
                 }
                 execution.ExecutionStateChanged -= OnExecutionStateChanged;

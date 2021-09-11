@@ -204,7 +204,7 @@ namespace ControlComponents.Core
         {
             if (operationMode == null)
             {
-                throw new InvalidOperationException("No operation mode selected");
+                await Task.CompletedTask;
             }
             else
             {
@@ -223,12 +223,12 @@ namespace ControlComponents.Core
             }
         }
 
-        public bool ChangeOutput(string role, string id)
+        public virtual bool ChangeOutput(string role, string id)
         {
             return orderOutputs[role].ChangeComponent(id);
         }
 
-        public void ClearOutput(string role)
+        public virtual void ClearOutput(string role)
         {
             orderOutputs[role].ClearComponent();
         }

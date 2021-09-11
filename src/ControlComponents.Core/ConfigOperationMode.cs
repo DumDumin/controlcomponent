@@ -17,9 +17,8 @@ namespace ControlComponents.Core
 
         protected override void Selected()
         {
-            if (AllNeededOutputsAreSet())
+            if (AllNeededOutputsArePresent())
             {
-                ConfigureOutputsAtExternalCC();
                 // By selecting the ConfigOperationMode, simply the same OperationMode is selected on the external cc
                 externalOperationMode = _externalCC.SelectOperationMode(OpModeName);
                 _externalCC.ExecutionStateChanged += ExecutionStateChanged;
@@ -37,20 +36,9 @@ namespace ControlComponents.Core
             await externalOperationMode;
         }
 
-        private bool AllNeededOutputsAreSet()
+        private bool AllNeededOutputsArePresent()
         {
-            return _externalCC.Roles.All(role => this.outputs.Keys.Contains(role) && this.outputs[role].IsSet);
-        }
-
-        private void ConfigureOutputsAtExternalCC()
-        {
-            foreach (var role in _externalCC.Roles)
-            {
-                // TODO this can be used for READ interfaces to access target component directly
-                // _externalCC.ChangeOutput(role, this.outputs[role].ComponentName);
-
-                _externalCC.ChangeOutput(role, this.execution.ComponentName);
-            }
+            return _externalCC.Roles.All(role => this.outputs.Keys.Contains(role));
         }
 
         private void ExecutionStateChanged(object sender, ExecutionStateEventArgs e)
@@ -60,14 +48,20 @@ namespace ControlComponents.Core
 
         protected override async Task Resetting(CancellationToken token)
         {
-            _externalCC.Reset(base.execution.ComponentName);
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.RESETTING)
+            {
+                _externalCC.Reset(base.execution.ComponentName);
+            }
             await MirrorState(token);
             await base.Resetting(token);
         }
 
         protected override async Task Starting(CancellationToken token)
         {
-            _externalCC.Start(base.execution.ComponentName);
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.STARTING)
+            {
+                _externalCC.Start(base.execution.ComponentName);
+            }
             await MirrorState(token);
             await base.Starting(token);
         }
@@ -84,32 +78,53 @@ namespace ControlComponents.Core
             await base.Completing(token);
         }
 
+        protected override async Task Suspending(CancellationToken token)
+        {
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.SUSPENDING)
+            {
+                _externalCC.Suspend(base.execution.ComponentName);
+            }
+            await MirrorState(token);
+            await base.Suspending(token);
+        }
+
+        protected override async Task Unsuspending(CancellationToken token)
+        {
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.UNSUSPENDING)
+            {
+                _externalCC.Unsuspend(base.execution.ComponentName);
+            }
+            await MirrorState(token);
+            await base.Unsuspending(token);
+        }
+
         protected override async Task Stopping(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE")
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.STOPPING)
             {
                 _externalCC.Stop(base.execution.ComponentName);
-                await MirrorState(token);
             }
+            await MirrorState(token);
             await base.Stopping(token);
         }
 
         protected override async Task Clearing(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE")
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.CLEARING)
             {
                 _externalCC.Clear(base.execution.ComponentName);
-                await MirrorState(token);
             }
+            await MirrorState(token);
             await base.Clearing(token);
         }
 
         protected override async Task Aborting(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE")
+            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.ABORTING)
             {
-                await MirrorState(token);
+                _externalCC.Abort(base.execution.ComponentName);
             }
+            await MirrorState(token);
             await base.Aborting(token);
         }
 

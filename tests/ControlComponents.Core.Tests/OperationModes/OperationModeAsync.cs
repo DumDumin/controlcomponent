@@ -73,5 +73,9 @@ namespace ControlComponents.Core.Tests
         {
             return DoTask(base.Aborting, token);
         }
+        protected override Task Clearing(CancellationToken token)
+        {
+            return DoTask(base.Clearing, token);
+        }
     }
 }
