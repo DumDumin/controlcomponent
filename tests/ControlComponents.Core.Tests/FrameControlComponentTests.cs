@@ -150,17 +150,6 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
-        [Ignore("Cases where an output can not be set exist")]
-        // TODO how can a missing output be simulated?
-        public async Task Given_MissingOutput_When_SelectOperationMode_Then_Abort()
-        {
-            sut.ClearOutput(ROLE);
-            running = sut.SelectOperationMode(NormalOpMode);
-            await sut.WaitForAborted();
-            sut.EXST.Should().Be(ExecutionState.ABORTED);
-        }
-
-        [Test]
         public void When_Created_Then_CorrectHierarchyConfiguration()
         {
             // output can access ese component name

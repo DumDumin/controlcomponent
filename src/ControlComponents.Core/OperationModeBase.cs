@@ -80,7 +80,7 @@ namespace ControlComponents.Core
             runningOutputs.Add(role, outputs[role].SelectOperationMode(operationMode));
         }
 
-        protected virtual void Selected() {}
+        protected virtual void Selected() { }
         protected virtual Task Deselected() { return Task.CompletedTask; }
 
         public async Task Select(IExecution execution, IDictionary<string, IOrderOutput> orderOutputs)
@@ -105,17 +105,20 @@ namespace ControlComponents.Core
 
                 while (!mainTokenSource.IsCancellationRequested)
                 {
-                    executionTokenSource = new CancellationTokenSource();
-                    logger.Debug($"{execution.ComponentName} Invoke {execution.EXST} action");
-                    await stateActions[execution.EXST].Invoke(executionTokenSource.Token);
+                    try
+                    {
+                        executionTokenSource = new CancellationTokenSource();
+                        logger.Debug($"{execution.ComponentName} Invoke {execution.EXST} action");
+                        await stateActions[execution.EXST].Invoke(executionTokenSource.Token);
+                    }
+                    catch (System.Exception e)
+                    {
+                        // TODO how to handle error in Aborting state => right now setState will throw ex, but if it is handled we get a infinite error loop
+                        logger.Error(e, $"{this.execution.ComponentName}: {OpModeName} failed in {execution.EXST}");
+                        this.execution.SetState(ExecutionState.ABORTING);
+                    }
                 }
                 execution.ExecutionStateChanged -= OnExecutionStateChanged;
-            }
-            catch (System.Exception e)
-            {
-                // TODO go to ABORTING?
-                logger.Error(e);
-                throw e;
             }
             finally
             {
@@ -181,7 +184,7 @@ namespace ControlComponents.Core
             await Starting(token);
             if (!token.IsCancellationRequested)
             {
-                
+
                 execution.SetState(ExecutionState.EXECUTE);
             }
         }
@@ -191,7 +194,7 @@ namespace ControlComponents.Core
             await Stopping(token);
             if (!token.IsCancellationRequested)
             {
-                
+
                 execution.SetState(ExecutionState.STOPPED);
             }
         }
@@ -201,7 +204,7 @@ namespace ControlComponents.Core
             await Aborting(token);
             if (!token.IsCancellationRequested)
             {
-                
+
                 execution.SetState(ExecutionState.ABORTED);
             }
         }
@@ -258,7 +261,7 @@ namespace ControlComponents.Core
 
         private async Task Execute_(CancellationToken token)
         {
-            
+
             await Execute(token);
             if (!token.IsCancellationRequested)
             {

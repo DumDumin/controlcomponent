@@ -182,7 +182,7 @@ namespace ControlComponents.Core
             // TODO it is also possible to Deselect here and then Select new opmode?
             if (this.operationMode != null)
             {
-                throw new InvalidOperationException("There is already an operation mode selected");
+                throw new InvalidOperationException($"There is already {OpModeName} selected");
             }
             else
             {
