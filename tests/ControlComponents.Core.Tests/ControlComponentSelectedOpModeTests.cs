@@ -21,7 +21,7 @@ namespace ControlComponents.Core.Tests
         public void Setup()
         {
             Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
-            var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationModeAsync(OpModeOne), new OperationModeAsync(OpModeTwo) };
             var orderOutputs = new Collection<IOrderOutput>() 
             { 
                 new OrderOutput("First", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
@@ -58,6 +58,42 @@ namespace ControlComponents.Core.Tests
             Assert.AreEqual(ExecutionState.IDLE, cc.EXST);
 
             await cc.StartAndWaitForExecute(SENDER);
+
+            await cc.WaitForCompleted();
+            Assert.AreEqual(ExecutionState.COMPLETED, cc.EXST);
+        }
+
+        [Test]
+        public async Task Given_Stopped_When_NormalHoldRun_Then_Completed()
+        {
+            await cc.ResetAndWaitForIdle(SENDER);
+            Assert.AreEqual(ExecutionState.IDLE, cc.EXST);
+
+            await cc.StartAndWaitForExecute(SENDER);
+
+            await cc.HoldAndWaitForHeld(SENDER);
+            Assert.AreEqual(ExecutionState.HELD, cc.EXST);
+
+            await cc.UnholdAndWaitExecute(SENDER);
+            Assert.AreEqual(ExecutionState.EXECUTE, cc.EXST);
+
+            await cc.WaitForCompleted();
+            Assert.AreEqual(ExecutionState.COMPLETED, cc.EXST);
+        }
+
+        [Test]
+        public async Task Given_Stopped_When_NormalSuspendRun_Then_Completed()
+        {
+            await cc.ResetAndWaitForIdle(SENDER);
+            Assert.AreEqual(ExecutionState.IDLE, cc.EXST);
+
+            await cc.StartAndWaitForExecute(SENDER);
+
+            await cc.SuspendAndWaitForSuspended(SENDER);
+            Assert.AreEqual(ExecutionState.SUSPENDED, cc.EXST);
+
+            await cc.UnsuspendAndWaitForExecute(SENDER);
+            Assert.AreEqual(ExecutionState.EXECUTE, cc.EXST);
 
             await cc.WaitForCompleted();
             Assert.AreEqual(ExecutionState.COMPLETED, cc.EXST);

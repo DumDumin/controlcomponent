@@ -68,6 +68,35 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
+        public async Task Given_Aborting_When_StopAndWaitForStopped_Then_Stopped()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            cc.Abort(SENDER);
+
+            // When
+            await cc.StopAndWaitForStopped(SENDER);
+
+            // Then
+            Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
+        }
+
+        [Test]
+        public async Task Given_Clearing_When_StopAndWaitForStopped_Then_Stopped()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.AbortAndWaitForAborted(SENDER);
+            cc.Clear(SENDER);
+
+            // When
+            await cc.StopAndWaitForStopped(SENDER);
+
+            // Then
+            Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
+        }
+
+        [Test]
         public async Task Given_Idle_When_Start_Then_Execute()
         {
             // Given
@@ -82,7 +111,7 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
-        public async Task Given_Idle_When_StopAndNotFree_Then_StoppedAndOccupied()
+        public async Task Given_Idle_When_Stop_Then_Stopped()
         {
             // Given
             runningOpMode = cc.SelectOperationMode("OpModeOne");
@@ -92,34 +121,16 @@ namespace ControlComponents.Core.Tests
             await cc.StopAndWaitForStopped(SENDER);
 
             // Then
-            Assert.AreEqual(SENDER, cc.OCCUPIER);
             Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
         }
 
         [Test]
-        public async Task Given_Idle_When_StopAndFree_Then_StoppedAndFree()
-        {
-            // Given
-            runningOpMode = cc.SelectOperationMode("OpModeOne");
-            await cc.ResetAndWaitForIdle(SENDER);
-            
-            // When
-            await cc.StopAndWaitForStopped(SENDER);
-            cc.Free(SENDER);
-
-            // Then
-            Assert.AreEqual("NONE", cc.OCCUPIER);
-            Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
-        }
-
-        [Test]
-        public async Task Given_StoppedAndNoOpModeSelected_When_StopAndFree_Then_StoppedAndFree()
+        public async Task Given_StoppedAndNoOpModeSelected_When_Stop_Then_Stopped()
         {
             // Given
             
             // When
             await cc.StopAndWaitForStopped(SENDER);
-            cc.Free(SENDER);
 
             // Then
             Assert.AreEqual("NONE", cc.OCCUPIER);
@@ -153,6 +164,22 @@ namespace ControlComponents.Core.Tests
 
             // Then
             Assert.AreEqual(ExecutionState.SUSPENDED, cc.EXST);
+        }
+
+        [Test]
+        public async Task Given_Suspended_When_UnsuspendAndWaitForExecute_Then_Execute()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.ResetAndWaitForIdle(SENDER);
+            await cc.StartAndWaitForExecute(SENDER);
+            await cc.SuspendAndWaitForSuspended(SENDER);
+
+            // When
+            await cc.UnsuspendAndWaitForExecute(SENDER);
+
+            // Then
+            Assert.AreEqual(ExecutionState.EXECUTE, cc.EXST);
         }
 
         [Test]
@@ -214,6 +241,21 @@ namespace ControlComponents.Core.Tests
 
             await cc.AbortAndWaitForAborted(SENDER);
             cc.EXST.Should().Be(ExecutionState.ABORTED);
+        }
+
+        [Test]
+        public async Task Given_OccupiedAndIdle_When_StopPrioByOtherComponent_Then_StoppedAndOccupiedByOtherCompnent()
+        {
+            // Given
+            runningOpMode = cc.SelectOperationMode("OpModeOne");
+            await cc.ResetAndWaitForIdle(SENDER);
+            
+            // When
+            await cc.StopPrioAndWaitForStopped("OTHER");
+
+            // Then
+            Assert.AreEqual(ExecutionState.STOPPED, cc.EXST);
+            Assert.AreEqual("OTHER", cc.OCCUPIER);
         }
     }
 }

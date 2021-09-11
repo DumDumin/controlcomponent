@@ -121,11 +121,14 @@ namespace ControlComponents.Core
 
         protected override async Task Aborting(CancellationToken token)
         {
-            if(!token.IsCancellationRequested && _externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.ABORTING)
+            if(_externalCC.OpModeName != "NONE")
             {
-                _externalCC.Abort(base.execution.ComponentName);
+                if(!token.IsCancellationRequested && _externalCC.EXST != ExecutionState.ABORTING)
+                {
+                    _externalCC.Abort(base.execution.ComponentName);
+                }
+                await MirrorState(token);
             }
-            await MirrorState(token);
             await base.Aborting(token);
         }
 

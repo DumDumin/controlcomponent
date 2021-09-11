@@ -231,6 +231,14 @@ namespace ControlComponents.Core.Tests
             sut.EXST.Should().Be(ExecutionState.EXECUTE);
             externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
 
+            await sut.SuspendAndWaitForSuspended(SENDER);
+            sut.EXST.Should().Be(ExecutionState.SUSPENDED);
+            externalCC.EXST.Should().Be(ExecutionState.SUSPENDED);
+
+            await sut.UnsuspendAndWaitForExecute(SENDER);
+            sut.EXST.Should().Be(ExecutionState.EXECUTE);
+            externalCC.EXST.Should().Be(ExecutionState.EXECUTE);
+
             await sut.WaitForCompleted();
             sut.EXST.Should().Be(ExecutionState.COMPLETED);
             externalCC.EXST.Should().Be(ExecutionState.COMPLETED);

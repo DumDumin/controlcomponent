@@ -113,6 +113,7 @@ namespace ControlComponents.Core
             }
             catch (System.Exception e)
             {
+                // TODO go to ABORTING?
                 logger.Error(e);
                 throw e;
             }
@@ -141,6 +142,7 @@ namespace ControlComponents.Core
             }
             catch (System.Exception e)
             {
+                // TODO go to ABORTING?
                 logger.Error(e, $"Outputs = {string.Join(" ", this.outputs.Keys)}");
                 throw e;
             }

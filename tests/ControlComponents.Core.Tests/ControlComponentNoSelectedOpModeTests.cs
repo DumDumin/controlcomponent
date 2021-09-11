@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
@@ -99,19 +100,31 @@ namespace ControlComponents.Core.Tests
             Assert.AreEqual(new Collection<string>(){OpModeOne, OpModeTwo}, cc.OpModes);
         }
 
-        // [Test]
-        // public void Given_OrderOuputs_When_ListRoles_Then_ReturnRoles()
-        // {
-        //     Assert.AreEqual(new List<string>(){"OrderOuputOne", "OrderOutput2"}, cc.Roles);
-        // }
-
         [Test]
         public async Task Given_Stopped_When_SelectOpMode_Then_NewOpMode()
         {
-            // var newOpMode = new OperationMode("NEWOPMODE");
             Task runningOpMode = cc.SelectOperationMode(OpModeOne);
             Assert.AreEqual(OpModeOne, cc.OpModeName);
 
+            await cc.DeselectOperationMode();
+            await runningOpMode;
+            Assert.AreEqual("NONE", cc.OpModeName);
+        }
+
+        [Test]
+        [Ignore("Cannot be tested, because this state is not reachable")]
+        public async Task Given_Idle_When_SelectOpMode_Then_Throw()
+        {
+            Task runningOpMode = cc.SelectOperationMode(OpModeOne);
+            await cc.ResetAndWaitForIdle(SENDER);
+
+            await Task.WhenAll(
+                cc.SelectOperationMode(OpModeOne),
+                cc.SelectOperationMode(OpModeTwo)
+            );
+            // cc.Invoking(async c => await c.SelectOperationMode(OpModeTwo)).Should().Throw<InvalidOperationException>();
+
+            await cc.StopAndWaitForStopped(SENDER);
             await cc.DeselectOperationMode();
             await runningOpMode;
             Assert.AreEqual("NONE", cc.OpModeName);

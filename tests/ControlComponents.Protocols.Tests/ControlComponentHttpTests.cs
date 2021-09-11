@@ -121,7 +121,7 @@ namespace ControlComponents.Protocols.Tests
                     .Returns(Task.FromResult(new WebSocketReceiveResult(bytes.Length, WebSocketMessageType.Text, true)));
             
             // Wait for a message of the websocket
-            await Task.Delay(1000, t.Token).ContinueWith(t => Task.Delay(1));
+            await Task.Delay(5000, t.Token).ContinueWith(t => Task.Delay(1));
             i.Should().Be(1);
         }
 

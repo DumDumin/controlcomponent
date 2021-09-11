@@ -183,6 +183,27 @@ namespace ControlComponents.Core
             }
         }
 
+        public static async Task UnholdAndWaitExecute(this IControlComponent cc, string occupier)
+        {
+            if (cc.EXST == ExecutionState.HELD || cc.EXST == ExecutionState.UNHOLDING)
+            {
+                StateWaiter waiter = new StateWaiter();
+                cc.ExecutionStateChanged += waiter.EventHandler;
+
+                if (cc.EXST == ExecutionState.HELD)
+                {
+                    cc.Unhold(occupier);
+                }
+                await waiter.Execute();
+
+                cc.ExecutionStateChanged -= waiter.EventHandler;
+            }
+            else
+            {
+                logger.Warn($"{cc.ComponentName} is in state {cc.EXST}, but must be in EXECUTING OR HOLDING");
+            }
+        }
+
         public static async Task AbortAndWaitForAborted(this IControlComponent cc, string occupier)
         {
             if (cc.EXST != ExecutionState.ABORTED)

@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Moq;
 using NLog;
 using System.Linq;
+using FluentAssertions;
 
 namespace ControlComponents.Core.Tests
 {
@@ -73,6 +74,15 @@ namespace ControlComponents.Core.Tests
         }
 
         [Test]
+        public void Given_Null_When_Equals_Then_ReturnFalse()
+        {
+            var first = new OrderOutput("ROLE_ONE", "Output", provider.Object, new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>()));
+
+            Assert.AreNotEqual(first,null);
+            Assert.AreNotEqual(first,provider.Object);
+        }
+
+        [Test]
         public void Given_OpModes_When_ListOpModeNames_Then_ReturnOpModeNames()
         {
             Assert.AreEqual(new Collection<string>(){OpModeOne, OpModeTwo}, orderOutputs[0].OpModes);
@@ -90,6 +100,20 @@ namespace ControlComponents.Core.Tests
         {
             OrderOutput orderOutput = new OrderOutput(ROLE, "Output", provider.Object, cc);
             Assert.AreEqual(ExecutionState.STOPPED, orderOutput.EXST);
+        }
+
+        [Test]
+        public void Given_OrderOutput_When_EXMODE_Then_AUTO()
+        {
+            OrderOutput orderOutput = new OrderOutput(ROLE, "Output", provider.Object, cc);
+            Assert.AreEqual(ExecutionMode.AUTO, orderOutput.EXMODE);
+        }
+
+        [Test]
+        public void Given_OrderOutput_When_WORKST_Then_AUTO()
+        {
+            OrderOutput orderOutput = new OrderOutput(ROLE, "Output", provider.Object, cc);
+            Assert.AreEqual("BSTATE", orderOutput.WORKST);
         }
 
         [Test]
@@ -161,7 +185,7 @@ namespace ControlComponents.Core.Tests
             Assert.AreEqual("NONE", orderOutputs[1].OpModeName);
         }
 
-        // TODO this tests seems to be not reliable
+        // TODO this test seems to be not reliable
         [Test]
         public async Task Given_Idle_When_Start_Then_Completed()
         {
@@ -188,6 +212,33 @@ namespace ControlComponents.Core.Tests
 
             // Clean Up
             cc.Stop(SENDER);
+            await Helper.WaitForState(cc, ExecutionState.STOPPED);
+            await cc.DeselectOperationMode();
+            await runningOpMode;
+        }
+
+        [Test]
+        public async Task Given_Exceute_When_Abort_Then_Aborted()
+        {
+            // Given
+            Task runningOpMode = cc.SelectOperationMode(OpModeOne);
+            await cc.ResetAndWaitForIdle(SENDER);
+            await cc.StartAndWaitForExecute(SENDER);
+
+            // When
+            cc.Abort(SENDER);
+
+            // Then
+            await Helper.WaitForState(orderOutputs[0], ExecutionState.ABORTED);
+            await Helper.WaitForState(orderOutputs[1], ExecutionState.ABORTED);
+            Assert.AreEqual(ExecutionState.ABORTED, orderOutputs[0].EXST);
+            Assert.AreEqual(ExecutionState.ABORTED, orderOutputs[1].EXST);
+
+            await Helper.WaitForState(cc, ExecutionState.ABORTED);
+            Assert.AreEqual(ExecutionState.ABORTED, cc.EXST);
+
+            // Clean Up
+            cc.Clear(SENDER);
             await Helper.WaitForState(cc, ExecutionState.STOPPED);
             await cc.DeselectOperationMode();
             await runningOpMode;
@@ -295,7 +346,32 @@ namespace ControlComponents.Core.Tests
             Assert.AreEqual("CC1", orderOutput.ComponentName);
             cc.ChangeOutput("ROLE_ONE", "CC3");
             Assert.AreEqual("CC3", orderOutput.ComponentName);
+        }
 
+
+        [Test]
+        public async Task When_SubscribeAndUnsubcribe_Then_ReceiveCorrectEvents()
+        {
+            var output = new OrderOutput("ROLE", CC, provider.Object, cc);
+            int i = 0;
+            ExecutionStateEventHandler handler = (object sender, ExecutionStateEventArgs e) => i++;
+            output.Subscribe<ExecutionStateEventHandler>(
+                "ROLE",
+                nameof(output.ExecutionStateChanged),
+                handler);
+
+            Task running = cc.SelectOperationMode(OpModeOne);
+            await cc.ResetAndWaitForIdle(SENDER);
+
+            output.Unsubscribe<ExecutionStateEventHandler>(
+                "ROLE",
+                nameof(output.ExecutionStateChanged),
+                handler);
+
+            await cc.StopAndWaitForStopped(SENDER);
+            await cc.DeselectOperationMode();
+
+            i.Should().Be(2);
         }
     }
 }
