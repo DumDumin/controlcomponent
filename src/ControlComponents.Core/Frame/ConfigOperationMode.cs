@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core
 {
-    public class ConfigOperationMode : OperationModeBase
+    public class ConfigOperationMode : OperationMode
     {
         // This component includes the external deployed operation mode
         private readonly IControlComponent _externalCC;

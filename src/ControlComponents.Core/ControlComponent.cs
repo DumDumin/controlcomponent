@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core
 {
-    public class ControlComponent : IControlComponent, IControlComponentReflection
+    public class ControlComponent : IControlComponent
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 namespace ControlComponents.Core
 {
     // TOBI TODO add abstract methods for all states and call those methods => page 89 Stable Abstractions (Dont override concrete functions) "Clean Architecture"
-    public abstract class OperationModeBase : IOperationMode
+    public abstract class OperationMode : IOperationMode
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -24,11 +24,11 @@ namespace ControlComponents.Core
 
         public ReadOnlyCollection<string> neededRoles;
 
-        public OperationModeBase(string name) : this(name, new Collection<string>())
+        public OperationMode(string name) : this(name, new Collection<string>())
         {
         }
 
-        public OperationModeBase(string name, Collection<string> neededRoles)
+        public OperationMode(string name, Collection<string> neededRoles)
         {
             OpModeName = name;
             WORKST = "NONE";

@@ -41,14 +41,14 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_Stopped_When_WORKST_Then_None()
         {
-            var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
+            var operationMode = new OperationModeRaw(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
             Assert.AreEqual("NONE", operationMode.WORKST);
         }
 
         [Test]
         public void Given_NotNeededRoles_When_Select_Then_OK()
         {
-            var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
+            var operationMode = new OperationModeRaw(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
             Execution execution = new Execution("Execution");
 
             Assert.ThrowsAsync<Exception>(() => operationMode.Select(execution, outputs));
@@ -63,7 +63,7 @@ namespace ControlComponents.Core.Tests
                 {"ROLE_ONE", new OrderOutput("ROLE_ONE", "Output", provider.Object, new ControlComponent("CC1", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
                 {"ROLE_TWO", new OrderOutput("ROLE_TWO", "Output", provider.Object, new ControlComponent("CC2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>())) },
             };
-            var operationMode = new OperationMode(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
+            var operationMode = new OperationModeRaw(OPMODENAME, new Collection<string>(){"ROLE_ONE", "ROLE_TWO"});
             Execution execution = new Execution("Execution");
 
             Assert.DoesNotThrowAsync(async () => {
@@ -77,7 +77,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_Stopped_When_Select_Then_Stopped()
         {
-            var operationMode = new OperationMode(OPMODENAME);
+            var operationMode = new OperationModeRaw(OPMODENAME);
 
             Assert.AreEqual(OPMODENAME, operationMode.OpModeName);
         }
@@ -85,7 +85,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public async Task Given_Stopped_When_Reset_Then_Idle()
         {
-            OperationMode operation = new OperationMode(OPMODENAME);
+            OperationModeRaw operation = new OperationModeRaw(OPMODENAME);
             Execution execution = new Execution("Execution");
 
             Task select = operation.Select(execution, outputs);
@@ -101,7 +101,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public async Task Given_Idle_When_Start_Then_Completed()
         {
-            OperationMode operation = new OperationMode(OPMODENAME);
+            OperationModeRaw operation = new OperationModeRaw(OPMODENAME);
             IExecution execution = new Execution("Execution");
 
             
@@ -120,7 +120,7 @@ namespace ControlComponents.Core.Tests
         [Test, AutoData]
         public async Task Given_NoneOpmodeSelected_When_SelectOpmode_Then_RaiseEvent(ControlComponent cc)
         {
-            OperationMode operation = new OperationMode(OPMODENAME);
+            OperationModeRaw operation = new OperationModeRaw(OPMODENAME);
             cc.AddOperationMode(operation);
 
             string newOperationMode = cc.OpModeName;

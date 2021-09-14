@@ -40,7 +40,7 @@ namespace ControlComponents.Core.Tests
         {
             provider = new Mock<IControlComponentProvider>();
             var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
-            var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationModeRaw(OpModeOne), new OperationModeRaw(OpModeTwo) };
             orderOutputs = new Collection<IOrderOutput>() 
             { 
                 new OrderOutput("ROLE_ONE", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
@@ -126,7 +126,7 @@ namespace ControlComponents.Core.Tests
         public void Given_NotAllNeededRoles_When_Create_Then_Throw()
         {
             var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
-            var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationModeRaw(OpModeOne), new OperationModeRaw(OpModeTwo) };
             orderOutputs = new Collection<IOrderOutput>() 
             { 
                 new OrderOutput("ROLE_ONE", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
@@ -141,7 +141,7 @@ namespace ControlComponents.Core.Tests
         public void Given_NeededRoles_When_Create_Then_DoNotThrow()
         {
             var CascadeOpModes = new Collection<IOperationMode>(){ new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
-            var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationModeRaw(OpModeOne), new OperationModeRaw(OpModeTwo) };
             orderOutputs = new Collection<IOrderOutput>() 
             { 
                 new OrderOutput("ROLE_ONE", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
@@ -260,7 +260,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public async Task Given_Idle_When_Change_CC_Then_NotChanged()
         {
-            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) }, new Collection<IOrderOutput>(), new Collection<string>());
+            ControlComponent c1 = new ControlComponent("C1", new Collection<IOperationMode>(){ new OperationModeRaw(OpModeOne), new OperationModeRaw(OpModeTwo) }, new Collection<IOrderOutput>(), new Collection<string>());
             ControlComponent c2 = new ControlComponent("C2", new Collection<IOperationMode>(), new Collection<IOrderOutput>(), new Collection<string>());
             OrderOutput output = new OrderOutput("Test", "Output", provider.Object, c1);
             Task runningOpMode = output.SelectOperationMode(OpModeOne);

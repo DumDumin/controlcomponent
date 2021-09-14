@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core.Tests
 {
-    internal class FailingOperationModeReset : OperationModeBase
+    internal class FailingOperationModeReset : OperationMode
     {
         public FailingOperationModeReset(string name) : base(name)
         {
@@ -16,7 +16,7 @@ namespace ControlComponents.Core.Tests
         }
     }
 
-    internal class FailingOperationModeStart : OperationModeBase
+    internal class FailingOperationModeStart : OperationMode
     {
         public FailingOperationModeStart(string name) : base(name)
         {
@@ -29,7 +29,7 @@ namespace ControlComponents.Core.Tests
         }
     }
 
-    internal class FailingOperationModeExecute : OperationModeBase
+    internal class FailingOperationModeExecute : OperationMode
     {
         public FailingOperationModeExecute(string name) : base(name)
         {

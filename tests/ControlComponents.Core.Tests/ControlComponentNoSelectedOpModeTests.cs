@@ -22,7 +22,7 @@ namespace ControlComponents.Core.Tests
         public void Setup()
         {
             provider = new Mock<IControlComponentProvider>();
-            var OpModes = new Collection<IOperationMode>(){ new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>(){ new OperationModeRaw(OpModeOne), new OperationModeRaw(OpModeTwo) };
             var orderOutputs = new Collection<IOrderOutput>() 
             { 
                 new OrderOutput("First", CC, provider.Object, new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>())),
@@ -35,7 +35,7 @@ namespace ControlComponents.Core.Tests
         [Test]
         public void Given_Stopped_When_AddNewOpMode_Then_Added()
         {
-            var newOpMode = new OperationMode("NewOpMode");
+            var newOpMode = new OperationModeRaw("NewOpMode");
             cc.AddOperationMode(newOpMode);
 
             Assert.True(cc.OpModes.Contains(newOpMode.OpModeName));
@@ -45,7 +45,7 @@ namespace ControlComponents.Core.Tests
         public void Given_Stopped_When_AddNewOpMode_Then_Added_2()
         {
             cc = new ControlComponent(CC);
-            var newOpMode = new OperationMode("NewOpMode");
+            var newOpMode = new OperationModeRaw("NewOpMode");
             cc.AddOperationMode(newOpMode);
 
             Assert.True(cc.OpModes.Contains(newOpMode.OpModeName));

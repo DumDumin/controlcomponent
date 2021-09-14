@@ -2,13 +2,13 @@ using System.Collections.ObjectModel;
 
 namespace ControlComponents.Core.Tests
 {
-    internal class OperationMode : OperationModeBase
+    internal class OperationModeRaw : OperationMode
     {
-        public OperationMode(string name) : base(name)
+        public OperationModeRaw(string name) : base(name)
         {
 
         }
-        public OperationMode(string name, Collection<string> neededRoles) : base(name, neededRoles)
+        public OperationModeRaw(string name, Collection<string> neededRoles) : base(name, neededRoles)
         {
 
         }

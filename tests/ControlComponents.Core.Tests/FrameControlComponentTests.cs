@@ -48,7 +48,7 @@ namespace ControlComponents.Core.Tests
             ese = new ExtendedControlComponent(ESE);
             provider.Setup(p => p.GetComponent<IControlComponent>(ese.ComponentName)).Returns(ese);
             
-            ese.AddOperationMode(new OperationMode(OPMODE));
+            ese.AddOperationMode(new OperationModeRaw(OPMODE));
 
 
             // EXTERNAL CC

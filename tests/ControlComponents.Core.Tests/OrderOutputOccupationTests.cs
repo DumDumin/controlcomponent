@@ -17,7 +17,7 @@ namespace ControlComponents.Core.Tests
         public void Setup()
         {
             Mock<IControlComponentProvider> provider = new Mock<IControlComponentProvider>();
-            var OpModes = new Collection<IOperationMode>(){ new OperationMode("OpModeOne"), new OperationMode("OpModeTwo") };
+            var OpModes = new Collection<IOperationMode>(){ new OperationModeRaw("OpModeOne"), new OperationModeRaw("OpModeTwo") };
             orderOutput = new OrderOutput("First", "Output", provider.Object, new ControlComponent(CC, OpModes, new Collection<IOrderOutput>(), new Collection<string>()));
         }
 

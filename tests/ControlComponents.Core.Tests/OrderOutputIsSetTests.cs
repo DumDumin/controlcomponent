@@ -36,7 +36,7 @@ namespace ControlComponents.Core.Tests
         {
             ControlComponentProvider provider = new ControlComponentProvider();
             var CascadeOpModes = new Collection<IOperationMode>() { new OperationModeCascade(OpModeOne), new OperationModeCascade(OpModeTwo) };
-            var OpModes = new Collection<IOperationMode>() { new OperationMode(OpModeOne), new OperationMode(OpModeTwo) };
+            var OpModes = new Collection<IOperationMode>() { new OperationModeRaw(OpModeOne), new OperationModeRaw(OpModeTwo) };
 
             var cc1 = new ControlComponent("CC1", OpModes, new Collection<IOrderOutput>(), new Collection<string>());
             var cc2 = new ControlComponent("CC2", OpModes, new Collection<IOrderOutput>(), new Collection<string>());

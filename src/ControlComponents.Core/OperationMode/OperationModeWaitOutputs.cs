@@ -7,7 +7,8 @@ using System.Collections.ObjectModel;
 
 namespace ControlComponents.Core
 {
-    public class OperationModeWaitOutputs : OperationModeBase
+    // TODO move to PTS
+    public class OperationModeWaitOutputs : OperationMode
     {
         public OperationModeWaitOutputs(string name) : base(name)
         {
