@@ -81,7 +81,7 @@ namespace ControlComponents.Core
 
         protected override async Task Suspending(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.SUSPENDING)
+            if(!token.IsCancellationRequested && _externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.SUSPENDING)
             {
                 _externalCC.Suspend(base.execution.ComponentName);
             }
@@ -91,7 +91,7 @@ namespace ControlComponents.Core
 
         protected override async Task Unsuspending(CancellationToken token)
         {
-            if(_externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.UNSUSPENDING)
+            if(!token.IsCancellationRequested && _externalCC.OpModeName != "NONE" && _externalCC.EXST != ExecutionState.UNSUSPENDING)
             {
                 _externalCC.Unsuspend(base.execution.ComponentName);
             }
