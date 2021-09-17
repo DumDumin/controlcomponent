@@ -7,6 +7,7 @@ using ControlComponents.Core;
 
 namespace ControlComponents.ML
 {
+    // TODO check of OperationMode as super class could be sufficient
     public abstract class MLProviderOperationMode : OperationModeWaitOutputs
     {
         private readonly IMLControlComponent cc;
