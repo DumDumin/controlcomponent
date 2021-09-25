@@ -5,6 +5,14 @@
 // using System.Threading.Tasks;
 // using ControlComponents.Core;
 
+// TODO Implement
+// AfterSucessfulExecution
+// AfterUnsucessfulExecution
+// TargetReached
+// WhenTargetNotReached
+// EndEpisode
+
+
 // namespace ControlComponents.ML
 // {
 //     /// <summary>

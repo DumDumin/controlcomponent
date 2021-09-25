@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly:InternalsVisibleTo("ControlComponents.Frame")]
 namespace ControlComponents.Core
 {
-
     internal static class ControlComponentReflection
     {
         public static TReturn ReadProperty<TReturn>(string targetRole, string propertyName, IControlComponent instance)

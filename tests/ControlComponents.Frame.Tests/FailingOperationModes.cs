@@ -1,7 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
+using ControlComponents.Core;
 
-namespace ControlComponents.Core.Tests
+namespace ControlComponents.Frame.Tests
 {
     internal class FailingOperationModeReset : OperationMode
     {

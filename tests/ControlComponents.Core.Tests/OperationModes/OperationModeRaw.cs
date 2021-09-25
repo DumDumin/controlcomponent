@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace ControlComponents.Core.Tests
 {
-    internal class OperationModeRaw : OperationMode
+    public class OperationModeRaw : OperationMode
     {
         public OperationModeRaw(string name) : base(name)
         {

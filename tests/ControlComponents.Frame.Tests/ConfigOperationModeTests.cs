@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
+using ControlComponents.Core;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
-namespace ControlComponents.Core.Tests
+namespace ControlComponents.Frame.Tests
 {
     public class ConfigOperationModeTests
     {
@@ -12,7 +13,7 @@ namespace ControlComponents.Core.Tests
 
         [SetUp]
         public void Setup()
-        {
+        {   
             provider = new Mock<IControlComponentProvider>();
         }
 

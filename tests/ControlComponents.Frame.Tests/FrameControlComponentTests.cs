@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
+using ControlComponents.Core;
+using ControlComponents.Core.Tests;
 using FluentAssertions;
 using Moq;
 using NLog;
 using NUnit.Framework;
 
-namespace ControlComponents.Core.Tests
+namespace ControlComponents.Frame.Tests
 {
     public class FrameControlComponentTests
     {

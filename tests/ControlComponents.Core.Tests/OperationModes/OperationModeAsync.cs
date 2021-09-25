@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core.Tests
 {
-    internal class OperationModeAsync : OperationModeRaw
+    public class OperationModeAsync : OperationModeRaw
     {
         public OperationModeAsync(string name) : base(name) { }
 
