@@ -28,33 +28,12 @@ namespace ControlComponents.Core
                 nameof(Free),
                 nameof(Prio)
             };
-
-            // TODO ChangeOrderOuput at cc for each output that is set already
         }
 
-        // private void DeconfigureOutputsAtExternalCC()
-        // {
-        //     foreach (var role in _externalCC.Roles)
-        //     {
-        //         _externalCC.ClearOutput(role);
-        //     }
-        // }
 
-        // private void ConfigureOutputsAtExternalCC()
-        // {
-        //     foreach (var role in _externalCC.Roles)
-        //     {
-        //         // TODO this can be used for READ interfaces to access target component directly
-        //         // _externalCC.ChangeOutput(role, this.outputs[role].ComponentName);
-        //         if (outputs[role].IsSet)
-        //             _externalCC.ChangeOutput(role, this.execution.ComponentName);
-        //     }
-        // }
-
-        // TODO factory method is bad if class should be inherited from
+        // factory method is bad if class should be inherited from
         public static FrameControlComponent<T> Create(string name, T cc, IControlComponentProvider provider)
         {
-            // TODO ?? create ExternalOpmodeOutput to inject it into opmode
             var output = new OrderOutput("ExternalOperationMode", name, provider, cc);
             Collection<IOperationMode> opmodes = CreateConfigOperationModes(cc, output);
             Collection<IOrderOutput> outputs = CreateOrderOutputs(name, cc, provider);

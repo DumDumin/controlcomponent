@@ -43,12 +43,6 @@ namespace ControlComponents.Core.Tests
             ExecutionState exst = sut.ReadProperty<ExecutionState>(ROLE, nameof(IControlComponent.EXST));
 
             await sut.WaitForStopped();
-            // TODO StopAndWait is not usable in this context => create new tests with 3 components to emulate correct behaviour
-            // while (exst != ExecutionState.STOPPED)
-            // {
-            //     await Task.Delay(1);
-            //     exst = sut.ReadProperty<ExecutionState>(ROLE, nameof(IControlComponent.EXST));
-            // }
 
             await sut.CallMethod<Task>(ROLE, nameof(IControlComponent.DeselectOperationMode));
             await running;
@@ -58,7 +52,6 @@ namespace ControlComponents.Core.Tests
         public void Given_CC_When_SubscribeEvent_Then_Subscribed(ControlComponent sut)
         {
             int i = 0;
-            // sut.Subscribe<ExecutionStateEventHandler>("", nameof(sut.ExecutionStateChanged), (object sender, ExecutionStateEventArgs e) => i++);
             sut.Subscribe<OccupationEventHandler>("", nameof(sut.OccupierChanged), (object sender, OccupationEventArgs e) => i++);
             sut.Occupy("SENDER");
             i.Should().Be(1);

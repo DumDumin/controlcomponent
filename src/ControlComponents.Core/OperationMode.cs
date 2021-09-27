@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 
 namespace ControlComponents.Core
 {
-    // TOBI TODO add abstract methods for all states and call those methods => page 89 Stable Abstractions (Dont override concrete functions) "Clean Architecture"
     public abstract class OperationMode : IOperationMode
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -113,7 +112,6 @@ namespace ControlComponents.Core
                     }
                     catch (System.Exception e)
                     {
-                        // TODO how to handle error in Aborting state => right now setState will throw ex, but if it is handled we get a infinite error loop
                         logger.Error(e, $"{this.execution.ComponentName}: {OpModeName} failed in {execution.EXST}");
                         this.execution.SetState(ExecutionState.ABORTING);
                     }
@@ -136,7 +134,6 @@ namespace ControlComponents.Core
         {
             try
             {
-                // TODO The ML application requires to allow outputs to have no value - can it be done without null values??
                 var selectedOutputs = outputs.Values.Where(o => o.IsSet && o.OpModeName != "NONE" && o.IsUsableBy(execution.ComponentName));
                 if (selectedOutputs.Count() > 0)
                 {

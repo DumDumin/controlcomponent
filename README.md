@@ -13,7 +13,12 @@ This library supports netstandard2.0 to be used in Unity3D.
 Compile the project by running `dotnet build`
 Use the resulting .dll files in your project to access control component feature of this library.  
 
-By extending the OperationMode class and overriding the state specific methods, you can inject your own logic and encapsulate it in a BaSys ControlComponent. Create or extend the ControlComponent class and pass OperationModes and OrderOutputs to it.
+By extending the OperationMode class and overriding the state specific methods, you can inject your own logic and encapsulate it in a BaSys ControlComponent. Create or extend the ControlComponent class and pass OperationModes and OrderOutputs to it.  
+
+To use an OrderOutput you have three options:
+1. Pass a ControlComponent to the using ControlComponent on creation. In the constructor you can then create an Orderoutput with that ControlComponent.
+2. Pass the is of a ControlComponent to the using ControlComponent. In the constructor you can then create an Orderoutput and configure it via a IControlComponentProvider.
+3. Pass an already configured or not configured OrderOutput to the ControlComponent on creation. This is the best method if FrameControlComponents should be used.
 
 You can find an example [here](https://git.rwth-aachen.de/tobias.rink/pts) in the PTS.ControlComponents project.
 

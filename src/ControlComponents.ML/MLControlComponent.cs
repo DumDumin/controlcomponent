@@ -24,8 +24,8 @@ namespace ControlComponents.ML
 
         public ExecutionState MLSC { get; set; }
 
-        // TODO maybe allow only get and set must be done via indices
-        // This would make the size of array fix
+        // maybe allow only get and set must be done via indices,
+        // but this would make the size of array fix
         public string MLMODEL { get; }
         public float[] MLOBSERVE { get; set; }
         public bool[][] MLENACT { get; set; }

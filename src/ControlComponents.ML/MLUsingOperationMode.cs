@@ -46,7 +46,6 @@ namespace ControlComponents.ML
         {
             while (!token.IsCancellationRequested)
             {
-                // TODO for safety, check if outputs are Stopped / Completed
                 if (_currentExecution.IsCompleted)
                 {
                     // await completed task to catch exceptions

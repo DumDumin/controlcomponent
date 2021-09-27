@@ -10,7 +10,7 @@ namespace ControlComponents.Core
     {
         public static TReturn ReadProperty<TReturn>(string targetRole, string propertyName, IControlComponent instance)
         {
-            // TODO extend this to use all known IControlComponent properties to make the code faster
+            // extend this to use all known IControlComponent properties to make the code faster
             if (propertyName == nameof(IControlComponent.EXST))
             {
                 return (TReturn)(object)instance.EXST;
@@ -26,7 +26,7 @@ namespace ControlComponents.Core
 
         public static TReturn CallMethod<TReturn>(string targetRole, string methodName, IControlComponent instance)
         {
-            // TODO extend this to use all known IControlComponent methods to make the code faster
+            // extend this to use all known IControlComponent methods to make the code faster
             if (methodName == nameof(IControlComponent.IsFree))
             {
                 return (TReturn)(object)instance.IsFree();

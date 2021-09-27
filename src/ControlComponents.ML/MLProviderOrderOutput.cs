@@ -41,9 +41,6 @@ namespace ControlComponents.ML
             }
         }
 
-        // TODO use MLENACT like aktion mask
-
-
         // TODO seperate Inference from Training
         public async Task<float[][]> Decide(float[] observations, float[][] actionMask, float reward)
         {
