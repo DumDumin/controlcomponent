@@ -125,31 +125,7 @@ namespace ControlComponents.Core.Tests
 
         ////////////////////
 
-        [Test]
-        public void When_ReadProperty_Then_Throw()
-        {
-            output.Invoking(o => o.ReadProperty<int>(CC, CC))
-                .Should().Throw<OrderOutputException>();
-        }
 
-        [Test]
-        public void When_CallMethod_Then_Throw()
-        {
-            output.Invoking(o => o.CallMethod(CC, CC))
-                .Should().Throw<OrderOutputException>();
-
-            output.Invoking(o => o.CallMethod<int>(CC, CC, 1))
-                .Should().Throw<OrderOutputException>();
-
-            output.Invoking(o => o.CallMethod<int>(CC, CC))
-                .Should().Throw<OrderOutputException>();
-
-            output.Invoking(o => o.CallMethod<int, int>(CC, CC, 1))
-                .Should().Throw<OrderOutputException>();
-
-            output.Invoking(o => o.CallMethod<int, int, int>(CC, CC, 1, 1))
-                .Should().Throw<OrderOutputException>();
-        }
 
         [Test]
         public void When_ChangeOutput_Then_Throw()

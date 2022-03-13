@@ -232,45 +232,5 @@ namespace ControlComponents.Core
         {
             orderOutputs[role].ClearComponent();
         }
-
-        // TODO In the core ControlComponent targetRole is ignored. This is counterintuitive
-        public virtual TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
-        {
-            return ControlComponentReflection.ReadProperty<TReturn>(targetRole, propertyName, this);
-        }
-
-        public virtual void CallMethod(string targetRole, string methodName)
-        {
-            ControlComponentReflection.CallMethod(targetRole, methodName, this);
-        }
-
-        public virtual void CallMethod<TParam>(string targetRole, string methodName, TParam param)
-        {
-            ControlComponentReflection.CallMethod<TParam>(targetRole, methodName, param, this);
-        }
-
-        public virtual TReturn CallMethod<TReturn>(string targetRole, string methodName)
-        {
-            return ControlComponentReflection.CallMethod<TReturn>(targetRole, methodName, this);
-        }
-
-        public virtual TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param)
-        {
-            return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
-        }
-        public virtual TReturn CallMethod<TParam1, TParam2, TReturn>(string targetRole, string methodName, TParam1 param1, TParam2 param2)
-        {
-            return ControlComponentReflection.CallMethod<TParam1, TParam2, TReturn>(targetRole, methodName, param1, param2, this);
-        }
-
-        public virtual void Subscribe<T>(string targetRole, string eventName, T eventHandler)
-        {
-            ControlComponentReflection.Subscribe<T>(targetRole, eventName, eventHandler, this);
-        }
-
-        public virtual void Unsubscribe<T>(string targetRole, string eventName, T eventHandler)
-        {
-            ControlComponentReflection.Unsubscribe<T>(targetRole, eventName, eventHandler, this);
-        }
     }
 }

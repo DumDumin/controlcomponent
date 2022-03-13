@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ControlComponents.Core.Tests
 {
-    internal class OperationModeCascade : OperationModeWaitOutputs
+    public class OperationModeCascade : OperationModeWaitOutputs
     {
         private Dictionary<string, string> roleToOpMode;
 

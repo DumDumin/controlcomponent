@@ -84,13 +84,5 @@ namespace ControlComponents.Core.Tests
             output.ClearOutput("ROLE_ONE");
             outputOne.IsSet.Should().BeFalse();
         }
-
-        [Test]
-        public void When_ChangeOutputViaCallMethod_Then_OutputOfControlComponentChanged()
-        {
-            bool success = output.CallMethod<string,string,bool>("", nameof(output.ChangeOutput), "ROLE_ONE", "CC2");
-            success.Should().BeTrue();
-            outputOne.ComponentName.Should().Be("CC2");
-        }
     }
 }

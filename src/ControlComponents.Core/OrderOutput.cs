@@ -29,7 +29,7 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<ExecutionState>(Role, nameof(EXST));
+                    return controlComponent.EXST;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
@@ -39,7 +39,7 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<ExecutionMode>(Role, nameof(EXMODE));
+                    return controlComponent.EXMODE;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
@@ -50,7 +50,7 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<string>(Role, nameof(OpModeName));
+                    return controlComponent.OpModeName;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
@@ -61,7 +61,7 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<ICollection<string>>(Role, nameof(OpModes));
+                    return controlComponent.OpModes;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
@@ -71,7 +71,7 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<ICollection<string>>(Role, nameof(Roles));
+                    return controlComponent.Roles;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
@@ -87,7 +87,7 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<string>(Role, nameof(OCCUPIER));
+                    return controlComponent.OCCUPIER;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
@@ -98,7 +98,7 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<string>(Role, nameof(ComponentName));
+                    return controlComponent.ComponentName;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
@@ -109,18 +109,18 @@ namespace ControlComponents.Core
             get
             {
                 if (IsSet)
-                    return controlComponent.ReadProperty<string>(Role, nameof(WORKST));
+                    return controlComponent.WORKST;
                 else
                     throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
             }
         }
 
-        public void Occupy(string sender) => RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Occupy), sender));
-        public void Prio(string sender) => RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Prio), sender));
-        public void Free(string sender) => RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Free), sender));
-        public bool IsOccupied() => controlComponent.CallMethod<bool>(Role, nameof(IsOccupied));
-        public bool IsFree() => controlComponent.CallMethod<bool>(Role, nameof(IsFree));
-        public bool IsUsableBy(string id) => IsSet && controlComponent.CallMethod<string, bool>(Role, nameof(IsUsableBy), id);
+        public void Occupy(string sender) => RunIfSet(() => controlComponent.Occupy(sender));
+        public void Prio(string sender) => RunIfSet(() => controlComponent.Prio(sender));
+        public void Free(string sender) => RunIfSet(() => controlComponent.Free(sender));
+        public bool IsOccupied() => controlComponent.IsOccupied();
+        public bool IsFree() => controlComponent.IsFree();
+        public bool IsUsableBy(string id) => IsSet && controlComponent.IsUsableBy(id);
 
         private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
         private void OnExecutionModeChanged(object sender, ExecutionModeEventArgs e) => ExecutionModeChanged?.Invoke(this.Role, e);
@@ -145,7 +145,7 @@ namespace ControlComponents.Core
         public Task SelectOperationMode(string operationMode)
         {
             if (IsSet)
-                return controlComponent.CallMethod<string, Task>(Role, nameof(SelectOperationMode), operationMode);
+                return controlComponent.SelectOperationMode(operationMode);
             else
                 throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
         }
@@ -153,12 +153,12 @@ namespace ControlComponents.Core
         public Task DeselectOperationMode()
         {
             if (IsSet)
-                return controlComponent.CallMethod<Task>(Role, nameof(DeselectOperationMode));
+                return controlComponent.DeselectOperationMode();
             else
                 return Task.CompletedTask;
         }
 
-        private void RunIfSet(Action action)
+        protected void RunIfSet(Action action)
         {
             if (IsSet)
                 action.Invoke();
@@ -168,43 +168,43 @@ namespace ControlComponents.Core
 
         public void Reset(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Reset), sender));
+            RunIfSet(() => controlComponent.Reset(sender));
         }
 
         public void Start(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Start), sender));
+            RunIfSet(() => controlComponent.Start(sender));
         }
         public void Stop(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Stop), sender));
+            RunIfSet(() => controlComponent.Stop(sender));
         }
 
         public void Suspend(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Suspend), sender));
+            RunIfSet(() => controlComponent.Suspend(sender));
         }
 
         public void Unsuspend(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Unsuspend), sender));
+            RunIfSet(() => controlComponent.Unsuspend(sender));
         }
 
         public void Hold(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Hold), sender));
+            RunIfSet(() => controlComponent.Hold(sender));
         }
         public void Unhold(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Unhold), sender));
+            RunIfSet(() => controlComponent.Unhold(sender));
         }
         public void Abort(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Abort), sender));
+            RunIfSet(() => controlComponent.Abort(sender));
         }
         public void Clear(string sender)
         {
-            RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Clear), sender));
+            RunIfSet(() => controlComponent.Clear(sender));
         }
 
         public override bool Equals(Object obj)
@@ -223,17 +223,17 @@ namespace ControlComponents.Core
 
         private void SubscribeToEvents()
         {
-            controlComponent.Subscribe<ExecutionStateEventHandler>(Role, nameof(ExecutionStateChanged), OnExecutionStateChanged);
-            controlComponent.Subscribe<ExecutionModeEventHandler>(Role, nameof(ExecutionModeChanged), OnExecutionModeChanged);
-            controlComponent.Subscribe<OccupationEventHandler>(Role, nameof(OccupierChanged), OnOccupierChanged);
-            controlComponent.Subscribe<OperationModeEventHandler>(Role, nameof(OperationModeChanged), OnOperationModeChanged);
+            controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+            controlComponent.ExecutionModeChanged += OnExecutionModeChanged;
+            controlComponent.OccupierChanged += OnOccupierChanged;
+            controlComponent.OperationModeChanged += OnOperationModeChanged;
         }
         private void UnsubscribeFromEvents()
         {
-            controlComponent.Unsubscribe<ExecutionStateEventHandler>(Role, nameof(ExecutionStateChanged), OnExecutionStateChanged);
-            controlComponent.Unsubscribe<ExecutionModeEventHandler>(Role, nameof(ExecutionModeChanged), OnExecutionModeChanged);
-            controlComponent.Unsubscribe<OccupationEventHandler>(Role, nameof(OccupierChanged), OnOccupierChanged);
-            controlComponent.Unsubscribe<OperationModeEventHandler>(Role, nameof(OperationModeChanged), OnOperationModeChanged);
+            controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
+            controlComponent.ExecutionModeChanged += OnExecutionModeChanged;
+            controlComponent.OccupierChanged += OnOccupierChanged;
+            controlComponent.OperationModeChanged += OnOperationModeChanged;
         }
 
         public bool ChangeComponent(string id)
@@ -278,7 +278,7 @@ namespace ControlComponents.Core
         public bool ChangeOutput(string role, string id)
         {
             if(IsSet)
-                return controlComponent.CallMethod<string, string, bool>(Role, nameof(ChangeOutput), role, id);
+                return controlComponent.ChangeOutput(role, id);
             else
                 throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
         }
@@ -286,73 +286,15 @@ namespace ControlComponents.Core
         public void ClearOutput(string role)
         {
             if(IsSet)
-                controlComponent.CallMethod<string>(Role, nameof(ClearOutput), role);
+                controlComponent.ClearOutput(role);
             else
                 throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
         }
 
-        public void Auto(string sender) => RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(Auto), sender));
+        public void Auto(string sender) => RunIfSet(() => controlComponent.Auto(sender));
 
-        public void SemiAuto(string sender) => RunIfSet(() => controlComponent.CallMethod<string>(Role, nameof(SemiAuto), sender));
+        public void SemiAuto(string sender) => RunIfSet(() => controlComponent.SemiAuto(sender));
 
-        public TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
-        {
-            if(IsSet)
-                return controlComponent.ReadProperty<TReturn>(targetRole, propertyName);
-            else
-                throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
-        }
-
-        public void CallMethod(string targetRole, string methodName)
-        {
-            if(IsSet)
-                controlComponent.CallMethod(targetRole, methodName);
-            else
-                throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
-        }
-
-        public void CallMethod<TParam>(string targetRole, string methodName, TParam param)
-        {
-            if(IsSet)
-                controlComponent.CallMethod<TParam>(targetRole, methodName, param);
-            else
-                throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
-        }
-
-        public TReturn CallMethod<TReturn>(string targetRole, string methodName)
-        {
-            if(IsSet)
-                return controlComponent.CallMethod<TReturn>(targetRole, methodName);
-            else
-                throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
-        }
-
-        public TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param)
-        {
-            if(IsSet)
-                return controlComponent.CallMethod<TParam, TReturn>(targetRole, methodName, param);
-            else
-                throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
-        }
-
-        public TReturn CallMethod<TParam1, TParam2, TReturn>(string targetRole, string methodName, TParam1 param1, TParam2 param2)
-        {
-            if(IsSet)
-                return controlComponent.CallMethod<TParam1, TParam2, TReturn>(targetRole, methodName, param1, param2);
-            else
-                throw new OrderOutputException($"Output {Role} in {OwnerId} is not set.");
-        }
-
-        public void Subscribe<T1>(string targetRole, string eventName, T1 eventHandler)
-        {
-            // IMPORTANT: subscribe to OrderOutput events and not controlcomponent, because controlcomponent might be changed
-            ControlComponentReflection.Subscribe<T1>(targetRole, eventName, eventHandler, this);
-        }
-
-        public void Unsubscribe<T1>(string targetRole, string eventName, T1 eventHandler)
-        {
-            ControlComponentReflection.Unsubscribe<T1>(targetRole, eventName, eventHandler, this);
-        }
 
         public override int GetHashCode()
         {

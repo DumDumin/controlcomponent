@@ -349,29 +349,5 @@ namespace ControlComponents.Core.Tests
         }
 
 
-        [Test]
-        public async Task When_SubscribeAndUnsubcribe_Then_ReceiveCorrectEvents()
-        {
-            var output = new OrderOutput("ROLE", CC, provider.Object, cc);
-            int i = 0;
-            ExecutionStateEventHandler handler = (object sender, ExecutionStateEventArgs e) => i++;
-            output.Subscribe<ExecutionStateEventHandler>(
-                "ROLE",
-                nameof(output.ExecutionStateChanged),
-                handler);
-
-            Task running = cc.SelectOperationMode(OpModeOne);
-            await cc.ResetAndWaitForIdle(SENDER);
-
-            output.Unsubscribe<ExecutionStateEventHandler>(
-                "ROLE",
-                nameof(output.ExecutionStateChanged),
-                handler);
-
-            await cc.StopAndWaitForStopped(SENDER);
-            await cc.DeselectOperationMode();
-
-            i.Should().Be(2);
-        }
     }
 }
