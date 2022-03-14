@@ -22,12 +22,13 @@ namespace ControlComponents.Frame.Tests
         string FailingOpModeStart = "FAILING-Start";
         string FailingOpModeExecute = "FAILING-Execute";
 
-        ExtendedControlComponent ese;
-        ControlComponent externalCC;
-        ExtendedOrderOutput externalCCOutput;
-        FrameControlComponent<IControlComponent> sut;
+        ControlComponent ese;
+        ExtendedControlComponent externalCC;
+        OrderOutput externalCCOutput;
+        FrameControlComponent<IExtendedControlComponent> sut;
         Task running;
         Mock<IControlComponentProvider> provider;
+        private FrameWrapperOutput wrapperOutput;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -47,11 +48,9 @@ namespace ControlComponents.Frame.Tests
             provider = new Mock<IControlComponentProvider>();
 
             // ESE
-            ese = new ExtendedControlComponent(ESE);
+            ese = new ControlComponent(ESE);
             provider.Setup(p => p.GetComponent<IControlComponent>(ese.ComponentName)).Returns(ese);
-            
             ese.AddOperationMode(new OperationModeRaw(OPMODE));
-
 
             // EXTERNAL CC
             externalCC = new ExtendedControlComponent(CC);
@@ -64,15 +63,14 @@ namespace ControlComponents.Frame.Tests
             externalCC.AddOperationMode(new OperationModeAsync(NormalOpMode));
 
             // external controlcomponent has one output
-            externalCCOutput = new ExtendedOrderOutput(ROLE, externalCC.ComponentName, provider.Object);
+            externalCCOutput = new OrderOutput(ROLE, externalCC.ComponentName, provider.Object, ese);
             externalCC.AddOrderOutput(externalCCOutput);
 
-
             // FRAME CC
-            sut = FrameControlComponent<IControlComponent>.Create(FRAMECC, externalCC, provider.Object);
+            sut = FrameControlComponent<IExtendedControlComponent>.Create(FRAMECC, externalCC, provider.Object);
             provider.Setup(p => p.GetComponent<IControlComponent>(sut.ComponentName)).Returns(sut);
 
-            sut.ChangeOutput(ROLE, ese.ComponentName);
+            wrapperOutput = new FrameWrapperOutput(ROLE, "GSE", provider.Object, sut);
         }
 
         [TearDown]
@@ -98,48 +96,32 @@ namespace ControlComponents.Frame.Tests
         }
 
         [Test]
-        public void TestReflectionMethods()
-        {
-            sut.ReadProperty<string>(ROLE, nameof(IExtendedControlComponent.TestString)).Should().Be("TestString");
-
-            sut.CallMethod(ROLE, nameof(IExtendedControlComponent.TestMethod));
-            ese.TestString.Should().Be("ChangedTestString");
-
-            sut.CallMethod<string>(ROLE, nameof(IExtendedControlComponent.ChangedTestString), "NewTestString");
-            ese.TestString.Should().Be("NewTestString");
-
-            sut.CallMethod<string,string>(ROLE, nameof(IExtendedControlComponent.ChangedAndReturnTestString), "NextTestString").Should().Be("NextTestString");
-
-            sut.CallMethod<string>(ROLE, nameof(IExtendedControlComponent.GetTestString)).Should().Be("NextTestString");
-        }
-
-        [Test]
         public void When_IsUsableBy_WithReflection_Then_ReturnTrue()
         {
-            ese.Occupy(sut.ComponentName);
-            sut.CallMethod<string, bool>(ROLE, nameof(sut.IsUsableBy), CC).Should().BeTrue();
+            externalCC.Occupy(sut.ComponentName);
+            wrapperOutput.IsUsableBy(CC).Should().BeTrue();
         }
 
         [Test]
         public void When_Occupy_WithReflection_Then_OccupiedBySUT()
         {
-            sut.CallMethod<string>(ROLE, nameof(sut.Occupy), CC);
-            ese.OCCUPIER.Should().Be(FRAMECC);
+            wrapperOutput.Occupy(CC);
+            externalCC.OCCUPIER.Should().Be(FRAMECC);
         }
 
         [Test]
         public async Task When_Reset_WithReflection_Then_EseIsResetting()
         {
-            Task running = sut.CallMethod<string,Task>(ROLE, nameof(sut.SelectOperationMode), OPMODE);
+            Task running = wrapperOutput.SelectOperationMode(NormalOpMode);
 
-            sut.CallMethod<string>(ROLE, nameof(sut.Reset), CC);
-            ese.EXST.Should().Be(ExecutionState.RESETTING);
-            ese.OCCUPIER.Should().Be(sut.ComponentName);
-            sut.CallMethod<string>(ROLE, nameof(sut.Stop), CC);
+            wrapperOutput.Reset(CC);
+            externalCC.EXST.Should().Be(ExecutionState.RESETTING);
+            externalCC.OCCUPIER.Should().Be(sut.ComponentName);
+            wrapperOutput.Stop(CC);
             // This is usually done by the output which used the sut (FrameControlComponent)
-            await ese.WaitForStopped();
+            await externalCC.WaitForStopped();
 
-            await sut.CallMethod<Task>(ROLE, nameof(sut.DeselectOperationMode));
+            await wrapperOutput.DeselectOperationMode();
             await running;
         }
 
@@ -149,15 +131,6 @@ namespace ControlComponents.Frame.Tests
             externalCCOutput.IsSet.Should().BeTrue();
             sut.ClearOutput(ROLE);
             externalCCOutput.IsSet.Should().BeFalse();
-        }
-
-        [Test]
-        public void When_Created_Then_CorrectHierarchyConfiguration()
-        {
-            // output can access ese component name
-            externalCCOutput.ComponentName.Should().Be(ese.ComponentName);
-            // output is configured with sut component and not with the ese component
-            externalCCOutput.GetControlComponent.ComponentName.Should().Be(sut.ComponentName);
         }
 
         [Test]
@@ -354,47 +327,60 @@ namespace ControlComponents.Frame.Tests
         public async Task Given_CCWithOutput_When_GetProperty_Then_ReturnOutputProperty()
         {
             // put the ese in a different state than STOPPED to see a difference between sut
-            Task running = ese.SelectOperationMode(OPMODE);
-            await ese.ResetAndWaitForIdle(SENDER);
-            ese.EXST.Should().Be(ExecutionState.IDLE);
+            Task running = externalCC.SelectOperationMode(NormalOpMode);
+            await externalCC.ResetAndWaitForIdle(SENDER);
+            externalCC.EXST.Should().Be(ExecutionState.IDLE);
 
             // request property of ese through sut
-            ExecutionState result = sut.ReadProperty<ExecutionState>(externalCCOutput.Role, nameof(IControlComponent.EXST));
-            result.Should().Be(ese.EXST);
+            ExecutionState result = wrapperOutput.EXST;
+            // ExecutionState result = sut.ReadProperty<ExecutionState>(externalCCOutput.Role, nameof(IControlComponent.EXST));
+            result.Should().Be(externalCC.EXST);
 
-            await ese.StopAndWaitForStopped(SENDER);
-            await ese.DeselectOperationMode();
+            await externalCC.StopAndWaitForStopped(SENDER);
+            await externalCC.DeselectOperationMode();
             await running;
         }
 
         [Test]
         public void Given_CCWithOutput_When_SubscribeEvent_Then_SubscribedToOutput()
         {
-            running = sut.SelectOperationMode(NormalOpMode);
+            running = wrapperOutput.SelectOperationMode(NormalOpMode);
             int i = 0;
-            sut.Subscribe<OccupationEventHandler>(externalCCOutput.Role, nameof(sut.OccupierChanged), (object sender, OccupationEventArgs e) => i++);
-            externalCCOutput.Occupy("SENDER");
+            wrapperOutput.OccupierChanged += (object sender, OccupationEventArgs e) => i++;
+            externalCC.Occupy("SENDER");
             i.Should().Be(1);
-            externalCCOutput.Prio("OCCUPIER");
+            externalCC.Prio("OCCUPIER");
             i.Should().Be(2);
         }
 
         [Test]
         public void Given_CCWithOutput_When_UnsubscribeEvent_Then_UnsubscribedFromOutput()
         {
-            running = sut.SelectOperationMode(NormalOpMode);
+            running = wrapperOutput.SelectOperationMode(NormalOpMode);
             int i = 0;
             OccupationEventHandler eventHandler = (object sender, OccupationEventArgs e) => i++;
-            sut.Subscribe<OccupationEventHandler>(externalCCOutput.Role, nameof(sut.OccupierChanged), eventHandler);
-            externalCCOutput.Occupy("SENDER");
+            wrapperOutput.OccupierChanged += eventHandler;
+            externalCC.Occupy("SENDER");
             i.Should().Be(1);
-            sut.Unsubscribe<OccupationEventHandler>(externalCCOutput.Role, nameof(sut.OccupierChanged), eventHandler);
-            externalCCOutput.Prio("OCCUPIER");
+            wrapperOutput.OccupierChanged -= eventHandler;
+            externalCC.Prio("OCCUPIER");
             i.Should().Be(1);
         }
 
-        interface IExtendedOrderOutput : IExtendedControlComponent
+        [Test]
+        public void TestReflectionMethods()
         {
+            sut.ReadProperty<string>(ROLE, nameof(IExtendedControlComponent.TestString)).Should().Be("TestString");
+
+            sut.CallMethod(ROLE, nameof(IExtendedControlComponent.TestMethod));
+            externalCC.TestString.Should().Be("ChangedTestString");
+
+            sut.CallMethod<string>(ROLE, nameof(IExtendedControlComponent.ChangedTestString), "NewTestString");
+            externalCC.TestString.Should().Be("NewTestString");
+
+            sut.CallMethod<string,string>(ROLE, nameof(IExtendedControlComponent.ChangedAndReturnTestString), "NextTestString").Should().Be("NextTestString");
+
+            sut.CallMethod<string>(ROLE, nameof(IExtendedControlComponent.GetTestString)).Should().Be("NextTestString");
         }
 
         interface IExtendedControlComponent : IControlComponent 
@@ -433,36 +419,6 @@ namespace ControlComponents.Frame.Tests
             public string GetTestString()
             {
                 return TestString;
-            }
-        }
-
-        internal class ExtendedOrderOutput : OrderOutput, IExtendedOrderOutput
-        {
-            public int TestValue => 100;
-            public string TestString => "Test";
-            public IControlComponent GetControlComponent => this.controlComponent;
-            public ExtendedOrderOutput(string role, string id, IControlComponentProvider provider) : base(role, id, provider)
-            {
-            }
-
-            public void TestMethod()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void ChangedTestString(string newString)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string ChangedAndReturnTestString(string newString)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string GetTestString()
-            {
-                throw new NotImplementedException();
             }
         }
     }

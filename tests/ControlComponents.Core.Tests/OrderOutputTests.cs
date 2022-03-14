@@ -229,8 +229,8 @@ namespace ControlComponents.Core.Tests
             cc.Abort(SENDER);
 
             // Then
-            await Helper.WaitForState(orderOutputs[0], ExecutionState.ABORTED);
-            await Helper.WaitForState(orderOutputs[1], ExecutionState.ABORTED);
+            await Helper.WaitForState(orderOutputs[0], ExecutionState.ABORTED, 200);
+            await Helper.WaitForState(orderOutputs[1], ExecutionState.ABORTED, 200);
             Assert.AreEqual(ExecutionState.ABORTED, orderOutputs[0].EXST);
             Assert.AreEqual(ExecutionState.ABORTED, orderOutputs[1].EXST);
 

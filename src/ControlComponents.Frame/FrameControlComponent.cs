@@ -1,19 +1,25 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using ControlComponents.Core;
 
-namespace ControlComponents.Core
+namespace ControlComponents.Frame
 {
-    public class FrameControlComponent<T> : ControlComponent where T : IControlComponent
+    // TODO: remove Reflection methods from IControlComponent and override/new relevant methods in FrameControlComponent
+    public class FrameControlComponent<T> : ControlComponent, IFrameControlComponent where T : IControlComponent
     {
         // This component includes the external deployed operation mode
         protected readonly T externalControlComponent;
         protected readonly IEnumerable<string> OccupationMethods;
 
-        protected FrameControlComponent(string name, T cc, ICollection<IOperationMode> opModes, ICollection<IOrderOutput> orderOutputs, ICollection<string> neededRoles)
-        : base(name, opModes, orderOutputs, neededRoles)
+        private IDictionary<string, FrameOrderOutput> frameOrderOutputs;
+
+        protected FrameControlComponent(string name, T cc, ICollection<IOperationMode> opModes, ICollection<IOrderOutput> orderOutputs, ICollection<FrameOrderOutput> frameOrderOutputs, ICollection<string> neededRoles)
+        : base(name, opModes, orderOutputs.Concat<IOrderOutput>(frameOrderOutputs).ToList(), neededRoles)
         {
             this.externalControlComponent = cc;
+            // The orderoutputs for the wrapped/external cc are used internally to forward reflection methods
+            this.frameOrderOutputs = frameOrderOutputs.ToDictionary(o => o.Role);
             OccupationMethods = new List<string>(){
                 nameof(Reset),
                 nameof(Start),
@@ -36,18 +42,17 @@ namespace ControlComponents.Core
         {
             var output = new OrderOutput("ExternalOperationMode", name, provider, cc);
             Collection<IOperationMode> opmodes = CreateConfigOperationModes(cc, output);
-            Collection<IOrderOutput> outputs = CreateOrderOutputs(name, cc, provider);
-            outputs.Add(output);
+            Collection<FrameOrderOutput> frameOrderOutputs = CreateOrderOutputs(name, cc, provider);
 
-            return new FrameControlComponent<T>(name, cc, opmodes, outputs, new Collection<string>());
+            return new FrameControlComponent<T>(name, cc, opmodes, new Collection<IOrderOutput>() { output }, frameOrderOutputs, new Collection<string>());
         }
 
-        protected static Collection<IOrderOutput> CreateOrderOutputs(string name, T cc, IControlComponentProvider provider)
+        protected static Collection<FrameOrderOutput> CreateOrderOutputs(string name, T cc, IControlComponentProvider provider)
         {
-            var outputs = new Collection<IOrderOutput>();
+            var outputs = new Collection<FrameOrderOutput>();
             foreach (var role in cc.Roles)
             {
-                outputs.Add(new OrderOutput(role, name, provider));
+                outputs.Add(new FrameOrderOutput(role, name, provider, cc));
             }
             return outputs;
         }
@@ -82,72 +87,83 @@ namespace ControlComponents.Core
             orderOutputs[role].ClearComponent();
         }
 
-        public override TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
+        public TReturn ReadProperty<TReturn>(string targetRole, string propertyName)
         {
-            if (this.orderOutputs.ContainsKey(targetRole))
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
             {
-                return ControlComponentReflection.CallMethodGeneric<string, string, TReturn>(targetRole, nameof(ReadProperty), targetRole, propertyName, this.orderOutputs[targetRole]);
+                return this.frameOrderOutputs[targetRole].ReadProperty<TReturn>(targetRole, propertyName);
             }
             else
                 return ControlComponentReflection.ReadProperty<TReturn>(targetRole, propertyName, this);
         }
 
-        public override void CallMethod(string targetRole, string methodName)
+        public void CallMethod(string targetRole, string methodName)
         {
-            if (this.orderOutputs.ContainsKey(targetRole))
-                ControlComponentReflection.CallMethod<string, string>(targetRole, nameof(CallMethod), targetRole, methodName, this.orderOutputs[targetRole]);
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
+                this.frameOrderOutputs[targetRole].CallMethod<string>(targetRole, methodName);
             else
                 ControlComponentReflection.CallMethod(targetRole, methodName, this);
         }
 
-        public override void CallMethod<TParam>(string targetRole, string methodName, TParam param)
+        public void CallMethod<TParam>(string targetRole, string methodName, TParam param)
         {
-            if (this.orderOutputs.ContainsKey(targetRole))
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
                 // Methods that occupy outputs need to use the FrameControlComponent Name and not the ExternalControlComponent Name to occupy
                 if (OccupationMethods.Contains(methodName))
-                    ControlComponentReflection.CallMethodGeneric<string, string, string>(targetRole, nameof(CallMethod), targetRole, methodName, ComponentName, this.orderOutputs[targetRole]);
+                    this.frameOrderOutputs[targetRole].CallMethod<string>(targetRole, methodName, ComponentName);
                 else
-                    ControlComponentReflection.CallMethodGeneric<string, string, TParam>(targetRole, nameof(CallMethod), targetRole, methodName, param, this.orderOutputs[targetRole]);
+                    this.frameOrderOutputs[targetRole].CallMethod<TParam>(targetRole, methodName, param);
             else
                 ControlComponentReflection.CallMethod<TParam>(targetRole, methodName, param, this);
         }
 
-        public override TReturn CallMethod<TReturn>(string targetRole, string methodName)
+        public TReturn CallMethod<TReturn>(string targetRole, string methodName)
         {
-            if (this.orderOutputs.ContainsKey(targetRole))
-                return ControlComponentReflection.CallMethodGeneric<string, string, TReturn>(targetRole, nameof(CallMethod), targetRole, methodName, this.orderOutputs[targetRole]);
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
+                return this.frameOrderOutputs[targetRole].CallMethod<TReturn>(targetRole, methodName);
             else
                 return ControlComponentReflection.CallMethod<TReturn>(targetRole, methodName, this);
         }
 
-        public override TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param)
+        public TReturn CallMethod<TParam, TReturn>(string targetRole, string methodName, TParam param)
         {
-            if (this.orderOutputs.ContainsKey(targetRole))
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
             {
                 // Outputs of FrameControlComponent are occupied by FrameComponent not ExternalControlComponent => Change to correct OCCUPIER name
                 if (methodName == nameof(IsUsableBy))
-                    return ControlComponentReflection.CallMethodGeneric<string, string, string, TReturn>(targetRole, nameof(CallMethod), targetRole, methodName, ComponentName, this.orderOutputs[targetRole]);
+                    return this.frameOrderOutputs[targetRole].CallMethod<string, TReturn>(targetRole, methodName, ComponentName);
                 else
-                    return ControlComponentReflection.CallMethodGeneric<string, string, TParam, TReturn>(targetRole, nameof(CallMethod), targetRole, methodName, param, this.orderOutputs[targetRole]);
+                    return this.frameOrderOutputs[targetRole].CallMethod<TParam, TReturn>(targetRole, methodName, param);
             }
             else
                 return ControlComponentReflection.CallMethod<TParam, TReturn>(targetRole, methodName, param, this);
         }
 
-        public override void Subscribe<THandler>(string targetRole, string eventName, THandler eventHandler)
+        public TReturn CallMethod<TParam1, TParam2, TReturn>(string targetRole, string methodName, TParam1 param1, TParam2 param2)
         {
-            if (this.orderOutputs.ContainsKey(targetRole))
-                ControlComponentReflection.Subscribe<THandler>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
+            {
+                return this.frameOrderOutputs[targetRole].CallMethod<TParam1, TParam2, TReturn>(targetRole, methodName, param1, param2);
+            }
+            else
+                return ControlComponentReflection.CallMethod<TParam1, TParam2, TReturn>(targetRole, methodName, param1, param2, this);
+        }
+
+        public void Subscribe<THandler>(string targetRole, string eventName, THandler eventHandler)
+        {
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
+                this.frameOrderOutputs[targetRole].Subscribe<THandler>(targetRole, eventName, eventHandler);
             else
                 ControlComponentReflection.Subscribe<THandler>(targetRole, eventName, eventHandler, this);
         }
 
-        public override void Unsubscribe<THandler>(string targetRole, string eventName, THandler eventHandler)
+        public void Unsubscribe<THandler>(string targetRole, string eventName, THandler eventHandler)
         {
-            if (this.orderOutputs.ContainsKey(targetRole))
-                ControlComponentReflection.Unsubscribe<THandler>(targetRole, eventName, eventHandler, this.orderOutputs[targetRole]);
+            if (this.frameOrderOutputs.ContainsKey(targetRole))
+                this.frameOrderOutputs[targetRole].Unsubscribe<THandler>(targetRole, eventName, eventHandler);
             else
                 ControlComponentReflection.Unsubscribe<THandler>(targetRole, eventName, eventHandler, this);
         }
+
     }
 }

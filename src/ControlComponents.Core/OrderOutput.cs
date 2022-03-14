@@ -122,10 +122,10 @@ namespace ControlComponents.Core
         public bool IsFree() => controlComponent.IsFree();
         public bool IsUsableBy(string id) => IsSet && controlComponent.IsUsableBy(id);
 
-        private void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
-        private void OnExecutionModeChanged(object sender, ExecutionModeEventArgs e) => ExecutionModeChanged?.Invoke(this.Role, e);
-        private void OnOccupierChanged(object sender, OccupationEventArgs e) => OccupierChanged?.Invoke(this.Role, e);
-        private void OnOperationModeChanged(object sender, OperationModeEventArgs e) => OperationModeChanged?.Invoke(this.Role, e);
+        protected void OnExecutionStateChanged(object sender, ExecutionStateEventArgs e) => ExecutionStateChanged?.Invoke(this.Role, e);
+        protected void OnExecutionModeChanged(object sender, ExecutionModeEventArgs e) => ExecutionModeChanged?.Invoke(this.Role, e);
+        protected void OnOccupierChanged(object sender, OccupationEventArgs e) => OccupierChanged?.Invoke(this.Role, e);
+        protected void OnOperationModeChanged(object sender, OperationModeEventArgs e) => OperationModeChanged?.Invoke(this.Role, e);
 
         public OrderOutputTemplate(string role, string id, IControlComponentProvider provider)
         {
@@ -221,14 +221,14 @@ namespace ControlComponents.Core
             }
         }
 
-        private void SubscribeToEvents()
+        protected virtual void SubscribeToEvents()
         {
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
             controlComponent.ExecutionModeChanged += OnExecutionModeChanged;
             controlComponent.OccupierChanged += OnOccupierChanged;
             controlComponent.OperationModeChanged += OnOperationModeChanged;
         }
-        private void UnsubscribeFromEvents()
+        protected virtual void UnsubscribeFromEvents()
         {
             controlComponent.ExecutionStateChanged += OnExecutionStateChanged;
             controlComponent.ExecutionModeChanged += OnExecutionModeChanged;
